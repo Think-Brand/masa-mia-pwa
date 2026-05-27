@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tipografías oficiales Masa Mía */
+@font-face {
+  font-family: "Carosello";
+  src: url("/fonts/Carosello.otf") format("opentype");
+  font-display: block;
+}
+@font-face {
+  font-family: "Roxhead";
+  src: url("/fonts/Roxhead.otf") format("opentype");
+  font-display: block;
+}
+@font-face {
+  font-family: "ReginaBlack";
+  src: url("/fonts/ReginaBlack.otf") format("opentype");
+  font-display: block;
+}
+@font-face {
+  font-family: "Termina";
+  src: url("/fonts/Termina-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: "Termina";
+  src: url("/fonts/Termina-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: block;
+}
+@font-face {
+  font-family: "Termina";
+  src: url("/fonts/Termina-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: block;
+}
+
+:root {
+  --cafe: #3a271d;
+  --canela: #6e4933;
+  --canela-soft: #9a6b4a;
+  --caramelo: #ac7b54;
+  --crema: #f4e5cf;
+  --crema-soft: #fbf4e6;
+  --avellana-soft: #f5e8ce;
+  --antojo: #f25c20;
+}
+
+html,
+body {
+  background: var(--crema);
+  color: var(--cafe);
+  font-family: "Termina", system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
