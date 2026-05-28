@@ -67,30 +67,32 @@ export default function Catalogo() {
   if (!cliente) return null;
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Banner Antójame */}
+      {/* Banner Antójame con Miga recomendando cortada (overflow) */}
       <Link
         href="/antojame"
-        className="mx-3 mt-3 mb-1 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md"
+        className="relative mx-3 mt-3 mb-1 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
       >
-        <Image
-          src="/mascota/miga-senalar.png"
-          alt="Miga señalando"
-          width={64}
-          height={64}
-          className="w-12 h-12 object-contain drop-shadow"
-        />
+        <div className="relative w-20 h-20 flex-shrink-0 -my-3 -ml-2">
+          <Image
+            src="/mascota/recomendando.png"
+            alt="Miga recomendando"
+            fill
+            sizes="80px"
+            className="object-cover object-top drop-shadow-md"
+          />
+        </div>
         <div className="flex-1 min-w-0">
           <div
             className="text-[10px] font-bold opacity-90 uppercase tracking-wider"
             style={{ fontFamily: "Termina" }}
           >
-            ¿No sabes qué pedir?
+            No sé qué pedir…
           </div>
           <div
-            className="text-xl leading-tight"
+            className="text-2xl leading-none"
             style={{ fontFamily: "ReginaBlack" }}
           >
             ¡Antójame!

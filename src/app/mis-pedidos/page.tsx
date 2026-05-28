@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconRepeat } from "@tabler/icons-react";
@@ -98,7 +99,7 @@ export default function MisPedidos() {
   if (!cliente) return null;
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur px-4 py-3 border-b border-caramelo/20">
         <h1
           className="text-2xl text-cafe text-center"
@@ -114,20 +115,51 @@ export default function MisPedidos() {
         )}
 
         {!loading && orders.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center gap-3 py-10">
+          <div className="flex flex-col items-center justify-center text-center gap-4 py-6">
             <Miga pose="sentada" animation="sway" size={130} />
-            <p className="text-canela text-sm">
+            <p className="text-canela text-sm leading-relaxed">
               Aún no tienes pedidos.
               <br />
               <span className="text-caramelo italic">
-                Pásate al menú y comenzamos.
+                ¿Te ayudamos a estrenarte?
               </span>
+            </p>
+
+            {/* Mini banner Antójame */}
+            <Link
+              href="/antojame"
+              className="relative w-full bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
+            >
+              <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
+                <Image
+                  src="/mascota/recomendando.png"
+                  alt="Miga recomendando"
+                  fill
+                  sizes="64px"
+                  className="object-cover object-top drop-shadow"
+                />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-[10px] font-bold opacity-90 uppercase tracking-wider">
+                  No sé qué pedir…
+                </div>
+                <div
+                  className="text-xl leading-none"
+                  style={{ fontFamily: "ReginaBlack" }}
+                >
+                  ¡Antójame!
+                </div>
+              </div>
+            </Link>
+
+            <p className="text-[11px] text-canela mt-1">
+              O si quieres antojarte solo:
             </p>
             <Link
               href="/catalogo"
-              className="bg-antojo text-white px-5 py-2.5 rounded-2xl text-sm font-bold active:scale-95 transition shadow-md"
+              className="bg-cafe text-crema px-5 py-2.5 rounded-2xl text-sm font-bold active:scale-95 transition"
             >
-              Ver el menú
+              Ver menú completo
             </Link>
           </div>
         )}

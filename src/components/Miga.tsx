@@ -90,8 +90,13 @@ export default function Miga({
       </div>
       {tooltip && (
         <div
-          className="absolute -top-12 left-1/2 -translate-x-1/2 bg-cafe text-crema px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap shadow-lg fade-up"
-          style={{ fontFamily: "Termina" }}
+          className="absolute left-1/2 -translate-x-1/2 bg-cafe text-crema px-3.5 py-2 rounded-xl text-xs font-medium shadow-lg fade-up text-center"
+          style={{
+            fontFamily: "Termina",
+            bottom: "calc(100% + 12px)",
+            maxWidth: "min(220px, calc(100vw - 32px))",
+            lineHeight: 1.35,
+          }}
         >
           {tooltip}
           <div

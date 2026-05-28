@@ -1,26 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconLogout, IconCheck } from "@tabler/icons-react";
+import { IconLogout, IconCheck, IconCamera } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
-import Miga, { MigaPose } from "@/components/Miga";
 
-const POSES: MigaPose[] = [
-  "adorable",
-  "tierna",
-  "chef",
-  "lista",
-  "senalar",
-  "cintura",
-  "algo-entre-manos",
-  "espalda",
-  "malabares",
-  "sentada",
-];
+// 10 avatares + opción de foto propia (data URL guardada en avatar_pose)
+const AVATAR_IDS = Array.from({ length: 10 }, (_, i) => `avatar-${i + 1}`);
+
+function getAvatarSrc(pose: string | undefined): string {
+  if (!pose) return "/avatares/avatar-1.png";
+  if (pose.startsWith("data:")) return pose; // foto propia
+  if (pose.startsWith("avatar-")) return `/avatares/${pose}.png`;
+  // legacy: pose tipo "adorable" → cae al primer avatar
+  return "/avatares/avatar-1.png";
+}
 
 type Stats = {
   totalOrders: number;
@@ -35,8 +32,9 @@ export default function Yo() {
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const currentPose: MigaPose = (cliente?.avatar_pose as MigaPose) || "adorable";
+  const currentAvatar = cliente?.avatar_pose;
 
   useEffect(() => {
     if (!cliente) {
@@ -85,7 +83,7 @@ export default function Yo() {
     })();
   }, [cliente, router]);
 
-  const cambiarPose = async (pose: MigaPose) => {
+  const cambiarAvatar = async (pose: string) => {
     if (!cliente?.id) return;
     setSaving(true);
     const supabase = createClient();
@@ -96,6 +94,37 @@ export default function Yo() {
     setCliente({ ...cliente, avatar_pose: pose });
     setPickerOpen(false);
     setSaving(false);
+  };
+
+  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("La foto debe pesar menos de 2 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      // Comprimir a 400x400 con canvas para no guardar imágenes gigantes
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 400;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d")!;
+        // Crop cuadrado centrado
+        const min = Math.min(img.width, img.height);
+        const sx = (img.width - min) / 2;
+        const sy = (img.height - min) / 2;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        const compressed = canvas.toDataURL("image/jpeg", 0.82);
+        cambiarAvatar(compressed);
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
   };
 
   const cambiarPersona = () => {
@@ -116,7 +145,7 @@ export default function Yo() {
   if (!cliente) return null;
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-28">
       <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur px-4 py-3 border-b border-caramelo/20">
         <h1
           className="text-2xl text-cafe text-center"
@@ -127,25 +156,29 @@ export default function Yo() {
       </header>
 
       <div className="flex-1 px-4 pt-6 flex flex-col items-center text-center gap-4">
-        {/* Avatar clickeable */}
+        {/* Avatar circular clickeable */}
         <button
           onClick={() => setPickerOpen(true)}
           aria-label="Cambiar avatar"
-          className="relative"
+          className="relative active:scale-95 transition"
         >
-          <Miga
-            pose={currentPose}
-            animation="bounce"
-            size={140}
-            priority
-            interactive={false}
-          />
-          <span className="absolute bottom-1 right-1 bg-antojo text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+          <div className="w-32 h-32 rounded-full overflow-hidden bg-crema-soft shadow-md">
+            <Image
+              src={getAvatarSrc(currentAvatar)}
+              alt="Tu avatar"
+              width={256}
+              height={256}
+              className="w-full h-full object-cover"
+              priority
+              unoptimized={currentAvatar?.startsWith("data:")}
+            />
+          </div>
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-antojo text-white text-[10px] font-bold px-3 py-0.5 rounded-full shadow whitespace-nowrap">
             cambiar
           </span>
         </button>
 
-        <div>
+        <div className="mt-2">
           <div
             className="text-2xl text-cafe leading-none"
             style={{ fontFamily: "ReginaBlack" }}
@@ -157,16 +190,12 @@ export default function Yo() {
           </div>
         </div>
 
-        {/* Stats sin dinero */}
         <div className="w-full bg-white rounded-2xl p-4 shadow-sm">
           {loading ? (
             <div className="text-canela text-sm">Calculando tu antojo…</div>
           ) : (
             <div className="grid grid-cols-3 gap-2">
-              <Stat
-                value={String(stats?.totalOrders ?? 0)}
-                label="pedidos"
-              />
+              <Stat value={String(stats?.totalOrders ?? 0)} label="pedidos" />
               <Stat
                 value={stats?.favoriteProduct ?? "—"}
                 label="favorito"
@@ -181,7 +210,6 @@ export default function Yo() {
           )}
         </div>
 
-        {/* Mensajes contextuales */}
         {!loading && stats && stats.totalOrders === 0 && (
           <p className="text-xs text-canela italic">
             Tu antojo apenas empieza. Pásate al menú 🥖
@@ -209,14 +237,14 @@ export default function Yo() {
         </button>
       </div>
 
-      {/* Modal selector de pose */}
+      {/* Modal selector de avatar */}
       {pickerOpen && (
         <div
           className="fixed inset-0 z-50 bg-cafe/60 backdrop-blur-sm flex items-end justify-center"
           onClick={() => setPickerOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-crema rounded-t-3xl p-4 pb-8 fade-up"
+            className="w-full max-w-md bg-crema rounded-t-3xl p-4 pb-8 fade-up max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-canela/40 rounded-full mx-auto mb-4" />
@@ -224,29 +252,63 @@ export default function Yo() {
               className="text-xl text-cafe text-center mb-1"
               style={{ fontFamily: "ReginaBlack" }}
             >
-              Elige tu Miga
+              Elige tu avatar
             </h2>
             <p className="text-[11px] text-canela text-center mb-4">
               Cuál te representa hoy.
             </p>
+
+            {/* Subir foto propia */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={saving}
+              className="w-full bg-white rounded-2xl p-3 flex items-center gap-3 mb-4 shadow-sm active:scale-[0.98] transition"
+            >
+              <div className="w-12 h-12 rounded-full bg-antojo/10 flex items-center justify-center text-antojo">
+                <IconCamera size={22} />
+              </div>
+              <div className="flex-1 text-left">
+                <div
+                  className="text-sm font-bold text-cafe"
+                  style={{ fontFamily: "Termina" }}
+                >
+                  Subir mi foto
+                </div>
+                <div className="text-[10px] text-canela">
+                  Desde tu galería o cámara
+                </div>
+              </div>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="user"
+              onChange={onPickFile}
+              className="hidden"
+            />
+
+            <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-2">
+              O elige una Miga
+            </div>
             <div className="grid grid-cols-3 gap-3">
-              {POSES.map((pose) => {
-                const active = pose === currentPose;
+              {AVATAR_IDS.map((id) => {
+                const active = id === currentAvatar;
                 return (
                   <button
-                    key={pose}
-                    onClick={() => cambiarPose(pose)}
+                    key={id}
+                    onClick={() => cambiarAvatar(id)}
                     disabled={saving}
-                    className={`relative bg-white rounded-2xl p-2 transition ${
+                    className={`relative bg-white rounded-2xl overflow-hidden transition ${
                       active ? "ring-2 ring-antojo shadow-md" : "shadow-sm"
                     }`}
                   >
                     <Image
-                      src={`/mascota/miga-${pose}.png`}
-                      alt={`Miga ${pose}`}
-                      width={120}
-                      height={120}
-                      className="w-full aspect-square object-contain"
+                      src={`/avatares/${id}.png`}
+                      alt={id}
+                      width={150}
+                      height={150}
+                      className="w-full aspect-square object-cover"
                     />
                     {active && (
                       <span className="absolute top-1 right-1 bg-antojo text-white rounded-full w-5 h-5 flex items-center justify-center">

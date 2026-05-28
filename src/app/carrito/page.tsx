@@ -140,7 +140,7 @@ export default function Carrito() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-28">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur flex items-center justify-between px-4 py-3">
         <Link href="/catalogo" aria-label="Atrás" className="text-cafe">
@@ -157,17 +157,51 @@ export default function Carrito() {
 
       <div className="flex-1 px-4 flex flex-col gap-3">
         {items.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-4">
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-6 gap-4">
             <Miga pose="sentada" animation="sway" size={130} />
-            <p className="text-canela text-sm">
-              Tu antojo está vacío. <br />
-              <span className="text-caramelo">Pasa al menú y ten ojo.</span>
+            <p className="text-canela text-sm leading-relaxed">
+              Tu antojo está sin nada todavía.
+              <br />
+              <span className="text-caramelo italic">
+                ¿Te ayudamos a escoger?
+              </span>
+            </p>
+
+            {/* Mini banner Antójame */}
+            <Link
+              href="/antojame"
+              className="relative w-full bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
+            >
+              <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
+                <Image
+                  src="/mascota/recomendando.png"
+                  alt="Miga recomendando"
+                  fill
+                  sizes="64px"
+                  className="object-cover object-top drop-shadow"
+                />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-[10px] font-bold opacity-90 uppercase tracking-wider">
+                  No sé qué pedir…
+                </div>
+                <div
+                  className="text-xl leading-none"
+                  style={{ fontFamily: "ReginaBlack" }}
+                >
+                  ¡Antójame!
+                </div>
+              </div>
+            </Link>
+
+            <p className="text-[11px] text-canela mt-1">
+              O si quieres antojarte solo:
             </p>
             <Link
               href="/catalogo"
               className="bg-cafe text-crema px-5 py-2.5 rounded-2xl text-sm font-bold active:scale-95 transition"
             >
-              Ver el menú
+              Ver menú completo
             </Link>
           </div>
         )}
