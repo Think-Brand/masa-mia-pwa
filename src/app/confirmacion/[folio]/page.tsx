@@ -7,12 +7,16 @@ import {
   IconBrandWhatsapp,
   IconHome,
   IconCheck,
+  IconMapPin,
+  IconExternalLink,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Order, OrderItem } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import { generarMensajeWhatsapp } from "@/lib/whatsapp";
+import { getSettings, Settings } from "@/lib/settings";
+import { formatDeliveryDate } from "@/lib/delivery";
 
 type OrderDetallado = Order & { items: OrderItem[] };
 
@@ -29,6 +33,7 @@ function Confirmacion() {
   const search = useSearchParams();
   const { cliente } = useCarrito();
   const [order, setOrder] = useState<OrderDetallado | null>(null);
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const pago = (search.get("pago") as "efectivo" | "transferencia") || "efectivo";
 
@@ -45,19 +50,25 @@ function Confirmacion() {
         .from("order_items")
         .select("*")
         .order("created_at"),
-    ]).then(([{ data: order }, { data: items }]) => {
+      getSettings(),
+    ]).then(([{ data: order }, { data: items }, sets]) => {
       if (order) {
         const orderItems = (items ?? []).filter(
           (it: any) => it.order_id === order.id
         );
         setOrder({ ...order, items: orderItems });
       }
+      setSettings(sets);
       setLoading(false);
     });
   }, [params.folio]);
 
   const abrirWhatsApp = () => {
-    if (!order || !cliente) return;
+    if (!order || !cliente || !settings) return;
+    const destinoWa =
+      order.contact_person === "alex"
+        ? settings.contact_alex_wa
+        : settings.contact_fabiola_wa;
     const itemsCart = order.items.map((it) => ({
       cartLineId: it.id,
       productId: it.product_id,
@@ -66,12 +77,17 @@ function Confirmacion() {
       image_url: null,
       quantity: it.quantity,
     }));
+    const fechaEntrega = order.pickup_date
+      ? formatDeliveryDate(new Date(order.pickup_date + "T12:00:00"))
+      : undefined;
     const url = generarMensajeWhatsapp({
       cliente,
       items: itemsCart,
       total: Number(order.total),
       folio: order.folio,
       metodoPago: pago,
+      fechaEntrega,
+      destinoWa,
     });
     window.location.href = url;
   };
@@ -113,7 +129,16 @@ function Confirmacion() {
         ¡Pedido recibido!
       </h1>
       <p className="text-canela text-sm mt-3 max-w-xs leading-relaxed">
-        Tu antojo quedó anotado. <br />
+        Tu antojo quedó anotado.{" "}
+        {order.contact_person && (
+          <>
+            <b className="text-cafe capitalize">
+              {order.contact_person === "alex" ? "Alex" : "Fabiola"}
+            </b>{" "}
+            lo tiene en la mira.
+            <br />
+          </>
+        )}
         <span className="text-caramelo italic">
           En breve te confirmamos por WhatsApp cuando entre al horno.
         </span>
@@ -165,7 +190,65 @@ function Confirmacion() {
           <IconCheck size={11} />
           Pago: {pago === "transferencia" ? "Transferencia BBVA" : "Efectivo al recibir"}
         </div>
+        {order.pickup_date && (
+          <div className="text-[10px] text-canela mt-1 flex items-center gap-1">
+            <IconCheck size={11} />
+            Recoges:{" "}
+            <span className="capitalize">
+              {formatDeliveryDate(new Date(order.pickup_date + "T12:00:00"))}
+            </span>
+          </div>
+        )}
+        {order.contact_person && (
+          <div className="text-[10px] text-canela mt-1 flex items-center gap-1">
+            <IconCheck size={11} />
+            Te atiende:{" "}
+            <span className="capitalize">
+              {order.contact_person === "alex" ? "Alex" : "Fabiola"}
+            </span>
+          </div>
+        )}
       </div>
+
+      {/* Dirección de recogida (solo después de confirmar) */}
+      {settings && settings.pickup_address_full && (
+        <div className="mt-4 w-full bg-white rounded-2xl p-4 text-left shadow-sm fade-up">
+          <div className="flex items-start gap-2">
+            <IconMapPin size={18} className="text-antojo flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-canela uppercase tracking-widest">
+                Pasa por tu antojo
+              </div>
+              <div
+                className="text-sm font-bold text-cafe mt-1"
+                style={{ fontFamily: "Termina" }}
+              >
+                {settings.pickup_address_line1}
+              </div>
+              <div className="text-xs text-canela">
+                {settings.pickup_address_line2}
+                {settings.pickup_address_zip && `, ${settings.pickup_address_zip}`}
+              </div>
+              <div className="text-xs text-canela">{settings.pickup_address_city}</div>
+              {settings.pickup_maps_url && (
+                <a
+                  href={settings.pickup_maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-antojo"
+                >
+                  Abrir en Maps <IconExternalLink size={12} />
+                </a>
+              )}
+              {settings.pickup_hours_note && (
+                <p className="text-[10px] text-canela mt-2 italic">
+                  {settings.pickup_hours_note}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Acciones */}
       <div className="mt-6 w-full flex flex-col gap-2 fade-up">

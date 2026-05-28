@@ -37,7 +37,7 @@ export default function LeadGate() {
       const supabase = createClient();
       const { data } = await supabase
         .from("customers")
-        .select("id, name")
+        .select("id, name, avatar_pose")
         .eq("whatsapp", whatsapp)
         .maybeSingle();
       if (data) {
@@ -79,8 +79,16 @@ export default function LeadGate() {
         .maybeSingle();
 
       let customerId: string;
+      let avatarPose: string | undefined;
       if (existing) {
         customerId = existing.id;
+        // Traer avatar guardado
+        const { data: full } = await supabase
+          .from("customers")
+          .select("avatar_pose")
+          .eq("id", customerId)
+          .maybeSingle();
+        avatarPose = full?.avatar_pose ?? "adorable";
       } else {
         const { data: nuevo, error: insErr } = await supabase
           .from("customers")
@@ -89,9 +97,15 @@ export default function LeadGate() {
           .single();
         if (insErr) throw insErr;
         customerId = nuevo.id;
+        avatarPose = "adorable";
       }
 
-      setCliente({ id: customerId, name: cleanName, whatsapp: cleanWa });
+      setCliente({
+        id: customerId,
+        name: cleanName,
+        whatsapp: cleanWa,
+        avatar_pose: avatarPose,
+      });
       router.push("/catalogo");
     } catch (err: any) {
       console.error(err);

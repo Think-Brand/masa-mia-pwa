@@ -16,6 +16,7 @@ export type Product = {
   is_new?: boolean;
   price_is_starting?: boolean;
   allergens?: string[] | null;
+  prep_days?: number;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -75,6 +76,8 @@ export type Order = {
   source: "pwa" | "whatsapp" | "instagram" | "recomendacion";
   delivery_date: string | null;
   delivery_time: string | null;
+  pickup_date: string | null;
+  contact_person: "alex" | "fabiola" | null;
   notes: string | null;
   decline_reason: string | null;
   decline_message: string | null;

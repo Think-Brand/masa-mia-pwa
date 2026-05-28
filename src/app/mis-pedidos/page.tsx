@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconReceipt2 } from "@tabler/icons-react";
+import { IconRepeat } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
-import { Order, OrderItem } from "@/lib/types";
+import { Order, OrderItem, Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
 import Miga from "@/components/Miga";
@@ -21,9 +21,43 @@ const ESTADOS_LABEL: Record<string, { label: string; color: string }> = {
 
 export default function MisPedidos() {
   const router = useRouter();
-  const { cliente } = useCarrito();
+  const { cliente, add } = useCarrito();
   const [orders, setOrders] = useState<(Order & { items: OrderItem[] })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [repitiendo, setRepitiendo] = useState<string | null>(null);
+
+  const repetirPedido = async (order: Order & { items: OrderItem[] }) => {
+    setRepitiendo(order.id);
+    const supabase = createClient();
+    // Productos que NO son boxes (los boxes los volveríamos a armar manualmente)
+    const productIds = Array.from(
+      new Set(
+        order.items
+          .filter((it) => !it.product_name.includes(" ["))
+          .map((it) => it.product_id)
+      )
+    );
+    if (productIds.length === 0) {
+      alert("Este pedido tenía una caja personalizada. Vuelve a armarla desde el menú 🤎");
+      setRepitiendo(null);
+      return;
+    }
+    const { data: prods } = await supabase
+      .from("products")
+      .select("*")
+      .in("id", productIds);
+
+    const byId = new Map<string, Product>(
+      ((prods ?? []) as Product[]).map((p) => [p.id, p])
+    );
+
+    for (const it of order.items) {
+      if (it.product_name.includes(" [")) continue; // skip boxes
+      const p = byId.get(it.product_id);
+      if (p) add(p, it.quantity);
+    }
+    router.push("/carrito");
+  };
 
   useEffect(() => {
     if (!cliente) {
@@ -112,40 +146,52 @@ export default function MisPedidos() {
                 }
               );
               return (
-                <Link
+                <article
                   key={o.id}
-                  href={`/confirmacion/${o.folio}?pago=${o.payment_method ?? "efectivo"}`}
-                  className="bg-white rounded-2xl p-3 shadow-sm fade-up flex flex-col gap-1 active:scale-[0.98] transition"
+                  className="bg-white rounded-2xl p-3 shadow-sm fade-up flex flex-col gap-1"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div
-                      className="text-sm font-bold text-cafe"
-                      style={{ fontFamily: "Termina" }}
-                    >
-                      {o.folio}
+                  <Link
+                    href={`/confirmacion/${o.folio}?pago=${o.payment_method ?? "efectivo"}`}
+                    className="active:scale-[0.98] transition"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div
+                        className="text-sm font-bold text-cafe"
+                        style={{ fontFamily: "Termina" }}
+                      >
+                        {o.folio}
+                      </div>
+                      <div
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${status.color}`}
+                      >
+                        {status.label}
+                      </div>
                     </div>
-                    <div
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${status.color}`}
-                    >
-                      {status.label}
+                    <div className="text-[10px] text-canela">{fecha}</div>
+                    <div className="text-xs text-cafe mt-1 line-clamp-2">
+                      {o.items
+                        .map((it) => `${it.quantity}× ${it.product_name.split(" [")[0]}`)
+                        .join(", ")}
                     </div>
-                  </div>
-                  <div className="text-[10px] text-canela">{fecha}</div>
-                  <div className="text-xs text-cafe mt-1 truncate">
-                    {o.items
-                      .map((it) => `${it.quantity}× ${it.product_name}`)
-                      .join(", ")}
-                  </div>
-                  <div className="flex justify-between items-baseline mt-1">
-                    <span className="text-[10px] text-canela">Total</span>
-                    <span
-                      className="text-base text-[#F25C20]"
-                      style={{ fontFamily: "ReginaBlack" }}
-                    >
-                      ${Number(o.total).toFixed(0)}
-                    </span>
-                  </div>
-                </Link>
+                    <div className="flex justify-between items-baseline mt-1">
+                      <span className="text-[10px] text-canela">Total</span>
+                      <span
+                        className="text-base text-[#F25C20]"
+                        style={{ fontFamily: "ReginaBlack" }}
+                      >
+                        ${Number(o.total).toFixed(0)}
+                      </span>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => repetirPedido(o)}
+                    disabled={repitiendo === o.id}
+                    className="mt-2 w-full bg-crema text-cafe rounded-xl py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50"
+                  >
+                    <IconRepeat size={13} />
+                    {repitiendo === o.id ? "Cargando..." : "Pedir lo mismo otra vez"}
+                  </button>
+                </article>
               );
             })}
           </ul>

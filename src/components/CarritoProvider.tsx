@@ -16,6 +16,7 @@ export type CarritoItem = {
   price: number;
   image_url: string | null;
   quantity: number;
+  prep_days?: number;
   composition?: CompositionLine[];
 };
 
@@ -23,6 +24,7 @@ export type Cliente = {
   id?: string;
   name: string;
   whatsapp: string;
+  avatar_pose?: string;
 };
 
 type CarritoCtx = {
@@ -95,6 +97,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
           price: Number(p.price),
           image_url: p.image_url,
           quantity: qty,
+          prep_days: p.prep_days ?? 1,
         },
       ];
     });
@@ -110,6 +113,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
         price: finalPrice,
         image_url: p.image_url,
         quantity: 1,
+        prep_days: p.prep_days ?? 1,
         composition,
       },
     ]);

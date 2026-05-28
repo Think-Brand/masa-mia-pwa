@@ -18,6 +18,14 @@ import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import BottomNav from "@/components/BottomNav";
+import {
+  getMinPickupDate,
+  formatDeliveryDate,
+  dateToIsoDay,
+  listAvailableDates,
+  formatDateShort,
+} from "@/lib/delivery";
+import { getSettings, Settings } from "@/lib/settings";
 
 const CUENTA_BBVA = "4152 3139 8399 7920";
 const BENEFICIARIO = "Fabiola Castillo";
@@ -30,9 +38,32 @@ export default function Carrito() {
   const [copiado, setCopiado] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
+  // Calcular fecha mínima según prep_days del carrito
+  const maxPrepDays = items.reduce(
+    (max, it) => Math.max(max, it.prep_days ?? 1),
+    items.length > 0 ? 1 : 1
+  );
+  const minDate = getMinPickupDate(maxPrepDays);
+  const fechaList = listAvailableDates(minDate, 14);
+  const [pickupDate, setPickupDate] = useState<string>(dateToIsoDay(minDate));
+  const [contactPerson, setContactPerson] = useState<"alex" | "fabiola">("fabiola");
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => {
+    getSettings().then(setSettings);
+  }, []);
+
   useEffect(() => {
     if (!cliente) router.replace("/");
   }, [cliente, router]);
+
+  // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de la mínima
+  useEffect(() => {
+    if (pickupDate < dateToIsoDay(minDate)) {
+      setPickupDate(dateToIsoDay(minDate));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxPrepDays]);
 
   if (!cliente) return null;
 
@@ -62,6 +93,8 @@ export default function Carrito() {
           payment_method: pago,
           notes: notas || null,
           source: "pwa",
+          pickup_date: pickupDate,
+          contact_person: contactPerson,
         })
         .select("id, folio")
         .single();
@@ -206,14 +239,85 @@ export default function Carrito() {
               ))}
             </ul>
 
+            {/* Cuándo recoges */}
+            <div className="bg-white rounded-xl p-3 mt-1">
+              <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-1">
+                ¿Cuándo pasas por tu antojo?
+              </div>
+              <div className="text-[10px] text-canela mb-2">
+                Lo más pronto:{" "}
+                <b className="text-cafe capitalize">
+                  {formatDeliveryDate(minDate)}
+                </b>
+              </div>
+              <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                {fechaList.map((d) => {
+                  const iso = dateToIsoDay(d);
+                  const active = iso === pickupDate;
+                  return (
+                    <button
+                      key={iso}
+                      onClick={() => setPickupDate(iso)}
+                      className={`flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition ${
+                        active
+                          ? "bg-antojo text-white shadow"
+                          : "bg-crema text-cafe"
+                      }`}
+                    >
+                      <div className="capitalize whitespace-nowrap">
+                        {d.toLocaleDateString("es-MX", { weekday: "short" })}
+                      </div>
+                      <div>{formatDateShort(d)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="text-[10px] text-canela mt-2 italic">
+                Pasa por tu antojo o mándalo a recoger (Uber, DiDi, persona de
+                confianza).
+              </div>
+            </div>
+
             {/* Notas */}
             <textarea
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
-              placeholder="📝 Notas (sin nuez, fecha de entrega, etc.)"
+              placeholder="📝 Notas (sin nuez, alergias, hora preferida, etc.)"
               rows={2}
               className="w-full bg-white border border-caramelo/50 rounded-xl px-3 py-2 text-xs text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition resize-none"
             />
+
+            {/* Punto de contacto */}
+            <div className="text-[10px] font-bold text-canela uppercase tracking-wider mt-1">
+              ¿Con quién te sientes más cómoda?
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setContactPerson("fabiola")}
+                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
+                  contactPerson === "fabiola"
+                    ? "bg-cafe text-crema shadow-md"
+                    : "bg-white text-cafe border-2 border-canela/30 opacity-70"
+                }`}
+              >
+                <span className="text-base">👩‍🍳</span>
+                Fabiola
+              </button>
+              <button
+                onClick={() => setContactPerson("alex")}
+                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
+                  contactPerson === "alex"
+                    ? "bg-cafe text-crema shadow-md"
+                    : "bg-white text-cafe border-2 border-canela/30 opacity-70"
+                }`}
+              >
+                <span className="text-base">👨‍🍳</span>
+                Alex
+              </button>
+            </div>
+            <p className="text-[10px] text-canela italic -mt-1">
+              Tu pedido lo recibe quien tú elijas.
+            </p>
 
             {/* Pago */}
             <div className="text-[10px] font-bold text-canela uppercase tracking-wider mt-1">

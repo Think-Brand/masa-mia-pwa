@@ -1,22 +1,5 @@
 import { CarritoItem, Cliente } from "@/components/CarritoProvider";
 
-// Ambos números de Masa Mía, con prefijo 521 (México)
-const NUMBERS = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBERS ||
-  "5218110050755,5218120148584")
-  .split(",")
-  .map((n) => n.trim())
-  .filter(Boolean);
-
-/**
- * Reparte la carga: pedidos con folio par van al primer número,
- * impares al segundo. Si hay 1 solo número, siempre ese.
- */
-export function escogerDestino(folio: string): string {
-  if (NUMBERS.length === 1) return NUMBERS[0];
-  const num = parseInt(folio.replace(/\D/g, ""), 10) || 0;
-  return NUMBERS[num % NUMBERS.length];
-}
-
 export function generarMensajeWhatsapp(opts: {
   cliente: Cliente;
   items: CarritoItem[];
@@ -25,9 +8,18 @@ export function generarMensajeWhatsapp(opts: {
   metodoPago: "efectivo" | "transferencia";
   fechaEntrega?: string;
   notas?: string;
+  destinoWa: string; // número con 521xxx
 }) {
-  const { cliente, items, total, folio, metodoPago, fechaEntrega, notas } =
-    opts;
+  const {
+    cliente,
+    items,
+    total,
+    folio,
+    metodoPago,
+    fechaEntrega,
+    notas,
+    destinoWa,
+  } = opts;
 
   const lineas = items
     .map(
@@ -52,7 +44,7 @@ export function generarMensajeWhatsapp(opts: {
     ``,
     `💰 *Total:* $${total.toFixed(2)}`,
     pago,
-    fechaEntrega ? `📅 *Entrega:* ${fechaEntrega}` : "",
+    fechaEntrega ? `📅 *Recojo:* ${fechaEntrega}` : "",
     notas ? `📝 *Notas:* ${notas}` : "",
     ``,
     `¡Gracias! Quedo en espera de confirmación.`,
@@ -60,6 +52,5 @@ export function generarMensajeWhatsapp(opts: {
     .filter(Boolean)
     .join("\n");
 
-  const destino = escogerDestino(folio);
-  return `https://wa.me/${destino}?text=${encodeURIComponent(cuerpo)}`;
+  return `https://wa.me/${destinoWa}?text=${encodeURIComponent(cuerpo)}`;
 }
