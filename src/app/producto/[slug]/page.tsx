@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   IconArrowLeft,
@@ -48,7 +48,15 @@ const DESCRIPCIONES: Record<string, string> = {
     "**12 roles** mixtos. Regalo serio. Detalle de los buenos.",
 };
 
-export default function DetalleProducto() {
+export default function DetalleProductoPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-canela text-sm">Cargando…</div>}>
+      <DetalleProducto />
+    </Suspense>
+  );
+}
+
+function DetalleProducto() {
   const router = useRouter();
   const params = useSearchParams();
   const { add } = useCarrito();

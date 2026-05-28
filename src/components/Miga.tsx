@@ -21,6 +21,8 @@ export type MigaAnim =
   | "float"
   | "pop"
   | "jump"
+  | "wiggle"
+  | "shake"
   | "none";
 
 // Frases en voz de Miga (comensal noble, NO chef)

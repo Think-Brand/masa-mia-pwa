@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   IconBrandWhatsapp,
@@ -16,7 +16,15 @@ import { generarMensajeWhatsapp } from "@/lib/whatsapp";
 
 type OrderDetallado = Order & { items: OrderItem[] };
 
-export default function Confirmacion() {
+export default function ConfirmacionPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-canela text-sm">Cargando…</div>}>
+      <Confirmacion />
+    </Suspense>
+  );
+}
+
+function Confirmacion() {
   const params = useParams<{ folio: string }>();
   const search = useSearchParams();
   const { cliente } = useCarrito();
