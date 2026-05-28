@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 
+const CUENTA_BBVA = "4152 3139 8399 7920";
 const BENEFICIARIO = "Fabiola Castillo";
 
 export default function Carrito() {
