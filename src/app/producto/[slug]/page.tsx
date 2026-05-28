@@ -22,31 +22,11 @@ function slugify(name: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-// Microcopy en voz de Miga por producto (comensal noble, no chef)
-const DESCRIPCIONES: Record<string, string> = {
-  Lotusho:
-    "**Lo mío, lo nuestro**. Galleta caramelizada, cremita y un crunch. Compartir suena bien, comprar 2 mejor.",
-  Mangoco:
-    "Mucho **mango y coco rayado**. Tropical, coqueto, antojo garantizado. Para el calor o para el pretexto.",
-  Pistachito:
-    "**Pistache** que no es de adorno. Cremoso, herbal, elegante sin presumir.",
-  Frutella:
-    "**Fresa con Nutella**, sin medias tintas. Dulce, atrevido, para los que no se andan con vueltas.",
-  Original:
-    "**El de siempre**. Masa madre, canela, glaseado clásico. Como abrir el horno y sonreír.",
-  RollSnicker:
-    "**Cacahuate y chocolate** en cada bocado. Crujiente, dulce, te pide otro.",
-  "Mil Besos":
-    "**Cubierto de kisses**. Para los que aman el chocolate sin pretextos.",
-  Nubechoco:
-    "**Crema Nube** con chispas de chocolate. Suave, ligero, perfecto con café.",
-  Nutella: "Berlinesa con **Nutella** adentro. Mordida + sorpresa = felicidad.",
-  Clásica:
-    "Berlinesa **clásica con azúcar**. Tradicional, esponjosa, sin pedir permiso.",
-  "RollinBox 4": "Caja con **4 roles** variados. Para compartir o atascarse.",
-  "LuvinBox 12":
-    "**12 roles** mixtos. Regalo serio. Detalle de los buenos.",
-};
+// Convierte una ruta de full-color a PNG transparente equivalente
+function transparentVariant(url: string | null): string | null {
+  if (!url) return null;
+  return url.replace("/full-color/", "/png/");
+}
 
 export default function DetalleProductoPage() {
   return (
@@ -99,7 +79,7 @@ function DetalleProducto() {
   }
 
   const descripcion =
-    DESCRIPCIONES[product.name] ||
+    product.description ||
     "Antojo en su versión más honesta. Pide y te cuento más.";
 
   const onAdd = () => {
@@ -151,52 +131,53 @@ function DetalleProducto() {
             {product.name}
           </h1>
           <div
-            className="text-2xl text-[#F25C20]"
+            className="text-2xl text-[#F25C20] whitespace-nowrap"
             style={{ fontFamily: "ReginaBlack" }}
           >
+            {product.price_is_starting && (
+              <span className="text-xs text-canela font-normal mr-1">desde</span>
+            )}
             ${Number(product.price).toFixed(0)}
           </div>
         </div>
 
-        <p
-          className="text-xs text-cafe mt-3 leading-relaxed"
-          dangerouslySetInnerHTML={{
-            __html: descripcion.replace(
-              /\*\*(.+?)\*\*/g,
-              "<b>$1</b>"
-            ),
-          }}
-        />
+        <p className="text-xs text-cafe mt-3 leading-relaxed">{descripcion}</p>
 
         {sugerencias.length > 0 && (
           <>
             <div className="text-[11px] font-bold text-canela mt-6 mb-2 uppercase tracking-wider">
               ¿Ya lo probaste?
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {sugerencias.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/producto/${slugify(s.name)}?id=${s.id}`}
-                  className="bg-white rounded-xl p-2 text-center active:scale-95 transition"
-                >
-                  {s.image_url && (
-                    <Image
-                      src={s.image_url}
-                      alt={s.name}
-                      width={120}
-                      height={120}
-                      className="w-14 h-14 object-cover rounded-lg mx-auto"
-                    />
-                  )}
-                  <div
-                    className="text-[11px] font-bold text-cafe mt-1.5"
-                    style={{ fontFamily: "Termina" }}
+            <div className="grid grid-cols-2 gap-3">
+              {sugerencias.map((s) => {
+                const pngUrl = transparentVariant(s.image_url);
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/producto/${slugify(s.name)}?id=${s.id}`}
+                    className="relative bg-gradient-to-br from-canela to-cafe rounded-2xl p-3 active:scale-95 transition overflow-hidden shadow-md"
                   >
-                    {s.name}
-                  </div>
-                </Link>
-              ))}
+                    {pngUrl && (
+                      <Image
+                        src={pngUrl}
+                        alt={s.name}
+                        width={200}
+                        height={200}
+                        className="w-full aspect-square object-contain drop-shadow-md"
+                      />
+                    )}
+                    <div
+                      className="text-xs font-bold text-crema mt-1 text-center"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {s.name}
+                    </div>
+                    <div className="text-[10px] text-caramelo text-center font-medium">
+                      ${Number(s.price).toFixed(0)}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </>
         )}
@@ -206,7 +187,7 @@ function DetalleProducto() {
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
         <button
           onClick={onAdd}
-          className="w-full bg-cafe text-crema rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
+          className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
         >
           {added ? (
             <>¡Agregado! ✓</>

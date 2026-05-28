@@ -67,14 +67,28 @@ export default function Carrito() {
 
       if (orderErr) throw orderErr;
 
-      // 2. Crear los items del pedido
-      const orderItems = items.map((it) => ({
-        order_id: order.id,
-        product_id: it.productId,
-        product_name: it.name,
-        quantity: it.quantity,
-        unit_price: it.price,
-      }));
+      // 2. Crear los items del pedido (con composición serializada en product_name)
+      const orderItems = items.map((it) => {
+        let nombreCompleto = it.name;
+        if (it.composition && it.composition.length > 0) {
+          const detalle = it.composition
+            .map(
+              (c) =>
+                `${c.componentName}: ${c.selections
+                  .map((s) => `${s.quantity}× ${s.name}`)
+                  .join(", ")}`
+            )
+            .join(" | ");
+          nombreCompleto = `${it.name} [${detalle}]`;
+        }
+        return {
+          order_id: order.id,
+          product_id: it.productId,
+          product_name: nombreCompleto,
+          quantity: it.quantity,
+          unit_price: it.price,
+        };
+      });
 
       const { error: itemsErr } = await supabase
         .from("order_items")
@@ -130,49 +144,63 @@ export default function Carrito() {
             <ul className="flex flex-col gap-2">
               {items.map((it) => (
                 <li
-                  key={it.productId}
-                  className="bg-white rounded-xl p-2.5 flex items-center gap-3 fade-up"
+                  key={it.cartLineId}
+                  className="bg-white rounded-xl p-2.5 flex flex-col gap-2 fade-up"
                 >
-                  {it.image_url && (
-                    <Image
-                      src={it.image_url}
-                      alt={it.name}
-                      width={56}
-                      height={56}
-                      className="w-12 h-12 object-cover rounded-lg"
-                    />
+                  <div className="flex items-center gap-3">
+                    {it.image_url && (
+                      <Image
+                        src={it.image_url}
+                        alt={it.name}
+                        width={56}
+                        height={56}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="text-sm font-bold text-cafe"
+                        style={{ fontFamily: "Termina" }}
+                      >
+                        {it.name}
+                      </div>
+                      <div className="text-[11px] text-canela">
+                        {it.quantity} × ${it.price.toFixed(0)} = $
+                        {(it.quantity * it.price).toFixed(0)}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-crema rounded-lg px-1.5 py-1">
+                      <button
+                        onClick={() => setQty(it.cartLineId, it.quantity - 1)}
+                        aria-label="Quitar uno"
+                        className="text-canela active:scale-90 transition"
+                      >
+                        <IconMinus size={14} />
+                      </button>
+                      <span className="text-xs font-bold w-4 text-center">
+                        {it.quantity}
+                      </span>
+                      <button
+                        onClick={() => setQty(it.cartLineId, it.quantity + 1)}
+                        aria-label="Agregar uno"
+                        className="text-canela active:scale-90 transition"
+                      >
+                        <IconPlus size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  {it.composition && it.composition.length > 0 && (
+                    <ul className="ml-14 text-[10px] text-canela border-l-2 border-caramelo/30 pl-2 space-y-0.5">
+                      {it.composition.map((c, i) => (
+                        <li key={i}>
+                          <b className="text-cafe">{c.componentName}:</b>{" "}
+                          {c.selections
+                            .map((s) => `${s.quantity}× ${s.name}`)
+                            .join(", ")}
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className="text-sm font-bold text-cafe"
-                      style={{ fontFamily: "Termina" }}
-                    >
-                      {it.name}
-                    </div>
-                    <div className="text-[11px] text-canela">
-                      {it.quantity} × ${it.price.toFixed(0)} = $
-                      {(it.quantity * it.price).toFixed(0)}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-crema rounded-lg px-1.5 py-1">
-                    <button
-                      onClick={() => setQty(it.productId, it.quantity - 1)}
-                      aria-label="Quitar uno"
-                      className="text-canela active:scale-90 transition"
-                    >
-                      <IconMinus size={14} />
-                    </button>
-                    <span className="text-xs font-bold w-4 text-center">
-                      {it.quantity}
-                    </span>
-                    <button
-                      onClick={() => setQty(it.productId, it.quantity + 1)}
-                      aria-label="Agregar uno"
-                      className="text-canela active:scale-90 transition"
-                    >
-                      <IconPlus size={14} />
-                    </button>
-                  </div>
                 </li>
               ))}
             </ul>
@@ -273,7 +301,7 @@ export default function Carrito() {
             <button
               onClick={confirmarPedido}
               disabled={enviando}
-              className="w-full bg-cafe text-crema rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
+              className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
               style={{ letterSpacing: "0.2px" }}
             >
               <IconCircleCheck size={18} />

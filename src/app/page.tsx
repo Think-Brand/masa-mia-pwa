@@ -121,7 +121,7 @@ export default function LeadGate() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-cafe text-crema rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-70"
+          className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-70 shadow-md"
         >
           {loading ? "Anotando..." : (
             <>
