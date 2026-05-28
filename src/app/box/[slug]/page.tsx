@@ -395,7 +395,7 @@ function BoxConstructor() {
               {/* Componente fijo (sin opciones todavía cargadas) */}
               {isFixed && (
                 <div className="mt-1 text-[11px] text-canela italic">
-                  Viene incluido. Pronto podrás escoger variaciones.
+                  Viene incluido.
                 </div>
               )}
             </section>

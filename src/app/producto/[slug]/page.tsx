@@ -22,10 +22,12 @@ function slugify(name: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-// Convierte una ruta de full-color a PNG transparente equivalente
-function transparentVariant(url: string | null): string | null {
+// Mapea producto a su imagen de recomendación
+function recomendacionVariant(url: string | null): string | null {
   if (!url) return null;
-  return url.replace("/full-color/", "/png/");
+  return url
+    .replace("/productos/full-color/", "/recomendaciones/")
+    .replace("/productos/png/", "/recomendaciones/");
 }
 
 export default function DetalleProductoPage() {
@@ -60,12 +62,29 @@ function DetalleProducto() {
         .select("*")
         .eq("is_public", true)
         .eq("is_active", true)
-        .neq("id", productId)
-        .order("sort_order")
-        .limit(2),
+        .neq("id", productId),
     ]).then(([{ data: prod }, { data: sug }]) => {
       setProduct(prod);
-      setSugerencias(sug ?? []);
+      // Sugerencias variadas: priorizar categorías distintas + random
+      const pool = (sug ?? []) as Product[];
+      const sameCat = pool.filter((p) => p.category === prod?.category);
+      const otherCat = pool.filter((p) => p.category !== prod?.category);
+      const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
+      // 1 misma categoría (variedad sabores) + 1 otra categoría
+      const pick = [
+        ...shuffle(sameCat).slice(0, 1),
+        ...shuffle(otherCat).slice(0, 1),
+      ].filter(Boolean);
+      // Fallback si solo hay misma cat
+      if (pick.length < 2) {
+        const extras = shuffle(pool).filter(
+          (p) => !pick.find((x) => x.id === p.id)
+        );
+        while (pick.length < 2 && extras.length > 0) {
+          pick.push(extras.shift()!);
+        }
+      }
+      setSugerencias(pick);
       setLoading(false);
     });
   }, [productId, router]);
@@ -150,31 +169,26 @@ function DetalleProducto() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {sugerencias.map((s) => {
-                const pngUrl = transparentVariant(s.image_url);
+                const recoUrl = recomendacionVariant(s.image_url);
+                const isBox = s.category === "rollinbox" || s.category === "luvinbox";
+                const href = isBox
+                  ? `/box/${slugify(s.name)}?id=${s.id}`
+                  : `/producto/${slugify(s.name)}?id=${s.id}`;
                 return (
                   <Link
                     key={s.id}
-                    href={`/producto/${slugify(s.name)}?id=${s.id}`}
-                    className="relative bg-gradient-to-br from-canela to-cafe rounded-2xl p-3 active:scale-95 transition overflow-hidden shadow-md"
+                    href={href}
+                    className="block active:scale-95 transition"
                   >
-                    {pngUrl && (
+                    {recoUrl && (
                       <Image
-                        src={pngUrl}
+                        src={recoUrl}
                         alt={s.name}
-                        width={200}
-                        height={200}
-                        className="w-full aspect-square object-contain drop-shadow-md"
+                        width={300}
+                        height={400}
+                        className="w-full h-auto rounded-2xl shadow-md"
                       />
                     )}
-                    <div
-                      className="text-xs font-bold text-crema mt-1 text-center"
-                      style={{ fontFamily: "Termina" }}
-                    >
-                      {s.name}
-                    </div>
-                    <div className="text-[10px] text-caramelo text-center font-medium">
-                      ${Number(s.price).toFixed(0)}
-                    </div>
                   </Link>
                 );
               })}
