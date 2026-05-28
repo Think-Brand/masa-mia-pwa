@@ -23,16 +23,23 @@ export type MigaAnim =
   | "jump"
   | "wiggle"
   | "shake"
+  | "breath"
+  | "stir"
   | "none";
 
-// Frases en voz de Miga (comensal noble, NO chef)
+// Frases en voz de Miga (comensal noble que finge ser chef, NO chef)
 const FRASES_ALEATORIAS = [
-  "Ay, no me piques. No soy botón.",
-  "Yo no horneo, yo solo huelo.",
-  "Las verdaderas magas son Fabi y Alex.",
-  "Soy comensal con uniforme prestado.",
-  "Hoy traigo el batidor por accidente.",
-  "Mírame con cariño, no con receta.",
+  "Donde come uno, compran dos.",
+  "Compartir sí. Mi rol, no.",
+  "Uno nunca es uno.",
+  "Guarda uno… ajá.",
+  "¿Dieta? Qué linda historia.",
+  "Dijo que no. Pero si quieres uno.",
+  "Hey, para. No soy botón.",
+  "Ey, suave. Sí siento.",
+  "Yo te ayudo, pero tampoco hago milagros.",
+  "Yo no juzgo… en voz alta.",
+  "Déjame pensar, tengo masa en la cabeza.",
 ];
 
 type Props = {

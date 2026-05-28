@@ -109,6 +109,20 @@ body {
   80% { transform: translateX(3px) rotate(1deg); }
 }
 
+/* Respiración muy sutil: simula vida sin distraer */
+@keyframes miga-breath {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.025) translateY(-2px); }
+}
+
+/* Batidor: leve rotación de la mano completa */
+@keyframes miga-stir {
+  0%, 100% { transform: rotate(-1deg); }
+  25% { transform: rotate(1.5deg); }
+  50% { transform: rotate(-1deg); }
+  75% { transform: rotate(1deg); }
+}
+
 /* clases utilitarias */
 .anim-bounce { animation: miga-bounce 3s ease-in-out infinite; }
 .anim-sway { animation: miga-sway 4s ease-in-out infinite; transform-origin: bottom center; }
@@ -117,6 +131,8 @@ body {
 .anim-pop { animation: miga-pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .anim-jump { animation: miga-jump 1.2s ease-in-out infinite; }
 .anim-shake { animation: miga-shake 0.5s ease-in-out; }
+.anim-breath { animation: miga-breath 4s ease-in-out infinite; }
+.anim-stir { animation: miga-stir 3s ease-in-out infinite; transform-origin: bottom center; }
 
 /* Cuando Miga es clickeable: pequeño hint */
 .miga-clickable { cursor: pointer; transition: transform 0.2s ease; }

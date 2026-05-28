@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconSparkles } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
@@ -69,6 +69,37 @@ export default function Catalogo() {
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
       <HeaderCliente />
+
+      {/* Banner Antójame */}
+      <Link
+        href="/antojame"
+        className="mx-3 mt-3 mb-1 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md"
+      >
+        <Image
+          src="/mascota/miga-senalar.png"
+          alt="Miga señalando"
+          width={64}
+          height={64}
+          className="w-12 h-12 object-contain drop-shadow"
+        />
+        <div className="flex-1 min-w-0">
+          <div
+            className="text-[10px] font-bold opacity-90 uppercase tracking-wider"
+            style={{ fontFamily: "Termina" }}
+          >
+            ¿No sabes qué pedir?
+          </div>
+          <div
+            className="text-xl leading-tight"
+            style={{ fontFamily: "ReginaBlack" }}
+          >
+            ¡Antójame!
+          </div>
+        </div>
+        <div className="bg-white/20 rounded-full p-2">
+          <IconSparkles size={18} />
+        </div>
+      </Link>
 
       {/* Tabs de categorías */}
       <nav className="px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">

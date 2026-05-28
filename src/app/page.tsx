@@ -118,8 +118,8 @@ export default function LeadGate() {
     <main className="min-h-screen flex flex-col items-center justify-between px-6 py-10 max-w-md mx-auto">
       <div className="flex-1 flex flex-col items-center justify-center text-center pt-4">
         <Miga
-          pose={recognized ? "lista" : "adorable"}
-          animation={recognized ? "jump" : "bounce"}
+          pose={recognized ? "lista" : "chef"}
+          animation={recognized ? "jump" : "breath"}
           size={170}
           priority
         />
