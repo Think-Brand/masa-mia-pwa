@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
+import BottomNav from "@/components/BottomNav";
 
 const CUENTA_BBVA = "4152 3139 8399 7920";
 const BENEFICIARIO = "Fabiola Castillo";
@@ -106,7 +107,7 @@ export default function Carrito() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-4">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur flex items-center justify-between px-4 py-3">
         <Link href="/catalogo" aria-label="Atrás" className="text-cafe">
@@ -313,6 +314,7 @@ export default function Carrito() {
           </>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

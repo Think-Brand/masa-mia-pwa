@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
+import BottomNav from "@/components/BottomNav";
 
 function slugify(name: string) {
   return name
@@ -108,7 +109,7 @@ function DetalleProducto() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)]">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)] pb-32">
       {/* Imagen */}
       <div className="relative">
         <button
@@ -197,11 +198,11 @@ function DetalleProducto() {
         )}
       </div>
 
-      {/* Botón sticky agregar */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
+      {/* Botón sticky agregar (encima del bottom nav) */}
+      <div className="fixed bottom-[68px] left-0 right-0 max-w-md mx-auto p-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
         <button
           onClick={onAdd}
-          className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
+          className="w-full bg-antojo text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
         >
           {added ? (
             <>¡Agregado! ✓</>
@@ -212,6 +213,7 @@ function DetalleProducto() {
           )}
         </button>
       </div>
+      <BottomNav />
     </div>
   );
 }

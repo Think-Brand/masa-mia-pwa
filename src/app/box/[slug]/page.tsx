@@ -21,6 +21,7 @@ import {
   CompositionLine,
   useCarrito,
 } from "@/components/CarritoProvider";
+import BottomNav from "@/components/BottomNav";
 
 function transparentVariant(url: string | null): string | null {
   if (!url) return null;
@@ -249,7 +250,7 @@ function BoxConstructor() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)] pb-32">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)] pb-44">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[var(--avellana-soft)]/95 backdrop-blur flex items-center justify-between px-4 py-3 border-b border-caramelo/20">
         <button
@@ -403,8 +404,8 @@ function BoxConstructor() {
         })}
       </div>
 
-      {/* Footer total + botón */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
+      {/* Footer total + botón (sobre el bottom nav) */}
+      <div className="fixed bottom-[68px] left-0 right-0 max-w-md mx-auto p-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
         <div className="bg-cafe rounded-2xl p-3 flex items-center justify-between mb-2 text-crema">
           <span className="text-xs">Total</span>
           <span
@@ -436,6 +437,7 @@ function BoxConstructor() {
           )}
         </button>
       </div>
+      <BottomNav />
     </div>
   );
 }

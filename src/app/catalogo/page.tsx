@@ -4,13 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconPlus, IconArrowRight } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import HeaderCliente from "@/components/HeaderCliente";
+import BottomNav from "@/components/BottomNav";
 
-const CATEGORIES: { key: Category; label: string }[] = [
+type Tab = "todo" | Category;
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: "todo", label: "Todo el antojo" },
   { key: "rol", label: "Roles" },
   { key: "berlinesa", label: "Berlinesas" },
   { key: "rollinbox", label: "RollinBox" },
@@ -28,10 +32,10 @@ function slugify(name: string) {
 
 export default function Catalogo() {
   const router = useRouter();
-  const { cliente, add, count, total } = useCarrito();
+  const { cliente, add } = useCarrito();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCat, setActiveCat] = useState<Category>("rol");
+  const [activeTab, setActiveTab] = useState<Tab>("todo");
 
   // Si no hay cliente, regresa al lead gate
   useEffect(() => {
@@ -53,29 +57,32 @@ export default function Catalogo() {
   }, []);
 
   const filtered = useMemo(
-    () => products.filter((p) => p.category === activeCat),
-    [products, activeCat]
+    () =>
+      activeTab === "todo"
+        ? products
+        : products.filter((p) => p.category === activeTab),
+    [products, activeTab]
   );
 
   if (!cliente) return null;
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-20">
       <HeaderCliente />
 
       {/* Tabs de categorías */}
       <nav className="px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
-        {CATEGORIES.map((c) => (
+        {TABS.map((t) => (
           <button
-            key={c.key}
-            onClick={() => setActiveCat(c.key)}
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${
-              activeCat === c.key
+              activeTab === t.key
                 ? "bg-antojo text-white shadow-md"
                 : "bg-transparent text-cafe border border-canela"
             }`}
           >
-            {c.label}
+            {t.label}
           </button>
         ))}
       </nav>
@@ -171,24 +178,7 @@ export default function Catalogo() {
           })}
       </div>
 
-      {/* Footer carrito sticky */}
-      {count > 0 && (
-        <Link
-          href="/carrito"
-          className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-antojo text-white px-4 py-3 flex items-center justify-between fade-up shadow-2xl"
-          style={{ fontFamily: "Termina" }}
-        >
-          <div>
-            <div className="text-[10px] opacity-80">
-              {count} {count === 1 ? "pieza" : "piezas"}
-            </div>
-            <div className="text-base font-bold">${total.toFixed(0)}</div>
-          </div>
-          <div className="flex items-center gap-1 text-sm font-bold">
-            Ver mi antojo <IconArrowRight size={16} />
-          </div>
-        </Link>
-      )}
+      <BottomNav />
     </div>
   );
 }
