@@ -59,6 +59,7 @@ function Confirmacion() {
   const abrirWhatsApp = () => {
     if (!order || !cliente) return;
     const itemsCart = order.items.map((it) => ({
+      cartLineId: it.id,
       productId: it.product_id,
       name: it.product_name,
       price: Number(it.unit_price),
