@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tipografías oficiales Masa Mía */
+/* === Tipografías oficiales Masa Mía === */
 @font-face {
   font-family: "Carosello";
   src: url("/fonts/Carosello.otf") format("opentype");
@@ -46,6 +46,8 @@
   --crema-soft: #fbf4e6;
   --avellana-soft: #f5e8ce;
   --antojo: #f25c20;
+  --verde: #5b7a3a;
+  --rojo: #c0392b;
 }
 
 html,
@@ -58,4 +60,76 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* === Micro-animaciones de Miga === */
+
+@keyframes miga-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes miga-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes miga-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-5deg); }
+  40% { transform: rotate(5deg); }
+  60% { transform: rotate(-3deg); }
+  80% { transform: rotate(3deg); }
+}
+
+@keyframes miga-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-6px) rotate(1deg); }
+  66% { transform: translateY(-3px) rotate(-1deg); }
+}
+
+@keyframes miga-pop-in {
+  0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+  60% { transform: scale(1.08) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes miga-jump {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-14px) scale(1.04); }
+  60% { transform: translateY(0); }
+  80% { transform: translateY(-4px); }
+}
+
+@keyframes miga-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-2deg); }
+  40% { transform: translateX(4px) rotate(2deg); }
+  60% { transform: translateX(-3px) rotate(-1deg); }
+  80% { transform: translateX(3px) rotate(1deg); }
+}
+
+/* clases utilitarias */
+.anim-bounce { animation: miga-bounce 3s ease-in-out infinite; }
+.anim-sway { animation: miga-sway 4s ease-in-out infinite; transform-origin: bottom center; }
+.anim-wiggle { animation: miga-wiggle 0.6s ease-in-out; }
+.anim-float { animation: miga-float 5s ease-in-out infinite; }
+.anim-pop { animation: miga-pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.anim-jump { animation: miga-jump 1.2s ease-in-out infinite; }
+.anim-shake { animation: miga-shake 0.5s ease-in-out; }
+
+/* Cuando Miga es clickeable: pequeño hint */
+.miga-clickable { cursor: pointer; transition: transform 0.2s ease; }
+.miga-clickable:active { transform: scale(0.95); }
+
+/* === Fade-in para contenido general === */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up 0.5s ease-out both; }
+
+/* respeta usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .anim-bounce, .anim-sway, .anim-float, .anim-jump { animation: none; }
 }

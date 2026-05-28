@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { CarritoProvider } from "@/components/CarritoProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,7 +33,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <CarritoProvider>{children}</CarritoProvider>
+      </body>
     </html>
   );
 }
