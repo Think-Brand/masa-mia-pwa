@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { IconReceipt2 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase-server";
+import PedidosRealtime from "@/components/PedidosRealtime";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,8 @@ export default async function PedidosPage() {
         Aquí caen los antojos. Conforme avanzan, los mueves.
       </p>
 
+      <PedidosRealtime initialPendingCount={grouped.pending.length} />
+
       {error && (
         <div className="mt-4 text-xs text-rojo bg-rojo/10 rounded-xl p-3">
           Error al cargar: {error.message}
@@ -69,7 +72,7 @@ export default async function PedidosPage() {
       )}
 
       {/* Resumen */}
-      <div className="grid grid-cols-4 gap-2 mt-5">
+      <div className="grid grid-cols-4 gap-2 mt-3">
         <Stat
           label="Pendientes"
           value={grouped.pending.length}

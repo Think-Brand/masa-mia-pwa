@@ -66,10 +66,10 @@ export default function StaffLogin() {
           className="text-3xl text-crema text-center leading-none mt-2"
           style={{ fontFamily: "ReginaBlack" }}
         >
-          Hola, cocinera
+          La cocina te saluda
         </h1>
         <p className="text-xs text-caramelo text-center max-w-xs">
-          El delantal espera, las recetas también.
+          El horno espera, las recetas también.
         </p>
       </div>
 
