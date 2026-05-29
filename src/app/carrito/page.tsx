@@ -323,7 +323,7 @@ export default function Carrito() {
 
             {/* Punto de contacto */}
             <div className="text-[10px] font-bold text-canela uppercase tracking-wider mt-1">
-              ¿Con quién te sientes más cómoda?
+              ¿Quién te atiende?
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
