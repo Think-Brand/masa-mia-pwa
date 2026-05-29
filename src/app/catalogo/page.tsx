@@ -192,17 +192,17 @@ export default function Catalogo() {
                     <Link
                       href={detalleHref}
                       aria-label={`Armar ${p.name}`}
-                      className="w-7 h-7 rounded-full bg-antojo text-white flex items-center justify-center shadow active:scale-90 transition"
+                      className="w-10 h-10 rounded-full bg-antojo text-white flex items-center justify-center shadow-md active:scale-90 transition flex-shrink-0"
                     >
-                      <IconPlus size={14} />
+                      <IconPlus size={20} stroke={2.5} />
                     </Link>
                   ) : (
                     <button
                       onClick={() => add(p)}
                       aria-label={`Agregar ${p.name}`}
-                      className="w-7 h-7 rounded-full bg-antojo text-white flex items-center justify-center shadow active:scale-90 transition"
+                      className="w-10 h-10 rounded-full bg-antojo text-white flex items-center justify-center shadow-md active:scale-90 transition flex-shrink-0"
                     >
-                      <IconPlus size={14} />
+                      <IconPlus size={20} stroke={2.5} />
                     </button>
                   )}
                 </div>

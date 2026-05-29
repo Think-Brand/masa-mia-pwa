@@ -237,23 +237,23 @@ export default function Carrito() {
                         {(it.quantity * it.price).toFixed(0)}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-crema rounded-lg px-1.5 py-1">
+                    <div className="flex items-center gap-1 bg-crema rounded-xl px-1 py-0.5">
                       <button
                         onClick={() => setQty(it.cartLineId, it.quantity - 1)}
                         aria-label="Quitar uno"
-                        className="text-canela active:scale-90 transition"
+                        className="text-cafe active:scale-90 transition w-9 h-9 flex items-center justify-center rounded-lg"
                       >
-                        <IconMinus size={14} />
+                        <IconMinus size={18} />
                       </button>
-                      <span className="text-xs font-bold w-4 text-center">
+                      <span className="text-sm font-bold w-6 text-center text-cafe">
                         {it.quantity}
                       </span>
                       <button
                         onClick={() => setQty(it.cartLineId, it.quantity + 1)}
                         aria-label="Agregar uno"
-                        className="text-canela active:scale-90 transition"
+                        className="text-cafe active:scale-90 transition w-9 h-9 flex items-center justify-center rounded-lg"
                       >
-                        <IconPlus size={14} />
+                        <IconPlus size={18} />
                       </button>
                     </div>
                   </div>

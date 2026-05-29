@@ -28,6 +28,16 @@ function transparentVariant(url: string | null): string | null {
   return url.replace("/full-color/", "/png/");
 }
 
+// Paleta de fondos cálidos para opciones sin imagen (mini pays, gomitas, etc.)
+const FONDOS_OPCIONES = [
+  "from-[#F8E4C5] to-[#F2C994]", // crema → durazno
+  "from-[#FCEED1] to-[#FFC97A]", // amarillo cálido
+  "from-[#F6D5C6] to-[#F4B89B]", // melocotón
+  "from-[#FCE4D8] to-[#E89F6D]", // canela suave
+  "from-[#E8D7C0] to-[#C9956C]", // caramelo
+  "from-[#F5DAC1] to-[#E0A574]", // miel
+];
+
 type ComponentWithOptions = {
   component: BoxComponent;
   // Selecciones del cliente: nombre de opción → cantidad
@@ -334,58 +344,90 @@ function BoxConstructor() {
               {/* Opciones con selector */}
               {!isFixed && (
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  {c.options.map((opt) => {
-                    const pngUrl = transparentVariant(opt.image_url);
+                  {c.options.map((opt, optIdx) => {
+                    const fullColorUrl = opt.image_url;
                     const qty = c.selections[opt.name] ?? 0;
+                    const fondo = FONDOS_OPCIONES[optIdx % FONDOS_OPCIONES.length];
                     return (
                       <div
                         key={opt.name}
-                        className={`relative bg-gradient-to-br from-canela to-cafe rounded-xl p-2 flex flex-col items-center transition ${
-                          qty > 0 ? "ring-2 ring-antojo shadow-md" : ""
+                        className={`relative rounded-xl overflow-hidden transition ${
+                          qty > 0
+                            ? "ring-2 ring-antojo shadow-lg"
+                            : "shadow-sm"
                         }`}
                       >
-                        {pngUrl ? (
-                          <Image
-                            src={pngUrl}
-                            alt={opt.name}
-                            width={160}
-                            height={160}
-                            className="w-full aspect-square object-contain drop-shadow"
-                          />
+                        {/* Si tiene imagen full-color, la mostramos completa */}
+                        {fullColorUrl ? (
+                          <div className="relative">
+                            <Image
+                              src={fullColorUrl}
+                              alt={opt.name}
+                              width={300}
+                              height={300}
+                              className="w-full aspect-square object-cover"
+                            />
+                            {qty > 0 && (
+                              <span className="absolute top-1 left-1 bg-antojo text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                                {qty}
+                              </span>
+                            )}
+                          </div>
                         ) : (
-                          <div className="w-full aspect-square flex items-center justify-center text-2xl">
-                            🍩
+                          <div
+                            className={`relative w-full aspect-square bg-gradient-to-br ${fondo} flex items-center justify-center`}
+                          >
+                            <span
+                              className="text-cafe text-center px-2 leading-tight"
+                              style={{
+                                fontFamily: "ReginaBlack",
+                                fontSize: 18,
+                              }}
+                            >
+                              {opt.name}
+                            </span>
+                            {qty > 0 && (
+                              <span className="absolute top-1 left-1 bg-antojo text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                                {qty}
+                              </span>
+                            )}
                           </div>
                         )}
-                        <div
-                          className="text-[10px] font-bold text-crema text-center mt-1"
-                          style={{ fontFamily: "Termina" }}
-                        >
-                          {opt.name}
-                        </div>
-                        {opt.price_modifier > 0 && (
-                          <div className="text-[9px] text-caramelo">
-                            +${opt.price_modifier.toFixed(0)}
+                        <div className="bg-white p-1.5">
+                          {fullColorUrl && (
+                            <div
+                              className="text-[10px] font-bold text-cafe text-center truncate"
+                              style={{ fontFamily: "Termina" }}
+                            >
+                              {opt.name}
+                            </div>
+                          )}
+                          {opt.price_modifier > 0 && (
+                            <div className="text-[9px] text-antojo text-center">
+                              +${opt.price_modifier.toFixed(0)}
+                            </div>
+                          )}
+                          <div className="flex items-center justify-center gap-2 bg-crema rounded-full px-2 py-1 mt-1.5">
+                            <button
+                              onClick={() => updateQty(idx, opt.name, -1)}
+                              disabled={qty === 0}
+                              aria-label="Quitar uno"
+                              className="text-cafe active:scale-90 disabled:opacity-30 w-8 h-8 flex items-center justify-center rounded-full"
+                            >
+                              <IconMinus size={18} />
+                            </button>
+                            <span className="text-sm font-bold w-6 text-center text-cafe">
+                              {qty}
+                            </span>
+                            <button
+                              onClick={() => updateQty(idx, opt.name, 1)}
+                              disabled={totalSelected >= c.component.quantity}
+                              aria-label="Agregar uno"
+                              className="text-cafe active:scale-90 disabled:opacity-30 w-8 h-8 flex items-center justify-center rounded-full"
+                            >
+                              <IconPlus size={18} />
+                            </button>
                           </div>
-                        )}
-                        <div className="flex items-center gap-1.5 bg-cafe/80 rounded-full px-1.5 py-0.5 mt-1.5">
-                          <button
-                            onClick={() => updateQty(idx, opt.name, -1)}
-                            disabled={qty === 0}
-                            className="text-crema active:scale-90 disabled:opacity-30"
-                          >
-                            <IconMinus size={12} />
-                          </button>
-                          <span className="text-[10px] font-bold w-3 text-center text-crema">
-                            {qty}
-                          </span>
-                          <button
-                            onClick={() => updateQty(idx, opt.name, 1)}
-                            disabled={totalSelected >= c.component.quantity}
-                            className="text-crema active:scale-90 disabled:opacity-30"
-                          >
-                            <IconPlus size={12} />
-                          </button>
                         </div>
                       </div>
                     );

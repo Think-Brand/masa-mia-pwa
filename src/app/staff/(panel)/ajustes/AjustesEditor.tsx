@@ -10,8 +10,9 @@ import {
   IconChevronRight,
   IconCircleDot,
   IconDeviceFloppy,
-  IconEdit,
   IconLoader2,
+  IconPlus,
+  IconX,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
@@ -116,6 +117,7 @@ function ProductosPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -150,7 +152,25 @@ function ProductosPanel() {
   }
 
   return (
-    <ul className="flex flex-col gap-2">
+    <>
+      <button
+        onClick={() => setCreating(true)}
+        className="w-full bg-antojo text-white rounded-2xl py-3 mb-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md"
+      >
+        <IconPlus size={16} /> Agregar producto nuevo
+      </button>
+
+      {creating && (
+        <NuevoProductoModal
+          onClose={() => setCreating(false)}
+          onCreated={() => {
+            setCreating(false);
+            load();
+          }}
+        />
+      )}
+
+      <ul className="flex flex-col gap-2">
       {products.map((p) => {
         const isExpanded = expanded === p.id;
         return (
@@ -208,6 +228,202 @@ function ProductosPanel() {
         );
       })}
     </ul>
+    </>
+  );
+}
+
+function NuevoProductoModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<string>("rol");
+  const [price, setPrice] = useState("70");
+  const [description, setDescription] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 4 * 1024 * 1024) {
+      setError("La foto debe pesar menos de 4 MB.");
+      return;
+    }
+    setImageFile(f);
+    setImagePreview(URL.createObjectURL(f));
+  };
+
+  const submit = async () => {
+    setError(null);
+    if (!name.trim()) return setError("Pon un nombre.");
+    if (Number(price) <= 0) return setError("Precio válido.");
+
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      let image_url: string | null = null;
+
+      // Subir foto a Supabase Storage si la hay
+      if (imageFile) {
+        const slug = name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[̀-ͯ]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        const ext = imageFile.name.split(".").pop() || "png";
+        const path = `productos/${slug}-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("productos")
+          .upload(path, imageFile, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+        if (upErr && !upErr.message.includes("already exists")) {
+          // Si el bucket no existe, mostrar mensaje útil
+          if (upErr.message.toLowerCase().includes("not found") || upErr.message.toLowerCase().includes("bucket")) {
+            setError(
+              "Falta crear el bucket 'productos' en Supabase Storage (lo hago en el siguiente push, por ahora crea sin foto)."
+            );
+            setSaving(false);
+            return;
+          }
+          throw upErr;
+        }
+        const { data: urlData } = supabase.storage
+          .from("productos")
+          .getPublicUrl(path);
+        image_url = urlData.publicUrl;
+      }
+
+      const { error: insErr } = await supabase.from("products").insert({
+        name: name.trim(),
+        category,
+        price: Number(price),
+        description: description.trim() || null,
+        image_url,
+        is_public: true,
+        is_active: true,
+        sort_order: 99,
+      });
+      if (insErr) throw insErr;
+
+      onCreated();
+    } catch (e: any) {
+      setError(e.message || "No se pudo crear el producto.");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-cafe/60 backdrop-blur-sm flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-crema rounded-t-3xl p-4 pb-8 fade-up max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2
+            className="text-xl text-cafe"
+            style={{ fontFamily: "ReginaBlack" }}
+          >
+            Nuevo producto
+          </h2>
+          <button onClick={onClose} className="text-canela">
+            <IconX size={20} />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <Field label="Nombre" value={name} onChange={setName} />
+
+          <div>
+            <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              Categoría
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="mt-1 w-full bg-crema-soft border border-caramelo/30 rounded-lg px-3 py-2 text-sm text-cafe focus:outline-none focus:border-cafe"
+            >
+              <option value="rol">Rol</option>
+              <option value="berlinesa">Berlinesa</option>
+              <option value="rollinbox">RollinBox</option>
+              <option value="luvinbox">LuvinBox</option>
+            </select>
+          </div>
+
+          <Field
+            label="Precio ($)"
+            value={price}
+            onChange={setPrice}
+          />
+
+          <Field
+            label="Descripción (voz de Masa Mía)"
+            value={description}
+            onChange={setDescription}
+            textarea
+          />
+
+          {/* Subir foto */}
+          <div>
+            <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              Foto del producto (opcional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={onFile}
+              className="mt-1 block w-full text-xs text-canela file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-cafe file:text-crema file:text-xs file:font-bold"
+            />
+            {imagePreview && (
+              <div className="mt-2 w-24 h-24 rounded-xl overflow-hidden">
+                <img
+                  src={imagePreview}
+                  alt="preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <p className="text-[10px] text-canela italic mt-1">
+              Si no la subes ahora, puedes hacerlo después editando el producto.
+            </p>
+          </div>
+
+          {error && (
+            <div className="text-xs text-rojo bg-rojo/10 rounded-lg p-2">
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={submit}
+            disabled={saving}
+            className="w-full bg-antojo text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60 shadow-md mt-2"
+          >
+            {saving ? (
+              <>
+                <IconLoader2 size={16} className="animate-spin" /> Creando…
+              </>
+            ) : (
+              <>
+                <IconPlus size={16} /> Crear producto
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
