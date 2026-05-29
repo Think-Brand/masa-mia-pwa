@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconBell, IconBellOff, IconReceipt2 } from "@tabler/icons-react";
+import {
+  IconBell,
+  IconBellOff,
+  IconReceipt2,
+  IconVolume,
+} from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
 const SOUND_KEY = "masamia:staff:sound";
@@ -116,14 +121,27 @@ export default function PedidosRealtime({ initialPendingCount }: Props) {
             </span>
           )}
         </div>
-        <button
-          onClick={() => setSoundOn((v) => !v)}
-          className="text-xs text-canela flex items-center gap-1 active:scale-95 transition"
-          title={soundOn ? "Desactivar sonido" : "Activar sonido"}
-        >
-          {soundOn ? <IconBell size={14} /> : <IconBellOff size={14} />}
-          {soundOn ? "Sonido on" : "Sonido off"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              playBell();
+              setToastMsg("🛎️ Sonido de prueba");
+            }}
+            className="text-xs text-canela flex items-center gap-1 active:scale-95 transition bg-white px-2.5 py-1 rounded-full shadow-sm"
+            title="Probar sonido"
+          >
+            <IconVolume size={14} />
+            Probar
+          </button>
+          <button
+            onClick={() => setSoundOn((v) => !v)}
+            className="text-xs text-canela flex items-center gap-1 active:scale-95 transition"
+            title={soundOn ? "Desactivar sonido" : "Activar sonido"}
+          >
+            {soundOn ? <IconBell size={14} /> : <IconBellOff size={14} />}
+            {soundOn ? "Sonido on" : "Sonido off"}
+          </button>
+        </div>
       </div>
 
       {/* Toast pedido nuevo */}

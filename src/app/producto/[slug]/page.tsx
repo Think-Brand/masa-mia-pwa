@@ -6,7 +6,6 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   IconArrowLeft,
-  IconHeart,
   IconShoppingBag,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
@@ -118,12 +117,6 @@ function DetalleProducto() {
           className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur w-9 h-9 rounded-full flex items-center justify-center text-cafe active:scale-90 transition"
         >
           <IconArrowLeft size={18} />
-        </button>
-        <button
-          aria-label="Favorito"
-          className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur w-9 h-9 rounded-full flex items-center justify-center text-cafe active:scale-90 transition"
-        >
-          <IconHeart size={18} />
         </button>
         {product.image_url ? (
           <Image
