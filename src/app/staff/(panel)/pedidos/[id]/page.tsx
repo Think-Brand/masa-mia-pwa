@@ -10,6 +10,7 @@ import {
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import { ChangeStatusButton } from "./actions";
+import { DeclineButton } from "./DeclineButton";
 
 export const dynamic = "force-dynamic";
 
@@ -191,6 +192,23 @@ export default async function PedidoDetalle({
             </div>
           )}
         </div>
+
+        {/* Si está declinado, mostrar motivo */}
+        {order.status === "declined" && order.decline_reason && (
+          <div className="mt-3 pt-3 border-t border-rojo/20">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-rojo mb-1">
+              Motivo de declinación
+            </div>
+            <div className="text-xs text-cafe capitalize">
+              {order.decline_reason.replace(/_/g, " ")}
+            </div>
+            {order.decline_message && (
+              <div className="text-xs text-canela italic mt-2 pl-2 border-l-2 border-rojo/30">
+                💬 {order.decline_message}
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Acciones */}
@@ -204,13 +222,7 @@ export default async function PedidoDetalle({
               tone="verde"
               icon="check"
             />
-            <ChangeStatusButton
-              orderId={order.id}
-              newStatus="declined"
-              label="Declinar"
-              tone="rojo"
-              icon="x"
-            />
+            <DeclineButton orderId={order.id} customerName={customerName} />
           </>
         )}
         {order.status === "accepted" && (
