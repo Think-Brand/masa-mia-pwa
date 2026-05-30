@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import StaffHeader from "@/components/StaffHeader";
+import StaffOnboarding from "@/components/StaffOnboarding";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,8 @@ export default async function PanelLayout({
     <div className="min-h-screen bg-crema-soft">
       <StaffHeader userName={name} />
       <div className="max-w-2xl mx-auto pb-8">{children}</div>
+      {/* Tour de Miga al primer login (solo si pilot_mode = on) */}
+      <StaffOnboarding />
     </div>
   );
 }

@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconLogout, IconCheck, IconCamera } from "@tabler/icons-react";
+import { IconLogout, IconCheck, IconCamera, IconSparkles } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
+import ClienteOnboarding from "@/components/ClienteOnboarding";
+import { resetTour, CLIENTE_TOUR_ID } from "@/lib/onboarding";
 
 // 10 avatares + opción de foto propia (data URL guardada en avatar_pose)
 const AVATAR_IDS = Array.from({ length: 10 }, (_, i) => `avatar-${i + 1}`);
@@ -32,7 +34,13 @@ export default function Yo() {
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const verTourDeNuevo = () => {
+    resetTour(CLIENTE_TOUR_ID);
+    setShowTour(true);
+  };
 
   const currentAvatar = cliente?.avatar_pose;
 
@@ -229,13 +237,29 @@ export default function Yo() {
         <div className="flex-1" />
 
         <button
+          onClick={verTourDeNuevo}
+          className="text-xs text-cafe bg-white border border-caramelo/40 rounded-full px-4 py-2 flex items-center gap-1.5 mt-4 active:scale-95 transition shadow-sm"
+        >
+          <IconSparkles size={14} className="text-antojo" />
+          Ver tutorial otra vez
+        </button>
+
+        <button
           onClick={cambiarPersona}
-          className="text-xs text-canela underline flex items-center gap-1 mt-4"
+          className="text-xs text-canela underline flex items-center gap-1 mt-2"
         >
           <IconLogout size={14} />
           ¿No eres tú? Cambiar de persona
         </button>
       </div>
+
+      {/* Tour bajo demanda (forceShow ignora pilot_mode) */}
+      {showTour && (
+        <ClienteOnboarding
+          forceShow
+          onClose={() => setShowTour(false)}
+        />
+      )}
 
       {/* Modal selector de avatar */}
       {pickerOpen && (

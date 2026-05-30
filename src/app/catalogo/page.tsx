@@ -10,6 +10,7 @@ import { Product, Category } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import HeaderCliente from "@/components/HeaderCliente";
 import BottomNav from "@/components/BottomNav";
+import ClienteOnboarding from "@/components/ClienteOnboarding";
 
 type Tab = "todo" | Category;
 
@@ -225,6 +226,9 @@ export default function Catalogo() {
       </div>
 
       <BottomNav />
+
+      {/* Tour de Miga al primer ingreso (solo si pilot_mode = on) */}
+      <ClienteOnboarding />
     </div>
   );
 }

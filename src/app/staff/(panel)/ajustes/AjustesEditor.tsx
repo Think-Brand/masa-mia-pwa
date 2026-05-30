@@ -15,9 +15,12 @@ import {
   IconFlask,
   IconLoader2,
   IconPlus,
+  IconSparkles,
   IconX,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
+import StaffOnboarding from "@/components/StaffOnboarding";
+import { resetTour, STAFF_TOUR_ID } from "@/lib/onboarding";
 
 type Tab = "productos" | "boxes" | "negocio" | "piloto";
 
@@ -109,6 +112,12 @@ function PilotoPanel() {
   >([]);
   const [newCount, setNewCount] = useState("5");
   const [generating, setGenerating] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+
+  const verTourDeNuevo = () => {
+    resetTour(STAFF_TOUR_ID);
+    setShowTour(true);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -182,15 +191,25 @@ function PilotoPanel() {
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
           label="Activar piloto"
-          sub="Pide feedback después del pedido + códigos de cortesía"
+          sub="Pide feedback después del pedido + códigos de cortesía + tour Miga"
           value={pilotMode}
           onChange={togglePilot}
         />
         <p className="text-[10px] text-canela italic">
           Cuando esté encendido: al confirmar pedido, el cliente recibe popup
-          para dar feedback. Y puede canjear códigos por <b>1 rol cortesía</b>{" "}
-          (descuenta el precio de 1 rol del total, no el pedido completo).
+          para dar feedback. Puede canjear códigos por <b>1 rol cortesía</b>{" "}
+          (descuenta el precio de 1 rol del total, no el pedido completo). Y los
+          testers ven un <b>tour de Miga</b> la primera vez que entran.
         </p>
+
+        {/* Re-mostrar tour staff */}
+        <button
+          onClick={verTourDeNuevo}
+          className="mt-3 text-xs text-cafe bg-white border border-caramelo/40 rounded-full px-4 py-2 inline-flex items-center gap-1.5 active:scale-95 transition shadow-sm"
+        >
+          <IconSparkles size={14} className="text-antojo" />
+          Ver tour del panel otra vez
+        </button>
       </Section>
 
       {/* Generar códigos */}
@@ -256,6 +275,11 @@ function PilotoPanel() {
           </div>
         )}
       </Section>
+
+      {/* Tour bajo demanda (forceShow ignora pilot_mode) */}
+      {showTour && (
+        <StaffOnboarding forceShow onClose={() => setShowTour(false)} />
+      )}
     </div>
   );
 }
