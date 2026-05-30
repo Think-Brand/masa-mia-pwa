@@ -7,7 +7,22 @@ import {
   IconFlame,
   IconCrown,
   IconMessageHeart,
+  IconCake,
+  IconBrandWhatsapp,
 } from "@tabler/icons-react";
+import {
+  BIRTHDAY_SETTLE_DAYS,
+  daysSinceBirthdaySet,
+  daysUntilBirthday,
+  formatBirthday,
+  todayMD,
+} from "@/lib/birthday";
+import {
+  CATEGORY_LABEL,
+  STATUS_STYLE,
+  getCapacity,
+  getMultiDayOccupancy,
+} from "@/lib/capacity";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +148,46 @@ export default async function DashboardPage() {
 
   const pilotOn = pilotSetting?.value === "on";
   const feedbackList = feedback ?? [];
+
+  // Cumpleaños esta semana (con check anti-trampa)
+  const { data: bdayCustomers } = await supabase
+    .from("customers")
+    .select("id, name, whatsapp, birthday, birthday_set_at")
+    .not("birthday", "is", null);
+
+  const todayMd = todayMD();
+  const birthdaysThisWeek = (bdayCustomers ?? [])
+    .map((c: any) => {
+      const daysSinceSet = daysSinceBirthdaySet(c.birthday_set_at);
+      return {
+        ...c,
+        daysUntil: daysUntilBirthday(c.birthday),
+        isToday: c.birthday === todayMd,
+        recientlyAdded: daysSinceSet < BIRTHDAY_SETTLE_DAYS,
+        daysSinceSet,
+      };
+    })
+    .filter((c: any) => c.daysUntil >= 0 && c.daysUntil <= 7)
+    .sort((a: any, b: any) => a.daysUntil - b.daysUntil);
+
+  // Capacidad y ocupación próximos 7 días
+  const capacity = await getCapacity(supabase);
+  const hasCapacityLimit = Object.values(capacity).some(
+    (v) => typeof v === "number" && v > 0
+  );
+  const next7Dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+    next7Dates.push(isoDay(d));
+  }
+  const occupancies = hasCapacityLimit
+    ? await getMultiDayOccupancy(supabase, next7Dates, capacity)
+    : [];
+  const alertDays = occupancies.filter(
+    (o) => o.worstStatus === "over" || o.worstStatus === "full"
+  );
+
   const avgRating =
     feedbackList.length > 0
       ? feedbackList.reduce((s: number, f: any) => s + f.rating, 0) /
@@ -193,6 +248,63 @@ export default async function DashboardPage() {
         />
       </div>
 
+      {/* Alerta capacidad */}
+      {hasCapacityLimit && alertDays.length > 0 && (
+        <section className="mt-3 bg-rojo/10 border-2 border-rojo/40 rounded-2xl p-4 fade-up">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-rojo mb-2 flex items-center gap-1">
+            🚨 Atención: días apretados
+          </h2>
+          <ul className="space-y-2">
+            {alertDays.map((day) => {
+              const d = new Date(day.date + "T12:00:00");
+              const isHoy = day.date === isoDay(today);
+              return (
+                <li key={day.date} className="bg-white rounded-xl p-2.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <span
+                      className="text-xs font-bold text-cafe capitalize"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {isHoy
+                        ? "Hoy"
+                        : d.toLocaleDateString("es-MX", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "short",
+                          })}
+                    </span>
+                    <span
+                      className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[day.worstStatus].text} bg-white border ${STATUS_STYLE[day.worstStatus].dot.replace("bg-", "border-")}`}
+                    >
+                      {STATUS_STYLE[day.worstStatus].label}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {day.rows
+                      .filter(
+                        (r) =>
+                          r.status === "full" || r.status === "over"
+                      )
+                      .map((r) => (
+                        <span
+                          key={r.category}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[r.status].text} bg-white border ${STATUS_STYLE[r.status].dot.replace("bg-", "border-")}`}
+                        >
+                          {CATEGORY_LABEL[r.category]} {r.used}/{r.limit}
+                        </span>
+                      ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="text-[10px] text-canela italic mt-2 text-center">
+            El cliente no puede pedir más en estos días/categorías. Ajusta
+            capacidad en Ajustes → Capacidad.
+          </p>
+        </section>
+      )}
+
       {/* Gráfica 7 días */}
       <section className="mt-5 bg-white rounded-2xl p-4 shadow-sm">
         <h2 className="text-xs font-bold uppercase tracking-widest text-canela mb-3">
@@ -222,6 +334,75 @@ export default async function DashboardPage() {
           })}
         </div>
       </section>
+
+      {/* Cumpleaños esta semana */}
+      {birthdaysThisWeek.length > 0 && (
+        <section className="mt-3 bg-white rounded-2xl p-4 shadow-sm border-2 border-antojo/20">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-canela mb-3 flex items-center gap-1">
+            <IconCake size={12} className="text-antojo" /> Cumpleaños esta
+            semana
+          </h2>
+          <ul className="space-y-2">
+            {birthdaysThisWeek.map((c: any) => (
+              <li
+                key={c.id}
+                className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl ${
+                  c.isToday
+                    ? "bg-antojo/10 border border-antojo/30"
+                    : "bg-crema-soft"
+                }`}
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="text-2xl">{c.isToday ? "🎂" : "🎉"}</span>
+                  <div className="min-w-0">
+                    <div
+                      className="text-sm font-bold text-cafe truncate flex items-center gap-1"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {c.name}
+                      {c.recientlyAdded && (
+                        <span
+                          title={`Agregó su cumple hace ${c.daysSinceSet} días — descuento NO aplica`}
+                          className="text-[9px] bg-[#F2A516] text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                        >
+                          ⚠️ reciente
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-canela capitalize">
+                      {c.isToday
+                        ? c.recientlyAdded
+                          ? "¡Es hoy! (sin rol auto)"
+                          : "¡Es hoy!"
+                        : c.daysUntil === 1
+                          ? "mañana"
+                          : `en ${c.daysUntil} días`}{" "}
+                      · {formatBirthday(c.birthday)}
+                    </div>
+                  </div>
+                </div>
+                <a
+                  href={`https://wa.me/521${c.whatsapp}?text=${encodeURIComponent(
+                    c.isToday
+                      ? `¡Feliz cumpleaños, ${c.name}! 🎂 Hoy tienes un rol cortesía cuando armes tu antojo en Masa Mía 🤎`
+                      : `¡Hola ${c.name}! Te queremos desear desde Masa Mía un adelanto: nos contó un pajarito que se viene tu cumple 🎂`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex-shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition ${
+                    c.isToday
+                      ? "bg-antojo text-white shadow"
+                      : "bg-[#25D366] text-white"
+                  }`}
+                >
+                  <IconBrandWhatsapp size={13} />
+                  Felicitar
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Top productos */}
       <section className="mt-3 bg-white rounded-2xl p-4 shadow-sm">

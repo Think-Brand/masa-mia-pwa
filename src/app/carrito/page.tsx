@@ -26,6 +26,16 @@ import {
   formatDateShort,
 } from "@/lib/delivery";
 import { getSettings, Settings } from "@/lib/settings";
+import { isBirthdayEligibleToday } from "@/lib/birthday";
+import {
+  getCapacity,
+  getMultiDayOccupancy,
+  canDateAcceptCart,
+  STATUS_STYLE,
+  type Capacity,
+  type DayOccupancy,
+  type Category,
+} from "@/lib/capacity";
 
 const CUENTA_BBVA = "4152 3139 8399 7920";
 const BENEFICIARIO = "Fabiola Castillo";
@@ -63,6 +73,16 @@ export default function Carrito() {
   const descuentoRol = hasRol
     ? Math.min(...rolesEnCarrito.map((it) => it.price))
     : 0;
+
+  // Cumpleaños: con regla anti-trampa (7 días + 1x al año)
+  const cumpleStatus = isBirthdayEligibleToday({
+    birthday: cliente?.birthday,
+    birthdaySetAt: cliente?.birthday_set_at,
+    lastGreetedYear: cliente?.birthday_greeted_year,
+  });
+  const cumpleHoy = cumpleStatus.eligible;
+  const aplicaCumple = cumpleHoy && hasRol;
+  const descuentoCumple = aplicaCumple ? descuentoRol : 0;
 
   const validateCode = async () => {
     const code = pilotCode.trim().toUpperCase();
@@ -113,10 +133,59 @@ export default function Carrito() {
   const [pickupDate, setPickupDate] = useState<string>(dateToIsoDay(minDate));
   const [contactPerson, setContactPerson] = useState<"alex" | "fabiola">("fabiola");
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [occupancyMap, setOccupancyMap] = useState<Map<string, DayOccupancy>>(
+    new Map()
+  );
+
+  // Conteo del carrito por categoría (para validar capacidad)
+  const cartCounts: Record<Category, number> = {
+    rol: 0,
+    berlinesa: 0,
+    rollinbox: 0,
+    luvinbox: 0,
+  };
+  for (const it of items) {
+    if (it.category && it.category in cartCounts) {
+      cartCounts[it.category as Category] += it.quantity;
+    }
+  }
 
   useEffect(() => {
     getSettings().then(setSettings);
   }, []);
+
+  // Cargar ocupación de las próximas fechas
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const capacity = await getCapacity(supabase);
+      // Solo si hay alguna capacidad configurada
+      const hasAnyLimit = Object.values(capacity).some(
+        (v) => typeof v === "number" && v > 0
+      );
+      if (!hasAnyLimit) {
+        if (!cancelled) setOccupancyMap(new Map());
+        return;
+      }
+      const dates = fechaList.map((d) => dateToIsoDay(d));
+      const occupancies = await getMultiDayOccupancy(
+        supabase,
+        dates,
+        capacity
+      );
+      if (cancelled) return;
+      const map = new Map<string, DayOccupancy>();
+      for (const occ of occupancies) {
+        map.set(occ.date, occ);
+      }
+      setOccupancyMap(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   useEffect(() => {
     if (!cliente) router.replace("/");
@@ -149,8 +218,13 @@ export default function Carrito() {
       const supabase = createClient();
 
       const isCourtesy = codeStatus?.valid === true;
-      // La cortesía descuenta el precio de UN rol (no el pedido completo)
-      const finalTotal = isCourtesy ? Math.max(0, total - descuentoRol) : total;
+      // Prioridad: si hoy es cumple Y hay rol, aplica cumple (no acumula con código piloto)
+      const descuentoFinal = aplicaCumple
+        ? descuentoCumple
+        : isCourtesy
+          ? descuentoRol
+          : 0;
+      const finalTotal = Math.max(0, total - descuentoFinal);
       // 1. Crear el pedido (RLS permite a anon)
       const { data: order, error: orderErr } = await supabase
         .from("orders")
@@ -158,13 +232,19 @@ export default function Carrito() {
           customer_id: cliente.id,
           status: "pending",
           total: finalTotal,
-          payment_method: isCourtesy ? "cortesia" : pago,
+          payment_method: aplicaCumple
+            ? pago
+            : isCourtesy
+              ? "cortesia"
+              : pago,
           notes: notas || null,
           source: "pwa",
           pickup_date: pickupDate,
           contact_person: contactPerson,
-          is_courtesy: isCourtesy,
-          pilot_code: isCourtesy ? pilotCode.trim().toUpperCase() : null,
+          is_courtesy: !aplicaCumple && isCourtesy,
+          is_birthday_treat: aplicaCumple,
+          pilot_code:
+            !aplicaCumple && isCourtesy ? pilotCode.trim().toUpperCase() : null,
         })
         .select("id, folio")
         .single();
@@ -199,8 +279,16 @@ export default function Carrito() {
         .insert(orderItems);
       if (itemsErr) throw itemsErr;
 
-      // Marcar código como usado
-      if (isCourtesy) {
+      // Si aplicó descuento de cumple, marcar el año en customer para que no se repita
+      if (aplicaCumple && cliente.id) {
+        await supabase
+          .from("customers")
+          .update({ birthday_greeted_year: new Date().getFullYear() })
+          .eq("id", cliente.id);
+      }
+
+      // Marcar código como usado (solo si NO se aplicó descuento de cumple)
+      if (!aplicaCumple && isCourtesy) {
         await supabase
           .from("pilot_codes")
           .update({
@@ -213,7 +301,11 @@ export default function Carrito() {
 
       // Limpiar carrito y redirigir a pantalla de éxito
       clear();
-      const finalPago = isCourtesy ? "cortesia" : pago;
+      const finalPago = aplicaCumple
+        ? pago
+        : isCourtesy
+          ? "cortesia"
+          : pago;
       router.push(`/confirmacion/${order.folio}?pago=${finalPago}`);
     } catch (err) {
       console.error(err);
@@ -291,6 +383,34 @@ export default function Carrito() {
 
         {items.length > 0 && (
           <>
+            {/* Banner cumpleaños (solo si aplica hoy) */}
+            {aplicaCumple && (
+              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg fade-up">
+                <div className="text-3xl">🎂</div>
+                <div className="flex-1">
+                  <div
+                    className="text-base leading-none"
+                    style={{ fontFamily: "ReginaBlack" }}
+                  >
+                    ¡Feliz cumple, {cliente.name}!
+                  </div>
+                  <p className="text-[10px] opacity-95 mt-0.5 leading-snug">
+                    Un rol va por la casa. Ya se descontó ($
+                    {descuentoCumple.toFixed(0)}).
+                  </p>
+                </div>
+              </div>
+            )}
+            {cumpleHoy && !hasRol && (
+              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 fade-up">
+                <span className="text-2xl">🎂</span>
+                <p className="text-[11px] leading-snug">
+                  Hoy es tu cumple — <b>agrega un rol</b> y se te descuenta
+                  automáticamente.
+                </p>
+              </div>
+            )}
+
             {/* Items */}
             <ul className="flex flex-col gap-2">
               {items.map((it) => (
@@ -371,16 +491,43 @@ export default function Carrito() {
                 {fechaList.map((d) => {
                   const iso = dateToIsoDay(d);
                   const active = iso === pickupDate;
+                  const occ = occupancyMap.get(iso);
+                  const check = occ
+                    ? canDateAcceptCart(occ, cartCounts)
+                    : { ok: true, blockingCategories: [] };
+                  const blocked = !check.ok;
+                  const tight =
+                    occ &&
+                    !blocked &&
+                    (occ.worstStatus === "full" ||
+                      occ.worstStatus === "tight");
                   return (
                     <button
                       key={iso}
-                      onClick={() => setPickupDate(iso)}
-                      className={`flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition ${
-                        active
-                          ? "bg-antojo text-white shadow"
-                          : "bg-crema text-cafe"
+                      onClick={() => !blocked && setPickupDate(iso)}
+                      disabled={blocked}
+                      title={
+                        blocked
+                          ? `Fecha llena para: ${check.blockingCategories.join(", ")}`
+                          : tight
+                            ? "Pocos cupos"
+                            : undefined
+                      }
+                      className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition ${
+                        blocked
+                          ? "bg-canela/15 text-canela/50 line-through cursor-not-allowed"
+                          : active
+                            ? "bg-antojo text-white shadow"
+                            : tight
+                              ? "bg-[#F2A516]/15 text-[#B57A00] border border-[#F2A516]/40"
+                              : "bg-crema text-cafe"
                       }`}
                     >
+                      {tight && !blocked && (
+                        <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[8px] rounded-full px-1 leading-tight">
+                          !
+                        </span>
+                      )}
                       <div className="capitalize whitespace-nowrap">
                         {d.toLocaleDateString("es-MX", { weekday: "short" })}
                       </div>
@@ -389,6 +536,33 @@ export default function Carrito() {
                   );
                 })}
               </div>
+              {/* Aviso si la fecha actual está apretada o llena */}
+              {(() => {
+                const occ = occupancyMap.get(pickupDate);
+                if (!occ) return null;
+                const check = canDateAcceptCart(occ, cartCounts);
+                if (!check.ok) {
+                  return (
+                    <div className="mt-2 bg-antojo/10 border border-antojo/30 text-cafe rounded-lg px-2.5 py-1.5 text-[10px] leading-snug">
+                      🚫 Este día ya está lleno para{" "}
+                      <b>{check.blockingCategories.join(", ")}</b>. Mejor escoge
+                      otro día 🤎
+                    </div>
+                  );
+                }
+                if (
+                  occ.worstStatus === "full" ||
+                  occ.worstStatus === "tight"
+                ) {
+                  return (
+                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/30 text-cafe rounded-lg px-2.5 py-1.5 text-[10px] leading-snug">
+                      ⚠️ Día con pocos cupos. Si puedes mover tu antojo a otro
+                      día nos das chance 🤎
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               <div className="text-[10px] text-canela mt-2 italic">
                 Pasa por tu antojo o mándalo a recoger (Uber, DiDi, persona de
                 confianza).
@@ -556,15 +730,25 @@ export default function Carrito() {
 
             {/* Total */}
             <div className="bg-cafe text-crema rounded-xl px-4 py-3 mt-2">
-              {codeStatus?.valid && (
+              {(aplicaCumple || codeStatus?.valid) && (
                 <>
                   <div className="flex items-center justify-between text-xs opacity-80">
                     <span>Subtotal</span>
                     <span>${total.toFixed(0)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-[#FFD2A8]">
-                    <span>🎁 Cortesía (1 rol)</span>
-                    <span>−${descuentoRol.toFixed(0)}</span>
+                    <span>
+                      {aplicaCumple
+                        ? "🎂 Rol de cumpleaños"
+                        : "🎁 Cortesía (1 rol)"}
+                    </span>
+                    <span>
+                      −$
+                      {(aplicaCumple
+                        ? descuentoCumple
+                        : descuentoRol
+                      ).toFixed(0)}
+                    </span>
                   </div>
                   <div className="border-t border-crema/20 my-1.5" />
                 </>
@@ -576,24 +760,42 @@ export default function Carrito() {
                   style={{ fontFamily: "ReginaBlack" }}
                 >
                   $
-                  {(codeStatus?.valid
-                    ? Math.max(0, total - descuentoRol)
-                    : total
+                  {Math.max(
+                    0,
+                    total -
+                      (aplicaCumple
+                        ? descuentoCumple
+                        : codeStatus?.valid
+                          ? descuentoRol
+                          : 0)
                   ).toFixed(0)}
                 </span>
               </div>
             </div>
 
-            {/* Botón confirmar pedido */}
-            <button
-              onClick={confirmarPedido}
-              disabled={enviando}
-              className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
-              style={{ letterSpacing: "0.2px" }}
-            >
-              <IconCircleCheck size={18} />
-              {enviando ? "Anotando tu antojo..." : "Confirmar pedido"}
-            </button>
+            {/* Botón confirmar pedido (bloqueado si la fecha no acepta el carrito) */}
+            {(() => {
+              const occ = occupancyMap.get(pickupDate);
+              const check = occ
+                ? canDateAcceptCart(occ, cartCounts)
+                : { ok: true, blockingCategories: [] };
+              const bloqueado = !check.ok;
+              return (
+                <button
+                  onClick={confirmarPedido}
+                  disabled={enviando || bloqueado}
+                  className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-50"
+                  style={{ letterSpacing: "0.2px" }}
+                >
+                  <IconCircleCheck size={18} />
+                  {bloqueado
+                    ? "Día lleno · cambia la fecha"
+                    : enviando
+                      ? "Anotando tu antojo..."
+                      : "Confirmar pedido"}
+                </button>
+              );
+            })()}
             <p className="text-[10px] text-canela text-center -mt-1">
               Te confirmamos por WhatsApp cuando esté en el horno 🔥
             </p>

@@ -100,6 +100,19 @@ export default async function PedidoDetalle({
           </div>
         </div>
       )}
+      {order.is_birthday_treat && (
+        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+          <span className="text-2xl">🎂</span>
+          <div className="flex-1">
+            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+              Cumpleaños del cliente
+            </div>
+            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
+              Rol de regalo aplicado · Échale cariño extra
+            </div>
+          </div>
+        </div>
+      )}
       <p className="text-xs text-canela mt-1 capitalize">{fecha}</p>
 
       {/* Cliente */}

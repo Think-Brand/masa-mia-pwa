@@ -57,6 +57,10 @@ export type Customer = {
   first_order_at: string | null;
   last_order_at: string | null;
   created_at: string;
+  avatar_pose: string | null;
+  /** Formato 'MM-DD' (sin año) */
+  birthday: string | null;
+  birthday_greeted_year: number | null;
 };
 
 export type OrderStatus =
@@ -82,6 +86,9 @@ export type Order = {
   notes: string | null;
   decline_reason: string | null;
   decline_message: string | null;
+  is_courtesy: boolean | null;
+  is_birthday_treat: boolean | null;
+  pilot_code: string | null;
   created_at: string;
   updated_at: string;
   accepted_at: string | null;

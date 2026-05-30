@@ -13,6 +13,7 @@ import {
   IconCopy,
   IconDeviceFloppy,
   IconFlask,
+  IconGauge,
   IconLoader2,
   IconPlus,
   IconSparkles,
@@ -21,8 +22,18 @@ import {
 import { createClient } from "@/lib/supabase";
 import StaffOnboarding from "@/components/StaffOnboarding";
 import { resetTour, STAFF_TOUR_ID } from "@/lib/onboarding";
+import {
+  CATEGORIES,
+  CATEGORY_LABEL,
+  STATUS_STYLE,
+  getCapacity,
+  getMultiDayOccupancy,
+  saveCapacity,
+  type Capacity,
+  type DayOccupancy,
+} from "@/lib/capacity";
 
-type Tab = "productos" | "boxes" | "negocio" | "piloto";
+type Tab = "productos" | "boxes" | "negocio" | "capacidad" | "piloto";
 
 type Product = {
   id: string;
@@ -84,6 +95,12 @@ export default function AjustesEditor() {
           label="Negocio"
         />
         <TabBtn
+          active={tab === "capacidad"}
+          onClick={() => setTab("capacidad")}
+          icon={<IconGauge size={14} />}
+          label="Capacidad"
+        />
+        <TabBtn
           active={tab === "piloto"}
           onClick={() => setTab("piloto")}
           icon={<IconFlask size={14} />}
@@ -94,7 +111,202 @@ export default function AjustesEditor() {
       {tab === "productos" && <ProductosPanel />}
       {tab === "boxes" && <BoxesPanel />}
       {tab === "negocio" && <NegocioPanel />}
+      {tab === "capacidad" && <CapacidadPanel />}
       {tab === "piloto" && <PilotoPanel />}
+    </div>
+  );
+}
+
+function CapacidadPanel() {
+  const [capacity, setCapacity] = useState<Capacity>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [occupancies, setOccupancies] = useState<DayOccupancy[]>([]);
+
+  const load = async () => {
+    setLoading(true);
+    const supabase = createClient();
+    const cap = await getCapacity(supabase);
+    setCapacity(cap);
+    // Calcular próximos 7 días
+    const dates: string[] = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      dates.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+      );
+    }
+    const occ = await getMultiDayOccupancy(supabase, dates, cap);
+    setOccupancies(occ);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const guardar = async () => {
+    setSaving(true);
+    const supabase = createClient();
+    await saveCapacity(supabase, capacity);
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+    // Recargar ocupación con la nueva capacidad
+    load();
+  };
+
+  const hasAnyLimit = Object.values(capacity).some(
+    (v) => typeof v === "number" && v > 0
+  );
+
+  return (
+    <div className="space-y-4">
+      <Section title="🚦 Capacidad diaria por categoría">
+        <p className="text-[11px] text-canela leading-relaxed mb-3">
+          Define cuánto puedes producir al día por categoría. Deja en blanco lo
+          que no quieras limitar. Si una categoría llega a su tope, esa fecha
+          se bloquea para el cliente.
+        </p>
+
+        <div className="space-y-2">
+          {CATEGORIES.map((c) => (
+            <div key={c} className="flex items-center gap-3">
+              <label
+                className="flex-1 text-sm font-bold text-cafe"
+                style={{ fontFamily: "Termina" }}
+              >
+                {CATEGORY_LABEL[c]}
+              </label>
+              <input
+                type="number"
+                min="0"
+                placeholder="—"
+                value={capacity[c] ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCapacity((prev) => ({
+                    ...prev,
+                    [c]: v === "" ? null : Number(v),
+                  }));
+                }}
+                className="w-24 bg-white border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe text-center focus:outline-none focus:border-cafe"
+              />
+              <span className="text-[10px] text-canela w-12">
+                {c === "rol" || c === "berlinesa" ? "piezas" : "cajas"}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={guardar}
+          disabled={saving}
+          className="mt-4 w-full bg-antojo text-white rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition disabled:opacity-50 shadow-md"
+        >
+          {saving ? (
+            <IconLoader2 size={14} className="animate-spin" />
+          ) : saved ? (
+            <IconCheck size={14} />
+          ) : (
+            <IconDeviceFloppy size={14} />
+          )}
+          {saved ? "Guardado" : "Guardar capacidad"}
+        </button>
+
+        {!hasAnyLimit && (
+          <p className="text-[10px] text-canela italic mt-2 text-center">
+            Mientras esté en blanco, no hay límite (sistema apagado).
+          </p>
+        )}
+      </Section>
+
+      {/* Próximos 7 días */}
+      <Section title="📅 Próximos 7 días">
+        {loading ? (
+          <div className="text-center py-6 text-canela">
+            <IconLoader2 size={18} className="animate-spin inline" />
+          </div>
+        ) : !hasAnyLimit ? (
+          <p className="text-xs text-canela italic text-center py-4">
+            Define al menos una capacidad arriba para ver la ocupación.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {occupancies.map((occ, i) => {
+              const d = new Date(occ.date + "T12:00:00");
+              const isHoy = i === 0;
+              return (
+                <div
+                  key={occ.date}
+                  className={`bg-white rounded-xl p-2.5 border ${
+                    occ.worstStatus === "over"
+                      ? "border-rojo/40"
+                      : occ.worstStatus === "full" ||
+                          occ.worstStatus === "tight"
+                        ? "border-[#F2A516]/40"
+                        : "border-caramelo/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div
+                      className="text-xs font-bold text-cafe capitalize"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {isHoy
+                        ? "Hoy"
+                        : i === 1
+                          ? "Mañana"
+                          : d.toLocaleDateString("es-MX", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "short",
+                            })}
+                    </div>
+                    {occ.hasAlert && (
+                      <span
+                        className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[occ.worstStatus].text} bg-white border ${STATUS_STYLE[occ.worstStatus].dot.replace("bg-", "border-")}`}
+                      >
+                        {STATUS_STYLE[occ.worstStatus].label}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    {occ.rows
+                      .filter((r) => r.status !== "unlimited")
+                      .map((r) => (
+                        <div
+                          key={r.category}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="text-[10px] text-canela w-16">
+                            {CATEGORY_LABEL[r.category]}
+                          </span>
+                          <div className="flex-1 bg-crema-soft rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full ${STATUS_STYLE[r.status].bar} transition-all`}
+                              style={{
+                                width: `${Math.min(100, r.percentage)}%`,
+                              }}
+                            />
+                          </div>
+                          <span
+                            className={`text-[10px] font-bold w-14 text-right ${STATUS_STYLE[r.status].text}`}
+                          >
+                            {r.used}/{r.limit}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Section>
     </div>
   );
 }

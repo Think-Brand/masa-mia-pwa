@@ -28,6 +28,8 @@ type OrderRow = {
   pickup_date: string | null;
   created_at: string;
   notes: string | null;
+  is_courtesy: boolean | null;
+  is_birthday_treat: boolean | null;
   customer: { name: string; whatsapp: string } | null;
   items: {
     id: string;
@@ -311,9 +313,15 @@ export default function KitchenDisplay({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div
-                        className={`text-3xl font-bold ${cardText}`}
+                        className={`text-3xl font-bold ${cardText} flex items-center gap-1.5`}
                         style={{ fontFamily: "ReginaBlack" }}
                       >
+                        {o.is_birthday_treat && (
+                          <span title="Cumpleaños del cliente">🎂</span>
+                        )}
+                        {o.is_courtesy && !o.is_birthday_treat && (
+                          <span title="Cortesía piloto">🎁</span>
+                        )}
                         {o.folio}
                       </div>
                       <div

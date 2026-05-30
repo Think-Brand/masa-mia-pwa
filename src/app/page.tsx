@@ -81,15 +81,23 @@ export default function LeadGate() {
 
       let customerId: string;
       let avatarPose: string | undefined;
+      let birthday: string | null = null;
+      let birthday_set_at: string | null = null;
+      let birthday_greeted_year: number | null = null;
       if (existing) {
         customerId = existing.id;
-        // Traer avatar guardado
+        // Traer avatar + birthday data guardada
         const { data: full } = await supabase
           .from("customers")
-          .select("avatar_pose")
+          .select(
+            "avatar_pose, birthday, birthday_set_at, birthday_greeted_year"
+          )
           .eq("id", customerId)
           .maybeSingle();
         avatarPose = full?.avatar_pose ?? "adorable";
+        birthday = full?.birthday ?? null;
+        birthday_set_at = full?.birthday_set_at ?? null;
+        birthday_greeted_year = full?.birthday_greeted_year ?? null;
       } else {
         const { data: nuevo, error: insErr } = await supabase
           .from("customers")
@@ -106,6 +114,9 @@ export default function LeadGate() {
         name: cleanName,
         whatsapp: cleanWa,
         avatar_pose: avatarPose,
+        birthday,
+        birthday_set_at,
+        birthday_greeted_year,
       });
       router.push("/catalogo");
     } catch (err: any) {

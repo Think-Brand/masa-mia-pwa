@@ -26,6 +26,12 @@ export type Cliente = {
   name: string;
   whatsapp: string;
   avatar_pose?: string;
+  /** Formato 'MM-DD' (ej: '07-12'). null/undefined si no lo ha compartido */
+  birthday?: string | null;
+  /** ISO timestamp del último cambio del cumple (anti-trampa) */
+  birthday_set_at?: string | null;
+  /** Último año en que se aplicó el descuento de cumple */
+  birthday_greeted_year?: number | null;
 };
 
 type CarritoCtx = {

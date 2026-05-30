@@ -14,6 +14,8 @@ type OrderRow = {
   contact_person: string | null;
   pickup_date: string | null;
   created_at: string;
+  is_courtesy: boolean | null;
+  is_birthday_treat: boolean | null;
   customer: { name: string; whatsapp: string } | null;
 };
 
@@ -33,7 +35,7 @@ export default async function PedidosPage() {
     .from("orders")
     .select(
       `id, folio, status, total, payment_method, contact_person,
-       pickup_date, created_at,
+       pickup_date, created_at, is_courtesy, is_birthday_treat,
        customer:customers(name, whatsapp)`
     )
     .order("created_at", { ascending: false })
@@ -191,6 +193,16 @@ function OrderCard({ order }: { order: OrderRow }) {
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
+          {order.is_birthday_treat && (
+            <span title="Cumpleaños del cliente" className="text-base">
+              🎂
+            </span>
+          )}
+          {order.is_courtesy && !order.is_birthday_treat && (
+            <span title="Cortesía piloto" className="text-base">
+              🎁
+            </span>
+          )}
           <span
             className="text-sm font-bold text-cafe"
             style={{ fontFamily: "Termina" }}
