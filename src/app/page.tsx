@@ -3,20 +3,53 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconArrowRight, IconChefHat } from "@tabler/icons-react";
+import {
+  IconArrowRight,
+  IconChefHat,
+  IconCake,
+  IconChevronDown,
+  IconChevronUp,
+} from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
+import { MESES, diasEnMes } from "@/lib/birthday";
 
 export default function LeadGate() {
   const router = useRouter();
   const { cliente, setCliente } = useCarrito();
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [bdayOpen, setBdayOpen] = useState(false);
+  const [bdayMes, setBdayMes] = useState<number>(1);
+  const [bdayDia, setBdayDia] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recognized, setRecognized] = useState<string | null>(null);
   const lookupTimer = useRef<number | null>(null);
+
+  // Easter egg: 3 toques rápidos a Miga → entrar a staff
+  const tapState = useRef<{ count: number; lastTap: number }>({
+    count: 0,
+    lastTap: 0,
+  });
+  const tapMiga = () => {
+    const now = Date.now();
+    // Si pasó más de 900ms desde el último toque, reiniciar
+    if (now - tapState.current.lastTap > 900) {
+      tapState.current.count = 1;
+    } else {
+      tapState.current.count += 1;
+    }
+    tapState.current.lastTap = now;
+    if (tapState.current.count >= 3) {
+      tapState.current.count = 0;
+      router.push("/staff/login");
+    }
+  };
+
+  const maxDia = diasEnMes(bdayMes);
+  const diaSeguro = Math.min(bdayDia, maxDia);
 
   // Si ya hay cliente registrado y el WhatsApp tiene 10 dígitos, al catálogo
   useEffect(() => {
@@ -69,6 +102,12 @@ export default function LeadGate() {
       return;
     }
 
+    // Cumpleaños: solo si está abierto Y es cliente nuevo
+    const cumpleNuevo =
+      !recognized && bdayOpen
+        ? `${String(bdayMes).padStart(2, "0")}-${String(diaSeguro).padStart(2, "0")}`
+        : null;
+
     setLoading(true);
     try {
       const supabase = createClient();
@@ -99,14 +138,27 @@ export default function LeadGate() {
         birthday_set_at = full?.birthday_set_at ?? null;
         birthday_greeted_year = full?.birthday_greeted_year ?? null;
       } else {
+        const now = new Date().toISOString();
+        const insertPayload: Record<string, any> = {
+          name: cleanName,
+          whatsapp: cleanWa,
+        };
+        if (cumpleNuevo) {
+          insertPayload.birthday = cumpleNuevo;
+          insertPayload.birthday_set_at = now;
+        }
         const { data: nuevo, error: insErr } = await supabase
           .from("customers")
-          .insert({ name: cleanName, whatsapp: cleanWa })
+          .insert(insertPayload)
           .select("id")
           .single();
         if (insErr) throw insErr;
         customerId = nuevo.id;
         avatarPose = "adorable";
+        if (cumpleNuevo) {
+          birthday = cumpleNuevo;
+          birthday_set_at = now;
+        }
       }
 
       setCliente({
@@ -129,12 +181,22 @@ export default function LeadGate() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-between px-6 py-10 max-w-md mx-auto">
       <div className="flex-1 flex flex-col items-center justify-center text-center pt-16">
-        <Miga
-          pose={recognized ? "lista" : "chef"}
-          animation={recognized ? "jump" : "breath"}
-          size={210}
-          priority
-        />
+        {/* Easter egg: 3 toques rápidos = acceso staff */}
+        <div
+          onClick={tapMiga}
+          role="button"
+          tabIndex={-1}
+          aria-label="Miga"
+          className="cursor-pointer select-none"
+          style={{ WebkitTapHighlightColor: "transparent" }}
+        >
+          <Miga
+            pose={recognized ? "lista" : "chef"}
+            animation={recognized ? "jump" : "breath"}
+            size={210}
+            priority
+          />
+        </div>
         <h1
           className="text-4xl mt-4 leading-none text-cafe"
           style={{ fontFamily: "ReginaBlack" }}
@@ -197,6 +259,84 @@ export default function LeadGate() {
             recognized ? "bg-crema-soft" : ""
           }`}
         />
+
+        {/* Campo cumpleaños — solo para clientes nuevos */}
+        {!recognized && (
+          <div className="bg-white border-2 border-dashed border-caramelo/60 rounded-2xl px-3 py-2.5">
+            {!bdayOpen ? (
+              <button
+                type="button"
+                onClick={() => setBdayOpen(true)}
+                className="w-full flex items-center gap-2 text-left active:scale-[0.99] transition"
+              >
+                <div className="w-9 h-9 rounded-full bg-antojo/10 flex items-center justify-center text-antojo flex-shrink-0">
+                  <IconCake size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="text-[12px] font-bold text-cafe"
+                    style={{ fontFamily: "Termina" }}
+                  >
+                    🎂 Cuéntanos tu cumple
+                  </div>
+                  <div className="text-[10px] text-caramelo italic leading-tight">
+                    Te regalamos 1 rol cuando llegue tu día
+                  </div>
+                </div>
+                <IconChevronDown size={16} className="text-canela flex-shrink-0" />
+              </button>
+            ) : (
+              <div className="fade-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <IconCake size={16} className="text-antojo" />
+                  <span
+                    className="text-[11px] font-bold text-cafe flex-1"
+                    style={{ fontFamily: "Termina" }}
+                  >
+                    Cuándo es tu cumple
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setBdayOpen(false)}
+                    className="text-canela active:scale-90"
+                    aria-label="Cerrar"
+                  >
+                    <IconChevronUp size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    value={bdayMes}
+                    onChange={(e) => setBdayMes(parseInt(e.target.value, 10))}
+                    className="bg-crema-soft border border-caramelo/40 rounded-xl px-2.5 py-2 text-xs text-cafe focus:outline-none focus:border-cafe capitalize"
+                  >
+                    {MESES.map((m, i) => (
+                      <option key={i} value={i + 1}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={diaSeguro}
+                    onChange={(e) => setBdayDia(parseInt(e.target.value, 10))}
+                    className="bg-crema-soft border border-caramelo/40 rounded-xl px-2.5 py-2 text-xs text-cafe focus:outline-none focus:border-cafe"
+                  >
+                    {Array.from({ length: maxDia }, (_, i) => i + 1).map(
+                      (d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+                <p className="text-[9px] text-canela text-center italic mt-2 leading-tight">
+                  Solo día y mes. Sin año. Promesa de Miga 🤎
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {error && (
           <div className="text-xs text-[#C0392B] text-center px-2 fade-up">
