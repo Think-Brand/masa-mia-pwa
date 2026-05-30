@@ -17,6 +17,7 @@ export type CarritoItem = {
   image_url: string | null;
   quantity: number;
   prep_days?: number;
+  category?: string;
   composition?: CompositionLine[];
 };
 
@@ -98,6 +99,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
           image_url: p.image_url,
           quantity: qty,
           prep_days: p.prep_days ?? 1,
+          category: p.category,
         },
       ];
     });
@@ -114,6 +116,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
         image_url: p.image_url,
         quantity: 1,
         prep_days: p.prep_days ?? 1,
+        category: p.category,
         composition,
       },
     ]);

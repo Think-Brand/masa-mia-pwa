@@ -57,6 +57,13 @@ export default function Carrito() {
       });
   }, []);
 
+  // Detectar si hay roles en el carrito + el precio del rol más barato
+  const rolesEnCarrito = items.filter((it) => it.category === "rol");
+  const hasRol = rolesEnCarrito.length > 0;
+  const descuentoRol = hasRol
+    ? Math.min(...rolesEnCarrito.map((it) => it.price))
+    : 0;
+
   const validateCode = async () => {
     const code = pilotCode.trim().toUpperCase();
     if (!code) {
@@ -71,19 +78,29 @@ export default function Carrito() {
       .maybeSingle();
     if (!data) {
       setCodeStatus({ valid: false, message: "Ese código no existe." });
-    } else if (data.used) {
+      return;
+    }
+    if (data.used) {
       setCodeStatus({
         valid: false,
         message: "Ese código ya fue canjeado.",
       });
-    } else {
-      setCodeStatus({
-        valid: true,
-        message: data.recipient_name
-          ? `¡${data.recipient_name}, tu rol corre por nuestra cuenta! 🎁`
-          : "¡Código válido! Tu rol corre por nuestra cuenta 🎁",
-      });
+      return;
     }
+    if (!hasRol) {
+      setCodeStatus({
+        valid: false,
+        message:
+          "Este código es por 1 rol cortesía. Agrega un rol a tu pedido para canjearlo 🥖",
+      });
+      return;
+    }
+    setCodeStatus({
+      valid: true,
+      message: data.recipient_name
+        ? `¡${data.recipient_name}, un rol cortesía a tu pedido! 🎁 (Descuento $${descuentoRol})`
+        : `¡Código válido! Un rol cortesía 🎁 (Descuento $${descuentoRol})`,
+    });
   };
 
   // Calcular fecha mínima según prep_days del carrito
@@ -132,7 +149,8 @@ export default function Carrito() {
       const supabase = createClient();
 
       const isCourtesy = codeStatus?.valid === true;
-      const finalTotal = isCourtesy ? 0 : total;
+      // La cortesía descuenta el precio de UN rol (no el pedido completo)
+      const finalTotal = isCourtesy ? Math.max(0, total - descuentoRol) : total;
       // 1. Crear el pedido (RLS permite a anon)
       const { data: order, error: orderErr } = await supabase
         .from("orders")
@@ -537,16 +555,33 @@ export default function Carrito() {
             )}
 
             {/* Total */}
-            <div className="bg-cafe text-crema rounded-xl px-4 py-3 flex items-center justify-between mt-2">
-              <span className="text-sm">
-                {codeStatus?.valid ? "Cortesía 🎁" : "Total"}
-              </span>
-              <span
-                className="text-2xl"
-                style={{ fontFamily: "ReginaBlack" }}
-              >
-                ${codeStatus?.valid ? "0" : total.toFixed(0)}
-              </span>
+            <div className="bg-cafe text-crema rounded-xl px-4 py-3 mt-2">
+              {codeStatus?.valid && (
+                <>
+                  <div className="flex items-center justify-between text-xs opacity-80">
+                    <span>Subtotal</span>
+                    <span>${total.toFixed(0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-[#FFD2A8]">
+                    <span>🎁 Cortesía (1 rol)</span>
+                    <span>−${descuentoRol.toFixed(0)}</span>
+                  </div>
+                  <div className="border-t border-crema/20 my-1.5" />
+                </>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Total</span>
+                <span
+                  className="text-2xl"
+                  style={{ fontFamily: "ReginaBlack" }}
+                >
+                  $
+                  {(codeStatus?.valid
+                    ? Math.max(0, total - descuentoRol)
+                    : total
+                  ).toFixed(0)}
+                </span>
+              </div>
             </div>
 
             {/* Botón confirmar pedido */}

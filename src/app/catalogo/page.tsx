@@ -16,10 +16,18 @@ type Tab = "todo" | Category;
 const TABS: { key: Tab; label: string }[] = [
   { key: "todo", label: "Todo el antojo" },
   { key: "rol", label: "Roles" },
-  { key: "berlinesa", label: "Berlinesas" },
   { key: "rollinbox", label: "RollinBox" },
+  { key: "berlinesa", label: "Berlinesas" },
   { key: "luvinbox", label: "LuvinBox" },
 ];
+
+// Orden de prioridad cuando se muestra "Todo el antojo"
+const CATEGORY_ORDER: Record<string, number> = {
+  rol: 1,
+  rollinbox: 2,
+  berlinesa: 3,
+  luvinbox: 4,
+};
 
 function slugify(name: string) {
   return name
@@ -56,13 +64,18 @@ export default function Catalogo() {
       });
   }, []);
 
-  const filtered = useMemo(
-    () =>
-      activeTab === "todo"
-        ? products
-        : products.filter((p) => p.category === activeTab),
-    [products, activeTab]
-  );
+  const filtered = useMemo(() => {
+    if (activeTab === "todo") {
+      // En "Todo el antojo" respetar orden: rol → rollinbox → berlinesa → luvinbox
+      return [...products].sort((a, b) => {
+        const orderA = CATEGORY_ORDER[a.category] ?? 99;
+        const orderB = CATEGORY_ORDER[b.category] ?? 99;
+        if (orderA !== orderB) return orderA - orderB;
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+      });
+    }
+    return products.filter((p) => p.category === activeTab);
+  }, [products, activeTab]);
 
   if (!cliente) return null;
 

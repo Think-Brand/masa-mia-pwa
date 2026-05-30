@@ -182,13 +182,14 @@ function PilotoPanel() {
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
           label="Activar piloto"
-          sub="Muestra widget de feedback + permite códigos de cortesía"
+          sub="Pide feedback después del pedido + códigos de cortesía"
           value={pilotMode}
           onChange={togglePilot}
         />
         <p className="text-[10px] text-canela italic">
-          Cuando esté encendido, los clientes ven un botón flotante naranja para
-          dar feedback. Y pueden canjear códigos de cortesía en el carrito.
+          Cuando esté encendido: al confirmar pedido, el cliente recibe popup
+          para dar feedback. Y puede canjear códigos por <b>1 rol cortesía</b>{" "}
+          (descuenta el precio de 1 rol del total, no el pedido completo).
         </p>
       </Section>
 

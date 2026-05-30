@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { CarritoProvider } from "@/components/CarritoProvider";
-import FeedbackWidget from "@/components/FeedbackWidget";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,10 +39,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <CarritoProvider>
-          {children}
-          <FeedbackWidget />
-        </CarritoProvider>
+        <CarritoProvider>{children}</CarritoProvider>
       </body>
     </html>
   );

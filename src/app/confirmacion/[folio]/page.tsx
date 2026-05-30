@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase";
 import { Order, OrderItem } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
+import FeedbackPopup from "@/components/FeedbackWidget";
 import { generarMensajeWhatsapp } from "@/lib/whatsapp";
 import { getSettings, Settings } from "@/lib/settings";
 import { formatDeliveryDate } from "@/lib/delivery";
@@ -272,6 +273,9 @@ function Confirmacion() {
       <p className="text-[10px] text-canela mt-5 max-w-xs">
         Guarda este folio. Fabi o Alex lo van a ver en su panel.
       </p>
+
+      {/* Popup de feedback (solo si pilot_mode está activo) */}
+      <FeedbackPopup folio={order.folio} page="/confirmacion" />
     </main>
   );
 }
