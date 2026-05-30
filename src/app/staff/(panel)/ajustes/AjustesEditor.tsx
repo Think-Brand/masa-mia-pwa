@@ -591,6 +591,43 @@ function BoxesPanel() {
     );
   };
 
+  const updateCompField = async (id: string, patch: Partial<BoxComp>) => {
+    const supabase = createClient();
+    await supabase.from("box_components").update(patch).eq("id", id);
+    setComps((curr) =>
+      curr.map((c) => (c.id === id ? { ...c, ...patch } : c))
+    );
+  };
+
+  const deleteComp = async (id: string) => {
+    if (!confirm("¿Eliminar este componente y todas sus opciones?")) return;
+    const supabase = createClient();
+    await supabase.from("box_components").delete().eq("id", id);
+    setComps((curr) => curr.filter((c) => c.id !== id));
+    setOpts((curr) => curr.filter((o) => o.component_id !== id));
+  };
+
+  const addComp = async () => {
+    if (!selectedBox) return;
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("box_components")
+      .insert({
+        box_product_id: selectedBox,
+        name: "Componente nuevo",
+        quantity: 1,
+        is_active: true,
+        sort_order: comps.length + 1,
+      })
+      .select()
+      .single();
+    if (error) {
+      alert("No se pudo crear: " + error.message);
+      return;
+    }
+    setComps((curr) => [...curr, data as BoxComp]);
+  };
+
   const toggleOpt = async (id: string, is_available: boolean) => {
     const supabase = createClient();
     await supabase
@@ -600,6 +637,39 @@ function BoxesPanel() {
     setOpts((curr) =>
       curr.map((o) => (o.id === id ? { ...o, is_available } : o))
     );
+  };
+
+  const renameOpt = async (id: string, name: string) => {
+    const supabase = createClient();
+    await supabase.from("component_options").update({ name }).eq("id", id);
+    setOpts((curr) => curr.map((o) => (o.id === id ? { ...o, name } : o)));
+  };
+
+  const deleteOpt = async (id: string) => {
+    const supabase = createClient();
+    await supabase.from("component_options").delete().eq("id", id);
+    setOpts((curr) => curr.filter((o) => o.id !== id));
+  };
+
+  const addOpt = async (compId: string, name: string) => {
+    if (!name.trim()) return;
+    const supabase = createClient();
+    const existing = opts.filter((o) => o.component_id === compId);
+    const { data, error } = await supabase
+      .from("component_options")
+      .insert({
+        component_id: compId,
+        name: name.trim(),
+        is_available: true,
+        sort_order: existing.length + 1,
+      })
+      .select()
+      .single();
+    if (error) {
+      alert("No se pudo agregar: " + error.message);
+      return;
+    }
+    setOpts((curr) => [...curr, data as CompOpt]);
   };
 
   if (loading) {
@@ -633,57 +703,18 @@ function BoxesPanel() {
         {comps.map((c) => {
           const componentOpts = opts.filter((o) => o.component_id === c.id);
           return (
-            <li key={c.id} className="bg-white rounded-2xl p-3 shadow-sm">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <div>
-                  <div
-                    className="text-sm font-bold text-cafe"
-                    style={{ fontFamily: "Termina" }}
-                  >
-                    {c.name}
-                  </div>
-                  <div className="text-[10px] text-canela">
-                    × {c.quantity} unidades
-                  </div>
-                </div>
-                <Switch
-                  value={c.is_active}
-                  onChange={(v) => toggleComp(c.id, v)}
-                />
-              </div>
-
-              {c.is_active && componentOpts.length > 0 && (
-                <div className="border-t border-caramelo/20 pt-2 space-y-2">
-                  <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
-                    Opciones disponibles
-                  </div>
-                  {componentOpts.map((o) => (
-                    <div
-                      key={o.id}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span
-                        className={`text-xs ${
-                          o.is_available ? "text-cafe" : "text-canela line-through"
-                        }`}
-                      >
-                        {o.name}
-                      </span>
-                      <Switch
-                        value={o.is_available}
-                        onChange={(v) => toggleOpt(o.id, v)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {c.is_active && componentOpts.length === 0 && (
-                <div className="text-[10px] text-canela italic border-t border-caramelo/20 pt-2">
-                  Sin opciones cargadas. Se incluye por default.
-                </div>
-              )}
-            </li>
+            <ComponentCard
+              key={c.id}
+              comp={c}
+              opts={componentOpts}
+              onToggleComp={toggleComp}
+              onUpdateComp={updateCompField}
+              onDeleteComp={deleteComp}
+              onToggleOpt={toggleOpt}
+              onRenameOpt={renameOpt}
+              onDeleteOpt={deleteOpt}
+              onAddOpt={addOpt}
+            />
           );
         })}
         {comps.length === 0 && (
@@ -692,7 +723,191 @@ function BoxesPanel() {
           </p>
         )}
       </ul>
+
+      {selectedBox && (
+        <button
+          onClick={addComp}
+          className="w-full mt-4 bg-white text-cafe border-2 border-dashed border-antojo/40 rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition"
+        >
+          <IconPlus size={16} /> Agregar componente al box
+        </button>
+      )}
     </div>
+  );
+}
+
+function ComponentCard({
+  comp,
+  opts,
+  onToggleComp,
+  onUpdateComp,
+  onDeleteComp,
+  onToggleOpt,
+  onRenameOpt,
+  onDeleteOpt,
+  onAddOpt,
+}: {
+  comp: BoxComp;
+  opts: CompOpt[];
+  onToggleComp: (id: string, v: boolean) => void;
+  onUpdateComp: (id: string, patch: Partial<BoxComp>) => Promise<void>;
+  onDeleteComp: (id: string) => void;
+  onToggleOpt: (id: string, v: boolean) => void;
+  onRenameOpt: (id: string, name: string) => Promise<void>;
+  onDeleteOpt: (id: string) => void;
+  onAddOpt: (compId: string, name: string) => Promise<void>;
+}) {
+  const [name, setName] = useState(comp.name);
+  const [qty, setQty] = useState(String(comp.quantity));
+  const [editingOptId, setEditingOptId] = useState<string | null>(null);
+  const [editingOptName, setEditingOptName] = useState("");
+  const [newOptName, setNewOptName] = useState("");
+
+  useEffect(() => {
+    setName(comp.name);
+    setQty(String(comp.quantity));
+  }, [comp.name, comp.quantity]);
+
+  const saveCompName = () => {
+    if (name.trim() && name !== comp.name) {
+      onUpdateComp(comp.id, { name: name.trim() });
+    }
+  };
+
+  const saveCompQty = () => {
+    const n = Number(qty);
+    if (n > 0 && n !== comp.quantity) {
+      onUpdateComp(comp.id, { quantity: n });
+    }
+  };
+
+  return (
+    <li className="bg-white rounded-2xl p-3 shadow-sm">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex-1 min-w-0 space-y-1">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={saveCompName}
+            className="w-full bg-transparent text-sm font-bold text-cafe focus:outline-none border-b border-transparent focus:border-cafe"
+            style={{ fontFamily: "Termina" }}
+          />
+          <div className="flex items-center gap-2 text-[11px] text-canela">
+            <span>Cantidad:</span>
+            <input
+              type="number"
+              min="1"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              onBlur={saveCompQty}
+              className="w-14 bg-crema-soft border border-caramelo/30 rounded px-2 py-0.5 text-cafe focus:outline-none focus:border-cafe text-center"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <Switch
+            value={comp.is_active}
+            onChange={(v) => onToggleComp(comp.id, v)}
+          />
+          <button
+            onClick={() => onDeleteComp(comp.id)}
+            aria-label="Eliminar componente"
+            className="text-rojo opacity-60 active:scale-90"
+          >
+            <IconX size={16} />
+          </button>
+        </div>
+      </div>
+
+      {comp.is_active && (
+        <div className="border-t border-caramelo/20 pt-2 space-y-2">
+          <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+            Opciones disponibles
+          </div>
+
+          {opts.map((o) => {
+            const isEditing = editingOptId === o.id;
+            return (
+              <div
+                key={o.id}
+                className="flex items-center gap-2"
+              >
+                {isEditing ? (
+                  <input
+                    autoFocus
+                    value={editingOptName}
+                    onChange={(e) => setEditingOptName(e.target.value)}
+                    onBlur={async () => {
+                      if (editingOptName.trim() && editingOptName !== o.name) {
+                        await onRenameOpt(o.id, editingOptName.trim());
+                      }
+                      setEditingOptId(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                      if (e.key === "Escape") setEditingOptId(null);
+                    }}
+                    className="flex-1 bg-crema-soft border border-caramelo/30 rounded px-2 py-1 text-xs text-cafe focus:outline-none focus:border-cafe"
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingOptId(o.id);
+                      setEditingOptName(o.name);
+                    }}
+                    className={`flex-1 text-left text-xs ${
+                      o.is_available ? "text-cafe" : "text-canela line-through"
+                    }`}
+                  >
+                    {o.name}
+                  </button>
+                )}
+                <Switch
+                  value={o.is_available}
+                  onChange={(v) => onToggleOpt(o.id, v)}
+                />
+                <button
+                  onClick={() => {
+                    if (confirm(`¿Eliminar "${o.name}"?`)) onDeleteOpt(o.id);
+                  }}
+                  aria-label="Eliminar opción"
+                  className="text-rojo opacity-50 active:scale-90 w-7 h-7 flex items-center justify-center"
+                >
+                  <IconX size={14} />
+                </button>
+              </div>
+            );
+          })}
+
+          <div className="flex items-center gap-2 pt-1">
+            <input
+              value={newOptName}
+              onChange={(e) => setNewOptName(e.target.value)}
+              onKeyDown={async (e) => {
+                if (e.key === "Enter" && newOptName.trim()) {
+                  await onAddOpt(comp.id, newOptName);
+                  setNewOptName("");
+                }
+              }}
+              placeholder="Nueva opción…"
+              className="flex-1 bg-crema-soft border border-caramelo/30 rounded-lg px-2.5 py-1.5 text-xs text-cafe focus:outline-none focus:border-cafe placeholder:text-canela/60"
+            />
+            <button
+              onClick={async () => {
+                if (newOptName.trim()) {
+                  await onAddOpt(comp.id, newOptName);
+                  setNewOptName("");
+                }
+              }}
+              disabled={!newOptName.trim()}
+              className="w-9 h-9 rounded-lg bg-antojo text-white flex items-center justify-center disabled:opacity-30 active:scale-90 transition"
+            >
+              <IconPlus size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+    </li>
   );
 }
 
