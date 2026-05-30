@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconArrowRight } from "@tabler/icons-react";
+import { IconArrowRight, IconChefHat } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
@@ -120,7 +121,7 @@ export default function LeadGate() {
         <Miga
           pose={recognized ? "lista" : "chef"}
           animation={recognized ? "jump" : "breath"}
-          size={170}
+          size={210}
           priority
         />
         <h1
@@ -211,6 +212,15 @@ export default function LeadGate() {
         <p className="text-[10px] text-canela text-center mt-1">
           Sin spam. Solo cuando hay algo rico.
         </p>
+
+        {/* Acceso staff discreto */}
+        <Link
+          href="/staff/login"
+          className="mt-4 text-[11px] text-canela text-center flex items-center justify-center gap-1.5 hover:text-cafe transition active:scale-95"
+        >
+          <IconChefHat size={13} />
+          ¿Eres del staff? <span className="font-bold underline">Entrar a la cocina</span>
+        </Link>
       </form>
     </main>
   );
