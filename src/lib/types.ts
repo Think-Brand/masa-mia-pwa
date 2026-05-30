@@ -43,6 +43,7 @@ export type ComponentOption = {
   is_available: boolean;
   price_modifier: number;
   sort_order: number;
+  image_url: string | null;
 };
 
 export type Customer = {
