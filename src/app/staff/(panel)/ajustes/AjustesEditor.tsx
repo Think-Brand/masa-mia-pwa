@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   IconBox,
   IconBuildingStore,
+  IconCamera,
   IconCheck,
   IconChevronDown,
   IconChevronRight,
@@ -47,6 +48,7 @@ type CompOpt = {
   name: string;
   is_available: boolean;
   sort_order: number;
+  image_url: string | null;
 };
 
 type Setting = { key: string; value: string; description: string | null };
@@ -438,6 +440,42 @@ function ProductEditForm({
   const [description, setDescription] = useState(product.description ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const onUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("La foto debe pesar menos de 4 MB.");
+      return;
+    }
+    setUploadingImg(true);
+    try {
+      const supabase = createClient();
+      const slug = product.name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const ext = file.name.split(".").pop() || "png";
+      const path = `productos/${slug}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("productos")
+        .upload(path, file, { cacheControl: "3600", upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage
+        .from("productos")
+        .getPublicUrl(path);
+      await onSave(product.id, { image_url: urlData.publicUrl });
+    } catch (err: any) {
+      alert("No se pudo subir: " + (err.message || err));
+    } finally {
+      setUploadingImg(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -452,6 +490,54 @@ function ProductEditForm({
 
   return (
     <div className="px-3 pb-3 border-t border-caramelo/20 pt-3 space-y-3">
+      {/* Foto del producto */}
+      <div>
+        <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+          Foto del producto
+        </label>
+        <div className="mt-1 flex items-center gap-3">
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploadingImg}
+            className="relative w-20 h-20 rounded-xl overflow-hidden bg-crema-soft border border-caramelo/30 flex items-center justify-center active:scale-95 transition disabled:opacity-50"
+          >
+            {uploadingImg ? (
+              <IconLoader2 size={18} className="animate-spin text-canela" />
+            ) : product.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <IconCamera size={20} className="text-canela" />
+            )}
+          </button>
+          <div className="flex-1">
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingImg}
+              className="bg-cafe text-crema text-xs font-bold px-3 py-2 rounded-lg active:scale-95 transition disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <IconCamera size={14} />
+              {product.image_url ? "Cambiar foto" : "Subir foto"}
+            </button>
+            <p className="text-[10px] text-canela mt-1 italic">
+              JPG/PNG, máx 4 MB. La foto cambia en el catálogo al instante.
+            </p>
+          </div>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={onUploadImage}
+          className="hidden"
+        />
+      </div>
+
       <SwitchRow
         label="Visible en catálogo"
         sub="Si lo apagas, no aparece a clientes"
@@ -672,6 +758,34 @@ function BoxesPanel() {
     setOpts((curr) => [...curr, data as CompOpt]);
   };
 
+  const uploadOptPhoto = async (optId: string, file: File) => {
+    const supabase = createClient();
+    if (file.size > 4 * 1024 * 1024) {
+      alert("La foto debe pesar menos de 4 MB.");
+      return;
+    }
+    const ext = file.name.split(".").pop() || "png";
+    const path = `opciones/${optId}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("productos")
+      .upload(path, file, { cacheControl: "3600", upsert: true });
+    if (upErr) {
+      alert("No se pudo subir la foto: " + upErr.message);
+      return;
+    }
+    const { data: urlData } = supabase.storage
+      .from("productos")
+      .getPublicUrl(path);
+    const image_url = urlData.publicUrl;
+    await supabase
+      .from("component_options")
+      .update({ image_url })
+      .eq("id", optId);
+    setOpts((curr) =>
+      curr.map((o) => (o.id === optId ? { ...o, image_url } : o))
+    );
+  };
+
   if (loading) {
     return (
       <div className="text-center py-10 text-canela">
@@ -714,6 +828,7 @@ function BoxesPanel() {
               onRenameOpt={renameOpt}
               onDeleteOpt={deleteOpt}
               onAddOpt={addOpt}
+              onUploadOptPhoto={uploadOptPhoto}
             />
           );
         })}
@@ -746,6 +861,7 @@ function ComponentCard({
   onRenameOpt,
   onDeleteOpt,
   onAddOpt,
+  onUploadOptPhoto,
 }: {
   comp: BoxComp;
   opts: CompOpt[];
@@ -756,6 +872,7 @@ function ComponentCard({
   onRenameOpt: (id: string, name: string) => Promise<void>;
   onDeleteOpt: (id: string) => void;
   onAddOpt: (compId: string, name: string) => Promise<void>;
+  onUploadOptPhoto: (id: string, file: File) => Promise<void>;
 }) {
   const [name, setName] = useState(comp.name);
   const [qty, setQty] = useState(String(comp.quantity));
@@ -828,54 +945,29 @@ function ComponentCard({
           {opts.map((o) => {
             const isEditing = editingOptId === o.id;
             return (
-              <div
+              <OptionRow
                 key={o.id}
-                className="flex items-center gap-2"
-              >
-                {isEditing ? (
-                  <input
-                    autoFocus
-                    value={editingOptName}
-                    onChange={(e) => setEditingOptName(e.target.value)}
-                    onBlur={async () => {
-                      if (editingOptName.trim() && editingOptName !== o.name) {
-                        await onRenameOpt(o.id, editingOptName.trim());
-                      }
-                      setEditingOptId(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                      if (e.key === "Escape") setEditingOptId(null);
-                    }}
-                    className="flex-1 bg-crema-soft border border-caramelo/30 rounded px-2 py-1 text-xs text-cafe focus:outline-none focus:border-cafe"
-                  />
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditingOptId(o.id);
-                      setEditingOptName(o.name);
-                    }}
-                    className={`flex-1 text-left text-xs ${
-                      o.is_available ? "text-cafe" : "text-canela line-through"
-                    }`}
-                  >
-                    {o.name}
-                  </button>
-                )}
-                <Switch
-                  value={o.is_available}
-                  onChange={(v) => onToggleOpt(o.id, v)}
-                />
-                <button
-                  onClick={() => {
-                    if (confirm(`¿Eliminar "${o.name}"?`)) onDeleteOpt(o.id);
-                  }}
-                  aria-label="Eliminar opción"
-                  className="text-rojo opacity-50 active:scale-90 w-7 h-7 flex items-center justify-center"
-                >
-                  <IconX size={14} />
-                </button>
-              </div>
+                option={o}
+                isEditing={isEditing}
+                editingName={editingOptName}
+                onStartEdit={() => {
+                  setEditingOptId(o.id);
+                  setEditingOptName(o.name);
+                }}
+                onChangeEditName={setEditingOptName}
+                onCommitEdit={async () => {
+                  if (editingOptName.trim() && editingOptName !== o.name) {
+                    await onRenameOpt(o.id, editingOptName.trim());
+                  }
+                  setEditingOptId(null);
+                }}
+                onCancelEdit={() => setEditingOptId(null)}
+                onToggle={(v) => onToggleOpt(o.id, v)}
+                onDelete={() => {
+                  if (confirm(`¿Eliminar "${o.name}"?`)) onDeleteOpt(o.id);
+                }}
+                onUploadPhoto={(file) => onUploadOptPhoto(o.id, file)}
+              />
             );
           })}
 
@@ -908,6 +1000,111 @@ function ComponentCard({
         </div>
       )}
     </li>
+  );
+}
+
+function OptionRow({
+  option,
+  isEditing,
+  editingName,
+  onStartEdit,
+  onChangeEditName,
+  onCommitEdit,
+  onCancelEdit,
+  onToggle,
+  onDelete,
+  onUploadPhoto,
+}: {
+  option: CompOpt;
+  isEditing: boolean;
+  editingName: string;
+  onStartEdit: () => void;
+  onChangeEditName: (v: string) => void;
+  onCommitEdit: () => void;
+  onCancelEdit: () => void;
+  onToggle: (v: boolean) => void;
+  onDelete: () => void;
+  onUploadPhoto: (file: File) => Promise<void>;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setUploading(true);
+    try {
+      await onUploadPhoto(f);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* Thumbnail / botón cámara */}
+      <button
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+        aria-label={option.image_url ? "Cambiar foto" : "Subir foto"}
+        className="relative w-10 h-10 rounded-lg overflow-hidden bg-crema-soft border border-caramelo/30 flex items-center justify-center flex-shrink-0 active:scale-95 transition disabled:opacity-50"
+      >
+        {uploading ? (
+          <IconLoader2 size={14} className="animate-spin text-canela" />
+        ) : option.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={option.image_url}
+            alt={option.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <IconCamera size={16} className="text-canela" />
+        )}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={onFile}
+        className="hidden"
+      />
+
+      {/* Nombre editable */}
+      {isEditing ? (
+        <input
+          autoFocus
+          value={editingName}
+          onChange={(e) => onChangeEditName(e.target.value)}
+          onBlur={onCommitEdit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Escape") onCancelEdit();
+          }}
+          className="flex-1 bg-crema-soft border border-caramelo/30 rounded px-2 py-1 text-xs text-cafe focus:outline-none focus:border-cafe"
+        />
+      ) : (
+        <button
+          onClick={onStartEdit}
+          className={`flex-1 text-left text-xs ${
+            option.is_available ? "text-cafe" : "text-canela line-through"
+          }`}
+        >
+          {option.name}
+        </button>
+      )}
+
+      <Switch value={option.is_available} onChange={onToggle} />
+      <button
+        onClick={onDelete}
+        aria-label="Eliminar opción"
+        className="text-rojo opacity-50 active:scale-90 w-7 h-7 flex items-center justify-center"
+      >
+        <IconX size={14} />
+      </button>
+    </div>
   );
 }
 

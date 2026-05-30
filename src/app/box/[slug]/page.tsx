@@ -156,7 +156,7 @@ function BoxConstructor() {
             // Tiene opciones cargadas en BD
             opts = compOptions.map((o) => ({
               name: o.name,
-              image_url: null,
+              image_url: o.image_url,
               price_modifier: Number(o.price_modifier) || 0,
             }));
           } else if (c.category_filter && productsByCat[c.category_filter]) {
