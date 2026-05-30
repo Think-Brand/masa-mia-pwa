@@ -37,6 +37,54 @@ export default function Carrito() {
   const [notas, setNotas] = useState("");
   const [copiado, setCopiado] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [pilotMode, setPilotMode] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
+  const [pilotCode, setPilotCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState<{
+    valid: boolean;
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "pilot_mode")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value === "on") setPilotMode(true);
+      });
+  }, []);
+
+  const validateCode = async () => {
+    const code = pilotCode.trim().toUpperCase();
+    if (!code) {
+      setCodeStatus(null);
+      return;
+    }
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("pilot_codes")
+      .select("code, recipient_name, used")
+      .eq("code", code)
+      .maybeSingle();
+    if (!data) {
+      setCodeStatus({ valid: false, message: "Ese código no existe." });
+    } else if (data.used) {
+      setCodeStatus({
+        valid: false,
+        message: "Ese código ya fue canjeado.",
+      });
+    } else {
+      setCodeStatus({
+        valid: true,
+        message: data.recipient_name
+          ? `¡${data.recipient_name}, tu rol corre por nuestra cuenta! 🎁`
+          : "¡Código válido! Tu rol corre por nuestra cuenta 🎁",
+      });
+    }
+  };
 
   // Calcular fecha mínima según prep_days del carrito
   const maxPrepDays = items.reduce(
@@ -83,18 +131,22 @@ export default function Carrito() {
     try {
       const supabase = createClient();
 
+      const isCourtesy = codeStatus?.valid === true;
+      const finalTotal = isCourtesy ? 0 : total;
       // 1. Crear el pedido (RLS permite a anon)
       const { data: order, error: orderErr } = await supabase
         .from("orders")
         .insert({
           customer_id: cliente.id,
           status: "pending",
-          total,
-          payment_method: pago,
+          total: finalTotal,
+          payment_method: isCourtesy ? "cortesia" : pago,
           notes: notas || null,
           source: "pwa",
           pickup_date: pickupDate,
           contact_person: contactPerson,
+          is_courtesy: isCourtesy,
+          pilot_code: isCourtesy ? pilotCode.trim().toUpperCase() : null,
         })
         .select("id, folio")
         .single();
@@ -129,9 +181,22 @@ export default function Carrito() {
         .insert(orderItems);
       if (itemsErr) throw itemsErr;
 
+      // Marcar código como usado
+      if (isCourtesy) {
+        await supabase
+          .from("pilot_codes")
+          .update({
+            used: true,
+            used_order_id: order.id,
+            used_at: new Date().toISOString(),
+          })
+          .eq("code", pilotCode.trim().toUpperCase());
+      }
+
       // Limpiar carrito y redirigir a pantalla de éxito
       clear();
-      router.push(`/confirmacion/${order.folio}?pago=${pago}`);
+      const finalPago = isCourtesy ? "cortesia" : pago;
+      router.push(`/confirmacion/${order.folio}?pago=${finalPago}`);
     } catch (err) {
       console.error(err);
       alert("Algo se atascó. Intenta de nuevo o avísanos por WhatsApp.");
@@ -425,14 +490,62 @@ export default function Carrito() {
               </div>
             )}
 
+            {/* Código piloto (solo si pilot mode está on) */}
+            {pilotMode && (
+              <div className="bg-white border border-antojo/30 rounded-xl p-3 mt-1">
+                {!showCodeInput ? (
+                  <button
+                    onClick={() => setShowCodeInput(true)}
+                    className="w-full text-left text-xs text-antojo font-bold flex items-center gap-1.5"
+                  >
+                    🎁 ¿Tienes un código de cortesía?
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                      Tu código mágico
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        value={pilotCode}
+                        onChange={(e) =>
+                          setPilotCode(e.target.value.toUpperCase())
+                        }
+                        onBlur={validateCode}
+                        placeholder="EJ. MIGA-2026"
+                        className="flex-1 bg-crema-soft border border-caramelo/40 rounded-lg px-3 py-2 text-sm text-cafe focus:outline-none focus:border-cafe uppercase placeholder:text-canela/60"
+                      />
+                      <button
+                        onClick={validateCode}
+                        className="bg-antojo text-white px-3 py-2 rounded-lg text-xs font-bold"
+                      >
+                        Validar
+                      </button>
+                    </div>
+                    {codeStatus && (
+                      <div
+                        className={`text-[11px] font-bold ${
+                          codeStatus.valid ? "text-verde" : "text-rojo"
+                        }`}
+                      >
+                        {codeStatus.message}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Total */}
             <div className="bg-cafe text-crema rounded-xl px-4 py-3 flex items-center justify-between mt-2">
-              <span className="text-sm">Total</span>
+              <span className="text-sm">
+                {codeStatus?.valid ? "Cortesía 🎁" : "Total"}
+              </span>
               <span
                 className="text-2xl"
                 style={{ fontFamily: "ReginaBlack" }}
               >
-                ${total.toFixed(0)}
+                ${codeStatus?.valid ? "0" : total.toFixed(0)}
               </span>
             </div>
 

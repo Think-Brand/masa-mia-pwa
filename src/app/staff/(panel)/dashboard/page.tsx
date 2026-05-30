@@ -6,6 +6,7 @@ import {
   IconUsers,
   IconFlame,
   IconCrown,
+  IconMessageHeart,
 } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +116,34 @@ export default async function DashboardPage() {
   }
 
   const maxCount = Math.max(1, ...last7.map((d) => d.count));
+
+  // Pilot feedback
+  const [{ data: pilotSetting }, { data: feedback }] = await Promise.all([
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "pilot_mode")
+      .maybeSingle(),
+    supabase
+      .from("pilot_feedback")
+      .select("rating, comment, page, customer_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  const pilotOn = pilotSetting?.value === "on";
+  const feedbackList = feedback ?? [];
+  const avgRating =
+    feedbackList.length > 0
+      ? feedbackList.reduce((s: number, f: any) => s + f.rating, 0) /
+        feedbackList.length
+      : 0;
+  const EMOJI: Record<number, string> = {
+    1: "😞",
+    2: "😐",
+    3: "🙂",
+    4: "😍",
+  };
 
   return (
     <main className="px-4 pt-4">
@@ -237,6 +266,54 @@ export default async function DashboardPage() {
           </ol>
         )}
       </section>
+
+      {/* Feedback del piloto */}
+      {pilotOn && (
+        <section className="mt-3 bg-white rounded-2xl p-4 shadow-sm">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-canela mb-3 flex items-center gap-1">
+            <IconMessageHeart size={12} /> Feedback piloto ·{" "}
+            {feedbackList.length > 0 && (
+              <span className="text-antojo">
+                ⭐ {avgRating.toFixed(1)}
+              </span>
+            )}
+          </h2>
+          {feedbackList.length === 0 ? (
+            <p className="text-xs text-canela italic">
+              Aún sin feedback. Comparte códigos con tus testers 🤎
+            </p>
+          ) : (
+            <ul className="space-y-2 max-h-64 overflow-y-auto">
+              {feedbackList.map((f: any, idx: number) => (
+                <li
+                  key={idx}
+                  className="border-b border-caramelo/20 pb-2 last:border-0"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{EMOJI[f.rating] ?? "🙂"}</span>
+                      <span
+                        className="text-xs font-bold text-cafe"
+                        style={{ fontFamily: "Termina" }}
+                      >
+                        {f.customer_name || "Anónimo"}
+                      </span>
+                    </div>
+                    <span className="text-[9px] text-canela">
+                      {f.page}
+                    </span>
+                  </div>
+                  {f.comment && (
+                    <p className="text-xs text-canela italic mt-1 pl-7">
+                      "{f.comment}"
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {/* Cliente más fiel */}
       {topCliente && (

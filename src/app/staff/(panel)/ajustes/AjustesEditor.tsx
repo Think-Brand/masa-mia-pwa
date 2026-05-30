@@ -10,14 +10,16 @@ import {
   IconChevronDown,
   IconChevronRight,
   IconCircleDot,
+  IconCopy,
   IconDeviceFloppy,
+  IconFlask,
   IconLoader2,
   IconPlus,
   IconX,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
-type Tab = "productos" | "boxes" | "negocio";
+type Tab = "productos" | "boxes" | "negocio" | "piloto";
 
 type Product = {
   id: string;
@@ -78,11 +80,197 @@ export default function AjustesEditor() {
           icon={<IconBuildingStore size={14} />}
           label="Negocio"
         />
+        <TabBtn
+          active={tab === "piloto"}
+          onClick={() => setTab("piloto")}
+          icon={<IconFlask size={14} />}
+          label="Piloto"
+        />
       </div>
 
       {tab === "productos" && <ProductosPanel />}
       {tab === "boxes" && <BoxesPanel />}
       {tab === "negocio" && <NegocioPanel />}
+      {tab === "piloto" && <PilotoPanel />}
+    </div>
+  );
+}
+
+function PilotoPanel() {
+  const [pilotMode, setPilotMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [codes, setCodes] = useState<
+    {
+      code: string;
+      recipient_name: string | null;
+      used: boolean;
+      created_at: string;
+    }[]
+  >([]);
+  const [newCount, setNewCount] = useState("5");
+  const [generating, setGenerating] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const supabase = createClient();
+    const [{ data: settings }, { data: codesData }] = await Promise.all([
+      supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "pilot_mode")
+        .maybeSingle(),
+      supabase
+        .from("pilot_codes")
+        .select("code, recipient_name, used, created_at")
+        .order("created_at", { ascending: false }),
+    ]);
+    setPilotMode(settings?.value === "on");
+    setCodes((codesData ?? []) as any);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const togglePilot = async (on: boolean) => {
+    setPilotMode(on);
+    const supabase = createClient();
+    await supabase
+      .from("settings")
+      .update({ value: on ? "on" : "off" })
+      .eq("key", "pilot_mode");
+  };
+
+  const generate = async () => {
+    setGenerating(true);
+    const n = Math.min(50, Math.max(1, Number(newCount) || 1));
+    const supabase = createClient();
+    const generated: string[] = [];
+    for (let i = 0; i < n; i++) {
+      const code = `MIGA-${Math.random()
+        .toString(36)
+        .toUpperCase()
+        .slice(2, 6)}`;
+      generated.push(code);
+    }
+    await supabase
+      .from("pilot_codes")
+      .insert(generated.map((code) => ({ code })));
+    await load();
+    setGenerating(false);
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-10 text-canela">
+        <IconLoader2 size={20} className="animate-spin inline" /> Cargando…
+      </div>
+    );
+  }
+
+  const used = codes.filter((c) => c.used).length;
+  const available = codes.length - used;
+
+  return (
+    <div className="space-y-4">
+      {/* Toggle modo piloto */}
+      <Section title="🧪 Modo prueba piloto">
+        <SwitchRow
+          label="Activar piloto"
+          sub="Muestra widget de feedback + permite códigos de cortesía"
+          value={pilotMode}
+          onChange={togglePilot}
+        />
+        <p className="text-[10px] text-canela italic">
+          Cuando esté encendido, los clientes ven un botón flotante naranja para
+          dar feedback. Y pueden canjear códigos de cortesía en el carrito.
+        </p>
+      </Section>
+
+      {/* Generar códigos */}
+      <Section title="🎁 Códigos de cortesía">
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <CodeStat label="Disponibles" value={String(available)} />
+          <CodeStat label="Canjeados" value={String(used)} />
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <input
+            type="number"
+            min="1"
+            max="50"
+            value={newCount}
+            onChange={(e) => setNewCount(e.target.value)}
+            className="w-16 bg-crema-soft border border-caramelo/30 rounded-lg px-2 py-2 text-sm text-cafe focus:outline-none focus:border-cafe text-center"
+          />
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="flex-1 bg-antojo text-white rounded-lg py-2 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+          >
+            {generating ? (
+              <IconLoader2 size={14} className="animate-spin" />
+            ) : (
+              <IconPlus size={14} />
+            )}
+            Generar códigos
+          </button>
+        </div>
+
+        {codes.length > 0 && (
+          <div className="mt-3 space-y-1.5 max-h-72 overflow-y-auto">
+            {codes.map((c) => (
+              <div
+                key={c.code}
+                className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg ${
+                  c.used ? "bg-canela/10 opacity-60" : "bg-crema-soft"
+                }`}
+              >
+                <span
+                  className={`text-xs font-mono font-bold ${
+                    c.used ? "text-canela line-through" : "text-cafe"
+                  }`}
+                >
+                  {c.code}
+                </span>
+                {c.used ? (
+                  <span className="text-[10px] text-canela italic">
+                    canjeado
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => copyCode(c.code)}
+                    className="text-cafe active:scale-90"
+                    title="Copiar código"
+                  >
+                    <IconCopy size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
+    </div>
+  );
+}
+
+function CodeStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-crema-soft rounded-lg p-2 text-center">
+      <div
+        className="text-xl font-bold text-antojo"
+        style={{ fontFamily: "Termina" }}
+      >
+        {value}
+      </div>
+      <div className="text-[10px] text-canela uppercase tracking-wider">
+        {label}
+      </div>
     </div>
   );
 }

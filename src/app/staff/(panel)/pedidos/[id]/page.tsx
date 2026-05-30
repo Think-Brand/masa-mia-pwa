@@ -86,6 +86,20 @@ export default async function PedidoDetalle({
           {order.status}
         </span>
       </div>
+
+      {order.is_courtesy && (
+        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+          <span className="text-2xl">🎁</span>
+          <div className="flex-1">
+            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+              Cortesía piloto
+            </div>
+            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
+              Código {order.pilot_code} · Sin cobro
+            </div>
+          </div>
+        </div>
+      )}
       <p className="text-xs text-canela mt-1 capitalize">{fecha}</p>
 
       {/* Cliente */}
