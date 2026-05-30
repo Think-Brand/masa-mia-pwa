@@ -9,15 +9,18 @@ import {
   IconCheck,
   IconMapPin,
   IconExternalLink,
+  IconX,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Order, OrderItem } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import FeedbackPopup from "@/components/FeedbackWidget";
+import CancelOrderModal from "@/components/CancelOrderModal";
 import { generarMensajeWhatsapp } from "@/lib/whatsapp";
 import { getSettings, Settings } from "@/lib/settings";
 import { formatDeliveryDate } from "@/lib/delivery";
+import { checkCancelEligibility } from "@/lib/cancellation";
 
 type OrderDetallado = Order & { items: OrderItem[] };
 
@@ -36,6 +39,7 @@ function Confirmacion() {
   const [order, setOrder] = useState<OrderDetallado | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelOpen, setCancelOpen] = useState(false);
   const pago = (search.get("pago") as "efectivo" | "transferencia") || "efectivo";
 
   useEffect(() => {
@@ -268,6 +272,20 @@ function Confirmacion() {
           <IconHome size={14} />
           Volver al menú
         </Link>
+
+        {/* Botón cancelar (solo si elegible) */}
+        {checkCancelEligibility({
+          status: order.status,
+          pickup_date: order.pickup_date,
+        }).canCancel && (
+          <button
+            onClick={() => setCancelOpen(true)}
+            className="text-[11px] text-canela underline flex items-center justify-center gap-1 active:scale-95 mt-1"
+          >
+            <IconX size={12} />
+            Cancelar pedido
+          </button>
+        )}
       </div>
 
       <p className="text-[10px] text-canela mt-5 max-w-xs">
@@ -276,6 +294,21 @@ function Confirmacion() {
 
       {/* Popup de feedback (solo si pilot_mode está activo) */}
       <FeedbackPopup folio={order.folio} page="/confirmacion" />
+
+      {/* Modal cancelar */}
+      <CancelOrderModal
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        order={{
+          id: order.id,
+          folio: order.folio,
+          status: order.status,
+          pickup_date: order.pickup_date,
+        }}
+        onCancelled={() =>
+          setOrder((prev) => (prev ? { ...prev, status: "cancelled" } : prev))
+        }
+      />
     </main>
   );
 }

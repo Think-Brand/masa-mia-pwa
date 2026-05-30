@@ -4,12 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconRepeat } from "@tabler/icons-react";
+import { IconRepeat, IconX } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Order, OrderItem, Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
 import Miga from "@/components/Miga";
+import CancelOrderModal from "@/components/CancelOrderModal";
+import { checkCancelEligibility } from "@/lib/cancellation";
 
 const ESTADOS_LABEL: Record<string, { label: string; color: string }> = {
   pending: { label: "Esperando confirmación", color: "bg-canela/15 text-canela" },
@@ -26,6 +28,13 @@ export default function MisPedidos() {
   const [orders, setOrders] = useState<(Order & { items: OrderItem[] })[]>([]);
   const [loading, setLoading] = useState(true);
   const [repitiendo, setRepitiendo] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<{
+    id: string;
+    folio: string;
+    status: string;
+    pickup_date: string | null;
+  } | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const repetirPedido = async (order: Order & { items: OrderItem[] }) => {
     setRepitiendo(order.id);
@@ -94,7 +103,7 @@ export default function MisPedidos() {
       setOrders(withItems);
       setLoading(false);
     })();
-  }, [cliente, router]);
+  }, [cliente, router, reloadKey]);
 
   if (!cliente) return null;
 
@@ -215,14 +224,35 @@ export default function MisPedidos() {
                       </span>
                     </div>
                   </Link>
-                  <button
-                    onClick={() => repetirPedido(o)}
-                    disabled={repitiendo === o.id}
-                    className="mt-2 w-full bg-crema text-cafe rounded-xl py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50"
-                  >
-                    <IconRepeat size={13} />
-                    {repitiendo === o.id ? "Cargando..." : "Pedir lo mismo otra vez"}
-                  </button>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => repetirPedido(o)}
+                      disabled={repitiendo === o.id}
+                      className="flex-1 bg-crema text-cafe rounded-xl py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50"
+                    >
+                      <IconRepeat size={13} />
+                      {repitiendo === o.id ? "Cargando..." : "Pedir lo mismo"}
+                    </button>
+                    {checkCancelEligibility({
+                      status: o.status,
+                      pickup_date: o.pickup_date,
+                    }).canCancel && (
+                      <button
+                        onClick={() =>
+                          setCancelTarget({
+                            id: o.id,
+                            folio: o.folio,
+                            status: o.status,
+                            pickup_date: o.pickup_date,
+                          })
+                        }
+                        className="px-3 bg-white border border-rojo/30 text-rojo rounded-xl py-2 text-[11px] font-bold flex items-center justify-center gap-1 active:scale-95 transition"
+                      >
+                        <IconX size={13} />
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
                 </article>
               );
             })}
@@ -230,6 +260,15 @@ export default function MisPedidos() {
         )}
       </div>
       <BottomNav />
+
+      {cancelTarget && (
+        <CancelOrderModal
+          open={!!cancelTarget}
+          onClose={() => setCancelTarget(null)}
+          order={cancelTarget}
+          onCancelled={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }

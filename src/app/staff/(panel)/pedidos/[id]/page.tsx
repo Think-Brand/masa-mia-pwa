@@ -113,6 +113,31 @@ export default async function PedidoDetalle({
           </div>
         </div>
       )}
+      {order.is_welcome_courtesy && (
+        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+          <span className="text-2xl">🎁</span>
+          <div className="flex-1">
+            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+              Cortesía de bienvenida
+            </div>
+            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
+              Primer pedido del cliente · 1 rol va por la casa
+            </div>
+          </div>
+        </div>
+      )}
+      {order.status === "cancelled" && order.cancelled_by === "customer" && (
+        <div className="mt-3 bg-canela/15 border border-canela/40 text-cafe rounded-2xl p-3">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-canela">
+            Cancelado por el cliente
+          </div>
+          {order.cancel_reason && (
+            <div className="text-xs text-cafe mt-1 italic">
+              "{order.cancel_reason}"
+            </div>
+          )}
+        </div>
+      )}
       <p className="text-xs text-canela mt-1 capitalize">{fecha}</p>
 
       {/* Cliente */}

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +10,7 @@ import {
   IconEyeOff,
   IconLock,
   IconMail,
+  IconBread,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
@@ -140,6 +142,18 @@ export default function StaffLogin() {
 
         <p className="text-[10px] text-caramelo text-center mt-3">
           ¿Olvidaste tu contraseña? Pídele a Mario que la resetee.
+        </p>
+
+        {/* Acceso rápido como cliente (para pruebas / cambiar de lado) */}
+        <Link
+          href="/"
+          className="mt-6 w-full bg-transparent border border-caramelo/40 text-caramelo rounded-2xl py-2.5 text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition hover:bg-caramelo/10"
+        >
+          <IconBread size={14} />
+          Ver la app como cliente
+        </Link>
+        <p className="text-[10px] text-caramelo/70 text-center mt-1 italic">
+          Para hacer pruebas, ver el menú o probar un pedido.
         </p>
       </form>
     </main>

@@ -88,7 +88,10 @@ export type Order = {
   decline_message: string | null;
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
+  is_welcome_courtesy: boolean | null;
   pilot_code: string | null;
+  cancel_reason: string | null;
+  cancelled_by: "customer" | "staff" | null;
   created_at: string;
   updated_at: string;
   accepted_at: string | null;

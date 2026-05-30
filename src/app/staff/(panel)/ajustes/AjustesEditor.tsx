@@ -314,16 +314,10 @@ function CapacidadPanel() {
 function PilotoPanel() {
   const [pilotMode, setPilotMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [codes, setCodes] = useState<
-    {
-      code: string;
-      recipient_name: string | null;
-      used: boolean;
-      created_at: string;
-    }[]
-  >([]);
-  const [newCount, setNewCount] = useState("5");
-  const [generating, setGenerating] = useState(false);
+  const [welcomeMax, setWelcomeMax] = useState<number>(20);
+  const [welcomeCount, setWelcomeCount] = useState<number>(0);
+  const [savingMax, setSavingMax] = useState(false);
+  const [maxDraft, setMaxDraft] = useState<string>("20");
   const [showTour, setShowTour] = useState(false);
 
   const verTourDeNuevo = () => {
@@ -334,19 +328,17 @@ function PilotoPanel() {
   const load = async () => {
     setLoading(true);
     const supabase = createClient();
-    const [{ data: settings }, { data: codesData }] = await Promise.all([
-      supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "pilot_mode")
-        .maybeSingle(),
-      supabase
-        .from("pilot_codes")
-        .select("code, recipient_name, used, created_at")
-        .order("created_at", { ascending: false }),
-    ]);
-    setPilotMode(settings?.value === "on");
-    setCodes((codesData ?? []) as any);
+    const { data: settings } = await supabase
+      .from("settings")
+      .select("key, value")
+      .in("key", ["pilot_mode", "pilot_welcome_max", "pilot_welcome_count"]);
+    const map = new Map<string, string>();
+    for (const s of settings ?? []) map.set(s.key, s.value);
+    setPilotMode(map.get("pilot_mode") === "on");
+    const max = parseInt(map.get("pilot_welcome_max") || "20", 10);
+    setWelcomeMax(max);
+    setMaxDraft(String(max));
+    setWelcomeCount(parseInt(map.get("pilot_welcome_count") || "0", 10));
     setLoading(false);
   };
 
@@ -363,27 +355,26 @@ function PilotoPanel() {
       .eq("key", "pilot_mode");
   };
 
-  const generate = async () => {
-    setGenerating(true);
-    const n = Math.min(50, Math.max(1, Number(newCount) || 1));
+  const guardarMax = async () => {
+    const n = Math.max(0, parseInt(maxDraft || "0", 10));
+    setSavingMax(true);
     const supabase = createClient();
-    const generated: string[] = [];
-    for (let i = 0; i < n; i++) {
-      const code = `MIGA-${Math.random()
-        .toString(36)
-        .toUpperCase()
-        .slice(2, 6)}`;
-      generated.push(code);
-    }
     await supabase
-      .from("pilot_codes")
-      .insert(generated.map((code) => ({ code })));
-    await load();
-    setGenerating(false);
+      .from("settings")
+      .update({ value: String(n) })
+      .eq("key", "pilot_welcome_max");
+    setWelcomeMax(n);
+    setSavingMax(false);
   };
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
+  const resetContador = async () => {
+    if (!confirm("¿Reiniciar el contador a 0? Los clientes ya marcados seguirán marcados.")) return;
+    const supabase = createClient();
+    await supabase
+      .from("settings")
+      .update({ value: "0" })
+      .eq("key", "pilot_welcome_count");
+    setWelcomeCount(0);
   };
 
   if (loading) {
@@ -394,8 +385,8 @@ function PilotoPanel() {
     );
   }
 
-  const used = codes.filter((c) => c.used).length;
-  const available = codes.length - used;
+  const remaining = Math.max(0, welcomeMax - welcomeCount);
+  const pct = welcomeMax > 0 ? Math.min(100, (welcomeCount / welcomeMax) * 100) : 0;
 
   return (
     <div className="space-y-4">
@@ -403,18 +394,17 @@ function PilotoPanel() {
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
           label="Activar piloto"
-          sub="Pide feedback después del pedido + códigos de cortesía + tour Miga"
+          sub="Feedback post-pedido + cortesía de bienvenida automática + tour Miga"
           value={pilotMode}
           onChange={togglePilot}
         />
         <p className="text-[10px] text-canela italic">
-          Cuando esté encendido: al confirmar pedido, el cliente recibe popup
-          para dar feedback. Puede canjear códigos por <b>1 rol cortesía</b>{" "}
-          (descuenta el precio de 1 rol del total, no el pedido completo). Y los
-          testers ven un <b>tour de Miga</b> la primera vez que entran.
+          Cuando esté encendido: cada cliente <b>nuevo</b> (no Mario, Faby o
+          Alex) recibe <b>1 rol cortesía</b> en su primer pedido,
+          automáticamente — sin código. Pop-up de feedback al confirmar
+          pedido. Y los testers ven el tour de Miga la primera vez.
         </p>
 
-        {/* Re-mostrar tour staff */}
         <button
           onClick={verTourDeNuevo}
           className="mt-3 text-xs text-cafe bg-white border border-caramelo/40 rounded-full px-4 py-2 inline-flex items-center gap-1.5 active:scale-95 transition shadow-sm"
@@ -424,68 +414,58 @@ function PilotoPanel() {
         </button>
       </Section>
 
-      {/* Generar códigos */}
-      <Section title="🎁 Códigos de cortesía">
-        <div className="grid grid-cols-2 gap-2 mb-2">
-          <CodeStat label="Disponibles" value={String(available)} />
-          <CodeStat label="Canjeados" value={String(used)} />
+      {/* Welcome courtesy */}
+      <Section title="🎁 Cortesías de bienvenida">
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <CodeStat label="Entregadas" value={String(welcomeCount)} />
+          <CodeStat label="Restantes" value={String(remaining)} />
+          <CodeStat label="Tope" value={String(welcomeMax)} />
         </div>
-        <div className="flex items-center gap-2 mt-2">
+
+        {/* Barra de progreso */}
+        <div className="bg-crema-soft rounded-full h-2 overflow-hidden mb-3">
+          <div
+            className="h-full bg-antojo transition-all"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+
+        {/* Editar tope */}
+        <div className="flex items-center gap-2">
+          <label className="text-[10px] font-bold text-canela uppercase tracking-wider flex-1">
+            Tope total
+          </label>
           <input
             type="number"
-            min="1"
-            max="50"
-            value={newCount}
-            onChange={(e) => setNewCount(e.target.value)}
-            className="w-16 bg-crema-soft border border-caramelo/30 rounded-lg px-2 py-2 text-sm text-cafe focus:outline-none focus:border-cafe text-center"
+            min="0"
+            value={maxDraft}
+            onChange={(e) => setMaxDraft(e.target.value)}
+            className="w-20 bg-crema-soft border border-caramelo/30 rounded-lg px-2 py-2 text-sm text-cafe focus:outline-none focus:border-cafe text-center"
           />
           <button
-            onClick={generate}
-            disabled={generating}
-            className="flex-1 bg-antojo text-white rounded-lg py-2 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+            onClick={guardarMax}
+            disabled={savingMax || parseInt(maxDraft, 10) === welcomeMax}
+            className="bg-antojo text-white rounded-lg px-3 py-2 text-xs font-bold flex items-center gap-1 active:scale-95 disabled:opacity-50"
           >
-            {generating ? (
-              <IconLoader2 size={14} className="animate-spin" />
+            {savingMax ? (
+              <IconLoader2 size={12} className="animate-spin" />
             ) : (
-              <IconPlus size={14} />
+              <IconCheck size={12} />
             )}
-            Generar códigos
+            Guardar
           </button>
         </div>
 
-        {codes.length > 0 && (
-          <div className="mt-3 space-y-1.5 max-h-72 overflow-y-auto">
-            {codes.map((c) => (
-              <div
-                key={c.code}
-                className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg ${
-                  c.used ? "bg-canela/10 opacity-60" : "bg-crema-soft"
-                }`}
-              >
-                <span
-                  className={`text-xs font-mono font-bold ${
-                    c.used ? "text-canela line-through" : "text-cafe"
-                  }`}
-                >
-                  {c.code}
-                </span>
-                {c.used ? (
-                  <span className="text-[10px] text-canela italic">
-                    canjeado
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => copyCode(c.code)}
-                    className="text-cafe active:scale-90"
-                    title="Copiar código"
-                  >
-                    <IconCopy size={14} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        <button
+          onClick={resetContador}
+          className="mt-3 text-[10px] text-canela underline active:scale-95"
+        >
+          Reiniciar contador a 0
+        </button>
+
+        <p className="text-[10px] text-canela italic mt-2 leading-relaxed">
+          Excluidos: Mario · Faby · Alex (no reciben la cortesía aunque pidan).
+        </p>
       </Section>
 
       {/* Tour bajo demanda (forceShow ignora pilot_mode) */}

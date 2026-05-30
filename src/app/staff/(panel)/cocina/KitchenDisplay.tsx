@@ -30,6 +30,7 @@ type OrderRow = {
   notes: string | null;
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
+  is_welcome_courtesy: boolean | null;
   customer: { name: string; whatsapp: string } | null;
   items: {
     id: string;
@@ -319,9 +320,14 @@ export default function KitchenDisplay({
                         {o.is_birthday_treat && (
                           <span title="Cumpleaños del cliente">🎂</span>
                         )}
-                        {o.is_courtesy && !o.is_birthday_treat && (
-                          <span title="Cortesía piloto">🎁</span>
+                        {o.is_welcome_courtesy && !o.is_birthday_treat && (
+                          <span title="Cortesía de bienvenida">🎁</span>
                         )}
+                        {o.is_courtesy &&
+                          !o.is_birthday_treat &&
+                          !o.is_welcome_courtesy && (
+                            <span title="Cortesía piloto (código)">🎁</span>
+                          )}
                         {o.folio}
                       </div>
                       <div
