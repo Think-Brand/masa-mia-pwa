@@ -260,7 +260,7 @@ function Confirmacion() {
       {order.status === "declined" && (
         <div className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 fade-up">
           <div className="text-[10px] font-bold text-rojo uppercase tracking-wider text-center">
-            Este pedido no pudo ser
+            Lo sentimos 🥲
           </div>
           {order.decline_message && (
             <p className="text-xs text-cafe italic mt-2 text-center">

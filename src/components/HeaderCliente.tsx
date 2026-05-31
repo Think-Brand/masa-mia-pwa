@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCarrito } from "./CarritoProvider";
+import NotificationBell from "./NotificationBell";
 import { IconShoppingBag } from "@tabler/icons-react";
 
 export default function HeaderCliente() {
@@ -11,8 +12,10 @@ export default function HeaderCliente() {
   return (
     <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur border-b border-caramelo/20">
       <div className="max-w-md mx-auto flex items-center justify-between px-4 py-3">
-        {/* Espaciador izquierdo (mismo ancho que el carrito para centrar logo) */}
-        <div className="w-10" />
+        {/* Campanita izquierda */}
+        <div className="w-10 flex items-center justify-center">
+          <NotificationBell />
+        </div>
 
         <Link href="/catalogo" className="flex items-center">
           <Image

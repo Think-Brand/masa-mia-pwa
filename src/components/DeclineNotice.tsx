@@ -125,7 +125,7 @@ export default function DeclineNotice() {
   const contactName =
     pending.contact_person === "alex" ? "Alex" : "Faby";
   const waMessage = encodeURIComponent(
-    `Hola ${contactName}, soy ${cliente.name}. Vi que mi pedido ${pending.folio} no pudo ser. ¿Podemos verlo?`
+    `Hola ${contactName}, soy ${cliente.name}. Vi que mi pedido ${pending.folio} no se pudo concretar. ¿Podemos verlo?`
   );
 
   return (
@@ -146,7 +146,7 @@ export default function DeclineNotice() {
             className="text-3xl text-cafe leading-none mt-2"
             style={{ fontFamily: "ReginaBlack" }}
           >
-            Tu pedido no pudo ser
+            Lo sentimos 🥲
           </h2>
           <p className="text-xs text-canela mt-2 italic">
             Folio <b className="text-cafe">{pending.folio}</b>

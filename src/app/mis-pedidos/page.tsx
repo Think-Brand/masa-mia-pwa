@@ -18,7 +18,7 @@ const ESTADOS_LABEL: Record<string, { label: string; color: string }> = {
   accepted: { label: "Aceptado", color: "bg-verde/15 text-verde" },
   baking: { label: "En el horno 🔥", color: "bg-antojo/15 text-antojo" },
   delivered: { label: "Entregado ✓", color: "bg-verde/15 text-verde" },
-  declined: { label: "No pudo ser", color: "bg-rojo/15 text-rojo" },
+  declined: { label: "Lo sentimos", color: "bg-rojo/15 text-rojo" },
   cancelled: { label: "Cancelado", color: "bg-canela/15 text-canela" },
 };
 
