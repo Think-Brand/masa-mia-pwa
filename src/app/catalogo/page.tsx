@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconPlus, IconSparkles } from "@tabler/icons-react";
+import { IconPlus, IconCheck, IconSparkles } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
+import { useToast } from "@/components/Toast";
 import HeaderCliente from "@/components/HeaderCliente";
 import BottomNav from "@/components/BottomNav";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
@@ -42,9 +43,24 @@ function slugify(name: string) {
 export default function Catalogo() {
   const router = useRouter();
   const { cliente, add } = useCarrito();
+  const { show: showToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("todo");
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+
+  const handleAdd = (p: Product) => {
+    add(p);
+    setJustAdded(p.id);
+    showToast({
+      title: `${p.name} agregado`,
+      subtitle: "Sigue antojándote o pasa al carrito 🤎",
+      imageUrl: p.image_url,
+    });
+    window.setTimeout(() => {
+      setJustAdded((curr) => (curr === p.id ? null : curr));
+    }, 900);
+  };
 
   // Si no hay cliente, regresa al lead gate
   useEffect(() => {
@@ -212,11 +228,19 @@ export default function Catalogo() {
                     </Link>
                   ) : (
                     <button
-                      onClick={() => add(p)}
+                      onClick={() => handleAdd(p)}
                       aria-label={`Agregar ${p.name}`}
-                      className="w-10 h-10 rounded-full bg-antojo text-white flex items-center justify-center shadow-md active:scale-90 transition flex-shrink-0"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all flex-shrink-0 ${
+                        justAdded === p.id
+                          ? "bg-verde text-white scale-110"
+                          : "bg-antojo text-white active:scale-90"
+                      }`}
                     >
-                      <IconPlus size={20} stroke={2.5} />
+                      {justAdded === p.id ? (
+                        <IconCheck size={22} stroke={3} />
+                      ) : (
+                        <IconPlus size={20} stroke={2.5} />
+                      )}
                     </button>
                   )}
                 </div>

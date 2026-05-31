@@ -10,6 +10,7 @@ import {
   IconMapPin,
   IconExternalLink,
   IconX,
+  IconCalendarEvent,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Order, OrderItem } from "@/lib/types";
@@ -252,6 +253,30 @@ function Confirmacion() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Banner si está declinado: opción de cambiar fecha */}
+      {order.status === "declined" && (
+        <div className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 fade-up">
+          <div className="text-[10px] font-bold text-rojo uppercase tracking-wider text-center">
+            Este pedido no pudo ser
+          </div>
+          {order.decline_message && (
+            <p className="text-xs text-cafe italic mt-2 text-center">
+              "{order.decline_message}"
+            </p>
+          )}
+          <Link
+            href={`/recuperar/${order.folio}`}
+            className="mt-3 w-full bg-antojo text-white rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition shadow"
+          >
+            <IconCalendarEvent size={14} />
+            Cambiar fecha sin rehacer
+          </Link>
+          <p className="text-[10px] text-canela text-center mt-2 italic">
+            Tu antojo se conserva tal cual lo armaste 🤎
+          </p>
         </div>
       )}
 

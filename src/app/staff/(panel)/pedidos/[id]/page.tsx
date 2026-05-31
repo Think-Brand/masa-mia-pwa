@@ -274,7 +274,12 @@ export default async function PedidoDetalle({
               tone="verde"
               icon="check"
             />
-            <DeclineButton orderId={order.id} customerName={customerName} />
+            <DeclineButton
+              orderId={order.id}
+              customerName={customerName}
+              customerWhatsapp={(order.customer as any)?.whatsapp ?? null}
+              folio={order.folio}
+            />
           </>
         )}
         {order.status === "accepted" && (

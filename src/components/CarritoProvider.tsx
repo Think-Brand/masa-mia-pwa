@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Product } from "@/lib/types";
+
+const DeclineNotice = dynamic(() => import("./DeclineNotice"), {
+  ssr: false,
+});
 
 export type CompositionLine = {
   componentName: string;
@@ -150,8 +155,13 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
       value={{ items, cliente, total, count, add, addBox, remove, setQty, clear, setCliente }}
     >
       {children}
+      <DeclineNoticeMount />
     </Ctx.Provider>
   );
+}
+
+function DeclineNoticeMount() {
+  return <DeclineNotice />;
 }
 
 export function useCarrito() {

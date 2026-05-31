@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconRepeat, IconX } from "@tabler/icons-react";
+import { IconRepeat, IconX, IconCalendarEvent } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Order, OrderItem, Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
@@ -224,6 +224,24 @@ export default function MisPedidos() {
                       </span>
                     </div>
                   </Link>
+                  {/* Si está declinado: ofrecer recuperar */}
+                  {o.status === "declined" && (
+                    <div className="mt-2 bg-rojo/5 border border-rojo/20 rounded-xl p-2.5">
+                      {o.decline_message && (
+                        <p className="text-[11px] text-cafe italic mb-2">
+                          "{o.decline_message}"
+                        </p>
+                      )}
+                      <Link
+                        href={`/recuperar/${o.folio}`}
+                        className="w-full bg-antojo text-white rounded-lg py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition"
+                      >
+                        <IconCalendarEvent size={13} />
+                        Cambiar fecha sin rehacer
+                      </Link>
+                    </div>
+                  )}
+
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => repetirPedido(o)}

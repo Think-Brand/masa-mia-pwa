@@ -92,6 +92,7 @@ export type Order = {
   pilot_code: string | null;
   cancel_reason: string | null;
   cancelled_by: "customer" | "staff" | null;
+  customer_acknowledged_decline: boolean | null;
   created_at: string;
   updated_at: string;
   accepted_at: string | null;

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   IconHome,
   IconShoppingBag,
@@ -20,6 +21,18 @@ const ITEMS = [
 export default function BottomNav() {
   const pathname = usePathname();
   const { count } = useCarrito();
+  const [pulse, setPulse] = useState(false);
+  const prevCount = useRef(count);
+
+  // Animar el badge cuando aumenta el count (no al disminuir)
+  useEffect(() => {
+    if (count > prevCount.current) {
+      setPulse(true);
+      const t = window.setTimeout(() => setPulse(false), 700);
+      return () => window.clearTimeout(t);
+    }
+    prevCount.current = count;
+  }, [count]);
 
   return (
     <nav
@@ -47,10 +60,20 @@ export default function BottomNav() {
                 active ? "text-antojo" : "text-canela"
               }`}
             >
-              <div className="relative">
+              <div
+                className={`relative ${
+                  item.badgeKey === "count" && pulse ? "cart-bounce" : ""
+                }`}
+              >
                 <item.Icon size={22} stroke={active ? 2.4 : 1.8} />
                 {badgeCount !== null && (
-                  <span className="absolute -top-1.5 -right-2 bg-antojo text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  <span
+                    className={`absolute -top-1.5 -right-2 bg-antojo text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md ${
+                      pulse && item.badgeKey === "count"
+                        ? "badge-pop"
+                        : ""
+                    }`}
+                  >
                     {badgeCount}
                   </span>
                 )}
@@ -65,6 +88,39 @@ export default function BottomNav() {
           );
         })}
       </div>
+
+      <style jsx>{`
+        @keyframes cartBounce {
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          30% {
+            transform: translateY(-8px) scale(1.1);
+          }
+          60% {
+            transform: translateY(2px) scale(0.95);
+          }
+        }
+        @keyframes badgePop {
+          0% {
+            transform: scale(1);
+          }
+          40% {
+            transform: scale(1.6);
+            background-color: #5b7a3a;
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+        .cart-bounce {
+          animation: cartBounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .badge-pop {
+          animation: badgePop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+      `}</style>
     </nav>
   );
 }

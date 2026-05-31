@@ -21,6 +21,7 @@ import {
   CompositionLine,
   useCarrito,
 } from "@/components/CarritoProvider";
+import { useToast } from "@/components/Toast";
 import BottomNav from "@/components/BottomNav";
 
 function transparentVariant(url: string | null): string | null {
@@ -68,6 +69,7 @@ function BoxConstructor() {
   const router = useRouter();
   const params = useSearchParams();
   const { addBox } = useCarrito();
+  const { show: showToast } = useToast();
   const boxId = params.get("id");
 
   const [box, setBox] = useState<Product | null>(null);
@@ -248,6 +250,11 @@ function BoxConstructor() {
     }));
     addBox(box, composition, total);
     setAdded(true);
+    showToast({
+      title: `${box.name} armado`,
+      subtitle: "Listo en tu carrito 🤎",
+      imageUrl: box.image_url,
+    });
     setTimeout(() => router.push("/carrito"), 700);
   };
 

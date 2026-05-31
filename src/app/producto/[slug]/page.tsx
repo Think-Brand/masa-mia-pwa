@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
+import { useToast } from "@/components/Toast";
 import BottomNav from "@/components/BottomNav";
 
 function slugify(name: string) {
@@ -42,6 +43,7 @@ function DetalleProducto() {
   const router = useRouter();
   const params = useSearchParams();
   const { add } = useCarrito();
+  const { show: showToast } = useToast();
   const productId = params.get("id");
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -102,8 +104,14 @@ function DetalleProducto() {
     "Antojo en su versión más honesta. Pide y te cuento más.";
 
   const onAdd = () => {
+    if (!product) return;
     add(product);
     setAdded(true);
+    showToast({
+      title: `${product.name} agregado`,
+      subtitle: "Sigue antojándote o pasa al carrito 🤎",
+      imageUrl: product.image_url,
+    });
     setTimeout(() => setAdded(false), 1200);
   };
 
