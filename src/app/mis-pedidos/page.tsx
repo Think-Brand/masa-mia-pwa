@@ -36,6 +36,22 @@ export default function MisPedidos() {
   } | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
+  const aceptarDecline = async (orderId: string) => {
+    const supabase = createClient();
+    await supabase
+      .from("orders")
+      .update({ customer_acknowledged_decline: true })
+      .eq("id", orderId);
+    // Actualizar estado local sin recargar todo
+    setOrders((curr) =>
+      curr.map((o) =>
+        o.id === orderId
+          ? { ...o, customer_acknowledged_decline: true }
+          : o
+      )
+    );
+  };
+
   const repetirPedido = async (order: Order & { items: OrderItem[] }) => {
     setRepitiendo(order.id);
     const supabase = createClient();
@@ -224,21 +240,29 @@ export default function MisPedidos() {
                       </span>
                     </div>
                   </Link>
-                  {/* Si está declinado: ofrecer recuperar */}
-                  {o.status === "declined" && (
+                  {/* Si está declinado Y no se ha aceptado el aviso: mostrar opciones */}
+                  {o.status === "declined" && !o.customer_acknowledged_decline && (
                     <div className="mt-2 bg-rojo/5 border border-rojo/20 rounded-xl p-2.5">
                       {o.decline_message && (
                         <p className="text-[11px] text-cafe italic mb-2">
                           "{o.decline_message}"
                         </p>
                       )}
-                      <Link
-                        href={`/recuperar/${o.folio}`}
-                        className="w-full bg-antojo text-white rounded-lg py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition"
-                      >
-                        <IconCalendarEvent size={13} />
-                        Cambiar fecha sin rehacer
-                      </Link>
+                      <div className="flex gap-1.5">
+                        <Link
+                          href={`/recuperar/${o.folio}`}
+                          className="flex-1 bg-antojo text-white rounded-lg py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition"
+                        >
+                          <IconCalendarEvent size={13} />
+                          Cambiar fecha
+                        </Link>
+                        <button
+                          onClick={() => aceptarDecline(o.id)}
+                          className="flex-1 bg-white border border-caramelo/40 text-cafe rounded-lg py-2 text-[11px] font-bold active:scale-95 transition"
+                        >
+                          Aceptar
+                        </button>
+                      </div>
                     </div>
                   )}
 

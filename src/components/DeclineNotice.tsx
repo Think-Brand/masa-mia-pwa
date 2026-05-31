@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   IconCalendarEvent,
   IconBrandWhatsapp,
@@ -30,6 +30,7 @@ type DeclinedOrder = {
  * - Solo muestra una vez por pedido (marca customer_acknowledged_decline al cerrar).
  */
 export default function DeclineNotice() {
+  const router = useRouter();
   const { cliente } = useCarrito();
   const [pending, setPending] = useState<DeclinedOrder | null>(null);
   const [closing, setClosing] = useState(false);
@@ -106,16 +107,30 @@ export default function DeclineNotice() {
     });
   }, [pending?.contact_person]);
 
-  const acknowledge = async () => {
+  // Marca el aviso como visto en BD. Devuelve Promise para que callers puedan await.
+  const acknowledge = async (closeAfter = true): Promise<void> => {
     if (!pending) return;
+    const orderId = pending.id;
     setClosing(true);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("orders")
       .update({ customer_acknowledged_decline: true })
-      .eq("id", pending.id);
-    setPending(null);
+      .eq("id", orderId);
+    if (error) {
+      console.error("acknowledge decline failed", error);
+    }
+    if (closeAfter) setPending(null);
     setClosing(false);
+  };
+
+  // Cambiar fecha: marca como visto + navega
+  const goRecuperar = async () => {
+    if (!pending) return;
+    const folio = pending.folio;
+    await acknowledge(false);
+    setPending(null);
+    router.push(`/recuperar/${folio}`);
   };
 
   if (!pending || !cliente) return null;
@@ -127,6 +142,14 @@ export default function DeclineNotice() {
   const waMessage = encodeURIComponent(
     `Hola ${contactName}, soy ${cliente.name}. Vi que mi pedido ${pending.folio} no se pudo concretar. ¿Podemos verlo?`
   );
+
+  // WhatsApp: marca como visto + abre WhatsApp
+  const goWhatsApp = async () => {
+    const url = `https://wa.me/${waContact}?text=${waMessage}`;
+    await acknowledge(false);
+    setPending(null);
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="fixed inset-0 z-[75] bg-cafe/80 backdrop-blur-md flex items-end sm:items-center justify-center px-4">
@@ -165,30 +188,28 @@ export default function DeclineNotice() {
 
         {/* Opciones */}
         <div className="flex flex-col gap-2 mt-5">
-          <Link
-            href={`/recuperar/${pending.folio}`}
-            onClick={acknowledge}
-            className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md"
+          <button
+            onClick={goRecuperar}
+            disabled={closing}
+            className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md disabled:opacity-60"
           >
             <IconCalendarEvent size={18} />
-            Cambiar a otra fecha
-          </Link>
-          <a
-            href={`https://wa.me/${waContact}?text=${waMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={acknowledge}
-            className="w-full bg-[#25D366] text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow"
+            Cambiar fecha
+          </button>
+          <button
+            onClick={goWhatsApp}
+            disabled={closing}
+            className="w-full bg-[#25D366] text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow disabled:opacity-60"
           >
             <IconBrandWhatsapp size={18} />
             Hablar con {contactName}
-          </a>
+          </button>
           <button
-            onClick={acknowledge}
+            onClick={() => acknowledge(true)}
             disabled={closing}
-            className="text-xs text-canela py-2 active:scale-95"
+            className="w-full bg-white border border-caramelo/40 text-cafe rounded-2xl py-2.5 text-xs font-bold active:scale-95 transition mt-1"
           >
-            Entiendo, lo dejo así
+            Aceptar
           </button>
         </div>
 
