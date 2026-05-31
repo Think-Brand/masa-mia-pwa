@@ -50,6 +50,10 @@ type CarritoCtx = {
   setQty: (cartLineId: string, qty: number) => void;
   clear: () => void;
   setCliente: (c: Cliente) => void;
+  /** Cantidad total de un producto simple (sin composición) en el carrito */
+  getProductQty: (productId: string) => number;
+  /** Disminuye en 1 la cantidad de un producto simple. Si llega a 0, elimina la línea. */
+  decreaseOne: (productId: string) => void;
 };
 
 const Ctx = createContext<CarritoCtx | null>(null);
@@ -145,6 +149,26 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
 
   const clear = () => setItems([]);
 
+  const getProductQty = (productId: string) => {
+    const line = items.find((it) => it.productId === productId && !it.composition);
+    return line?.quantity ?? 0;
+  };
+
+  const decreaseOne = (productId: string) => {
+    setItems((curr) => {
+      const line = curr.find((it) => it.productId === productId && !it.composition);
+      if (!line) return curr;
+      if (line.quantity <= 1) {
+        return curr.filter((it) => it.cartLineId !== line.cartLineId);
+      }
+      return curr.map((it) =>
+        it.cartLineId === line.cartLineId
+          ? { ...it, quantity: it.quantity - 1 }
+          : it
+      );
+    });
+  };
+
   const setCliente = (c: Cliente) => setClienteState(c);
 
   const total = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
@@ -152,7 +176,20 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider
-      value={{ items, cliente, total, count, add, addBox, remove, setQty, clear, setCliente }}
+      value={{
+        items,
+        cliente,
+        total,
+        count,
+        add,
+        addBox,
+        remove,
+        setQty,
+        clear,
+        setCliente,
+        getProductQty,
+        decreaseOne,
+      }}
     >
       {children}
       <DeclineNoticeMount />

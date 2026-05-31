@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconPlus, IconCheck, IconSparkles } from "@tabler/icons-react";
+import { IconPlus, IconMinus, IconCheck, IconSparkles } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
@@ -42,24 +42,31 @@ function slugify(name: string) {
 
 export default function Catalogo() {
   const router = useRouter();
-  const { cliente, add } = useCarrito();
+  const { cliente, add, getProductQty, decreaseOne } = useCarrito();
   const { show: showToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("todo");
   const [justAdded, setJustAdded] = useState<string | null>(null);
 
-  const handleAdd = (p: Product) => {
+  const handleAdd = (p: Product, isFirst: boolean) => {
     add(p);
     setJustAdded(p.id);
-    showToast({
-      title: `${p.name} agregado`,
-      subtitle: "Sigue antojándote o pasa al carrito 🤎",
-      imageUrl: p.image_url,
-    });
+    // Toast solo en el primer agregado del producto (no en cada incremento)
+    if (isFirst) {
+      showToast({
+        title: `${p.name} agregado`,
+        subtitle: "Súmale más o pasa al carrito 🤎",
+        imageUrl: p.image_url,
+      });
+    }
     window.setTimeout(() => {
       setJustAdded((curr) => (curr === p.id ? null : curr));
-    }, 900);
+    }, 600);
+  };
+
+  const handleDecrease = (p: Product) => {
+    decreaseOne(p.id);
   };
 
   // Si no hay cliente, regresa al lead gate
@@ -227,21 +234,15 @@ export default function Catalogo() {
                       <IconPlus size={20} stroke={2.5} />
                     </Link>
                   ) : (
-                    <button
-                      onClick={() => handleAdd(p)}
-                      aria-label={`Agregar ${p.name}`}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all flex-shrink-0 ${
-                        justAdded === p.id
-                          ? "bg-verde text-white scale-110"
-                          : "bg-antojo text-white active:scale-90"
-                      }`}
-                    >
-                      {justAdded === p.id ? (
-                        <IconCheck size={22} stroke={3} />
-                      ) : (
-                        <IconPlus size={20} stroke={2.5} />
-                      )}
-                    </button>
+                    <ProductStepper
+                      qty={getProductQty(p.id)}
+                      pulse={justAdded === p.id}
+                      onAdd={() =>
+                        handleAdd(p, getProductQty(p.id) === 0)
+                      }
+                      onMinus={() => handleDecrease(p)}
+                      productName={p.name}
+                    />
                   )}
                 </div>
               </article>
@@ -253,6 +254,95 @@ export default function Catalogo() {
 
       {/* Tour de Miga al primer ingreso (solo si pilot_mode = on) */}
       <ClienteOnboarding />
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// ProductStepper — botón "+" que se transforma en stepper [− N +]
+// ──────────────────────────────────────────────
+function ProductStepper({
+  qty,
+  pulse,
+  onAdd,
+  onMinus,
+  productName,
+}: {
+  qty: number;
+  pulse: boolean;
+  onAdd: () => void;
+  onMinus: () => void;
+  productName: string;
+}) {
+  // Estado vacío: solo botón +
+  if (qty === 0) {
+    return (
+      <button
+        onClick={onAdd}
+        aria-label={`Agregar ${productName}`}
+        className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all flex-shrink-0 ${
+          pulse
+            ? "bg-verde text-white scale-110"
+            : "bg-antojo text-white active:scale-90"
+        }`}
+      >
+        {pulse ? (
+          <IconCheck size={22} stroke={3} />
+        ) : (
+          <IconPlus size={20} stroke={2.5} />
+        )}
+      </button>
+    );
+  }
+
+  // Con cantidad: stepper completo (en verde para indicar "ya en carrito")
+  return (
+    <div
+      className={`flex items-center bg-verde text-white rounded-full shadow-md overflow-hidden transition-all flex-shrink-0 ${
+        pulse ? "ring-2 ring-white/60 scale-105" : ""
+      }`}
+      style={{ height: 40 }}
+    >
+      <button
+        onClick={onMinus}
+        aria-label={`Quitar uno de ${productName}`}
+        className="w-9 h-10 flex items-center justify-center active:scale-90 transition hover:bg-black/10"
+      >
+        <IconMinus size={16} stroke={2.8} />
+      </button>
+      <span
+        key={qty}
+        className="px-1 min-w-[18px] text-center text-sm font-bold qty-bump"
+        style={{ fontFamily: "Termina" }}
+      >
+        {qty}
+      </span>
+      <button
+        onClick={onAdd}
+        aria-label={`Agregar otro ${productName}`}
+        className="w-9 h-10 flex items-center justify-center active:scale-90 transition hover:bg-black/10"
+      >
+        <IconPlus size={16} stroke={2.8} />
+      </button>
+
+      <style jsx>{`
+        @keyframes qtyBump {
+          0% {
+            transform: scale(1);
+          }
+          40% {
+            transform: scale(1.35);
+            color: #fff5e0;
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+        .qty-bump {
+          display: inline-block;
+          animation: qtyBump 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+      `}</style>
     </div>
   );
 }
