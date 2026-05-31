@@ -10,6 +10,7 @@ import {
   IconChartBar,
   IconChefHat,
   IconDashboard,
+  IconEye,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
@@ -61,6 +62,16 @@ export default function StaffHeader({ userName }: Props) {
           <div className="text-[11px] text-caramelo mr-1 hidden sm:block">
             {userName}
           </div>
+          <Link
+            href="/catalogo"
+            aria-label="Ver como cliente"
+            title="Ver la tienda como cliente"
+            className="text-crema p-2 rounded-lg active:scale-90 transition flex items-center gap-1 text-[10px] font-bold"
+            style={{ fontFamily: "Termina" }}
+          >
+            <IconEye size={16} />
+            <span className="hidden sm:inline">Vista cliente</span>
+          </Link>
           <button
             onClick={cerrarSesion}
             aria-label="Cerrar sesión"

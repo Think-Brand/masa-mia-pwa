@@ -28,7 +28,35 @@ type DeclinedOrder = {
  *
  * - Suscribe a realtime: si declinan mientras está conectado, modal aparece al instante.
  * - Solo muestra una vez por pedido (marca customer_acknowledged_decline al cerrar).
+ * - Defensa local: guarda en localStorage los folios ya aceptados para que el modal
+ *   no rebote aunque falle la escritura a Supabase (RLS, red, etc).
  */
+
+const ACK_STORAGE_KEY = "masamia:decline-acked";
+
+function getLocallyAcked(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(ACK_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function markLocallyAcked(orderId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const set = getLocallyAcked();
+    set.add(orderId);
+    // Limita a últimos 50 para no crecer indefinidamente
+    const trimmed = Array.from(set).slice(-50);
+    window.localStorage.setItem(ACK_STORAGE_KEY, JSON.stringify(trimmed));
+  } catch {}
+}
+
 export default function DeclineNotice() {
   const router = useRouter();
   const { cliente } = useCarrito();
@@ -49,6 +77,7 @@ export default function DeclineNotice() {
   useEffect(() => {
     if (!cliente?.id) return;
     const supabase = createClient();
+    const localAcked = getLocallyAcked();
 
     const fetchPending = async () => {
       const { data } = await supabase
@@ -60,9 +89,13 @@ export default function DeclineNotice() {
         .eq("status", "declined")
         .eq("customer_acknowledged_decline", false)
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (data) setPending(data as any);
+        .limit(5);
+      if (!data || data.length === 0) return;
+      // Descarta los que ya están aceptados localmente (defensa contra rebote)
+      const firstUnseen = (data as any[]).find(
+        (o) => !localAcked.has(o.id)
+      );
+      if (firstUnseen) setPending(firstUnseen);
     };
     fetchPending();
 
@@ -79,9 +112,13 @@ export default function DeclineNotice() {
         },
         (payload) => {
           const updated = payload.new as any;
+          // Solo mostramos si: está declinado, no ha sido reconocido en BD,
+          // Y no fue aceptado localmente (cubre el caso de rebote por race condition).
+          const acked = getLocallyAcked();
           if (
             updated.status === "declined" &&
-            updated.customer_acknowledged_decline === false
+            updated.customer_acknowledged_decline === false &&
+            !acked.has(updated.id)
           ) {
             setPending(updated);
           }
@@ -108,10 +145,17 @@ export default function DeclineNotice() {
   }, [pending?.contact_person]);
 
   // Marca el aviso como visto en BD. Devuelve Promise para que callers puedan await.
+  // Importante: aunque la BD falle, marcamos el folio localmente para que el modal
+  // no vuelva a saltar en esta sesión / dispositivo.
   const acknowledge = async (closeAfter = true): Promise<void> => {
     if (!pending) return;
     const orderId = pending.id;
+    // 1) Marca local INMEDIATA — defensa contra rebote
+    markLocallyAcked(orderId);
+    // 2) Cierra el modal optimistamente
+    if (closeAfter) setPending(null);
     setClosing(true);
+    // 3) Intenta persistir en BD (best effort)
     const supabase = createClient();
     const { error } = await supabase
       .from("orders")
@@ -120,7 +164,6 @@ export default function DeclineNotice() {
     if (error) {
       console.error("acknowledge decline failed", error);
     }
-    if (closeAfter) setPending(null);
     setClosing(false);
   };
 

@@ -111,23 +111,27 @@ export default function NotificationBell() {
     if (!cliente?.id) return;
     const unreadIds = notifs.filter((n) => !n.read).map((n) => n.id);
     if (unreadIds.length === 0) return;
-    const supabase = createClient();
     const now = new Date().toISOString();
-    await supabase
-      .from("notifications")
-      .update({ read: true, read_at: now })
-      .in("id", unreadIds);
+    // Optimista: marca en UI inmediatamente para evitar que reaparezca si el
+    // usuario cierra antes de que vuelva la respuesta de Supabase.
     setNotifs((curr) =>
       curr.map((n) =>
         unreadIds.includes(n.id) ? { ...n, read: true, read_at: now } : n
       )
     );
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read: true, read_at: now })
+      .in("id", unreadIds);
+    if (error) console.error("mark notifs read failed", error);
   };
 
   const handleOpen = async () => {
     setOpen(true);
-    // Marca como leídas al abrir (después de un pequeño delay para que el usuario las VEA primero)
-    window.setTimeout(() => markAllAsRead(), 1500);
+    // Marca como leídas al abrir, sin delay — si lo retrasamos y el usuario
+    // cierra antes, las notificaciones reaparecen como nuevas (bug confirmado).
+    markAllAsRead();
   };
 
   const handleClickNotif = async (notif: Notification) => {
