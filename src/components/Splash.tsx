@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 /**
- * Splash de marca: logo circular grande con fade in/out.
+ * Splash de marca: logo circular sobre fondo café.
  * Solo se muestra una vez por sesión del navegador (sessionStorage).
- * Duración total ~1.6s: fade-in 300ms, hold 900ms, fade-out 400ms.
+ * Duración total 1.4s: fade-in 300ms, hold 700ms, fade-out 400ms.
  */
 export default function Splash() {
   const [stage, setStage] = useState<"idle" | "in" | "hold" | "out" | "done">(
@@ -14,7 +14,6 @@ export default function Splash() {
   );
 
   useEffect(() => {
-    // Solo arrancar si nunca se ha mostrado en esta sesión
     if (typeof window === "undefined") return;
     const seen = sessionStorage.getItem("masamia.splash");
     if (seen === "1") {
@@ -25,8 +24,8 @@ export default function Splash() {
 
     setStage("in");
     const t1 = window.setTimeout(() => setStage("hold"), 300);
-    const t2 = window.setTimeout(() => setStage("out"), 300 + 900);
-    const t3 = window.setTimeout(() => setStage("done"), 300 + 900 + 400);
+    const t2 = window.setTimeout(() => setStage("out"), 300 + 700);
+    const t3 = window.setTimeout(() => setStage("done"), 300 + 700 + 400);
 
     return () => {
       window.clearTimeout(t1);
@@ -37,10 +36,6 @@ export default function Splash() {
 
   if (stage === "idle" || stage === "done") return null;
 
-  const opacity = stage === "in" ? 0 : stage === "out" ? 0 : 1;
-  // Cuando es "in", arranca en 0 y se le aplica transition para llegar a 1.
-  // Truco: forzamos a 1 después del primer paint vía CSS animation.
-
   return (
     <div
       aria-hidden="true"
@@ -48,7 +43,7 @@ export default function Splash() {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "var(--crema)",
+        background: "var(--cafe)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -65,18 +60,18 @@ export default function Splash() {
               : undefined,
         }}
       >
+        {/* Logo circular oficial — logo-02.png en /public/logos */}
         <Image
-          src="/icons/icon-512.png"
+          src="/logos/logo-02.png"
           alt="Masa Mía"
-          width={220}
-          height={220}
+          width={240}
+          height={240}
           priority
           style={{
-            width: 220,
-            height: 220,
-            borderRadius: "50%",
+            width: 240,
+            height: "auto",
             display: "block",
-            filter: "drop-shadow(0 8px 24px rgba(58, 39, 29, 0.18))",
+            filter: "drop-shadow(0 6px 20px rgba(0, 0, 0, 0.25))",
           }}
         />
       </div>
@@ -88,7 +83,7 @@ export default function Splash() {
           }
           60% {
             opacity: 1;
-            transform: scale(1.02);
+            transform: scale(1.03);
           }
           100% {
             opacity: 1;

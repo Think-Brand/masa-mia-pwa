@@ -58,15 +58,14 @@ export default function StaffLogin() {
       {/* Logo de marca — coherencia con landing del cliente */}
       <div className="w-full flex justify-center">
         <Image
-          src="/icons/icon-512.png"
+          src="/logos/logo-02.png"
           alt="Masa Mía"
-          width={64}
-          height={64}
+          width={72}
+          height={72}
           priority
           style={{
-            width: 64,
-            height: 64,
-            borderRadius: "50%",
+            width: 72,
+            height: "auto",
             display: "block",
           }}
         />
