@@ -33,9 +33,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** Meta de ventas mensual (MXN). En una futura iteración esto vendrá de
- *  settings/business → ajustable por Mario sin tocar código. */
-const MONTHLY_GOAL_MXN = 15000;
+/** Meta de ventas mensual (MXN) por defecto si no hay setting configurada.
+ *  El valor real viene de settings.monthly_sales_goal_mxn (editable en /staff/ajustes).
+ *  Default bajo a propósito: emprendimiento arrancando — motivar, no desanimar. */
+const DEFAULT_MONTHLY_GOAL_MXN = 8000;
 
 function isoDay(d: Date): string {
   const y = d.getFullYear();
@@ -54,17 +55,18 @@ function deltaPct(actual: number, anterior: number): number | null {
   return ((actual - anterior) / anterior) * 100;
 }
 
-/** Comentario contextual de Miga según ritmo vs meta. */
-function migaSaysGoal(pct: number, daysLeft: number): string {
-  if (pct >= 100) return "Ya pasaste tu meta. Lo demás es postre 🥐";
-  if (pct >= 80 && daysLeft > 3) return "Casi, casi. Vas con holgura.";
-  if (pct >= 80) return "A nada. Una buena venta y cierras.";
-  if (pct >= 50 && daysLeft > 10) return "Vas a buen ritmo, no apurarse.";
-  if (pct >= 50) return "A medio camino — todavía alcanza.";
-  if (pct >= 25 && daysLeft > 15) return "Apenas calentamos el horno.";
-  if (pct >= 25) return "Vas suave, hay que apretar el ritmo.";
-  if (daysLeft > 20) return "Mes nuevo, todo por delante.";
-  return "Pocos pedidos por ahora — toca empujar.";
+/** Comentario contextual de Miga según ritmo vs meta. Voz cómplice de tribu
+ *  — Miga le habla a "cocineros" como parte del equipo, no como mandona. */
+function migaSaysGoal(pct: number, daysLeft: number, daysPassed: number): string {
+  if (pct >= 150) return "Wooowww, hoy no solo lo hicimos bien, lo hicimos sobresaliente 🌟";
+  if (pct >= 100) return "¡Lo logramos cocineros! Felicidades 🎉";
+  if (pct >= 90) return "Ya mero, ya mero — unas horneadas más 🔥";
+  if (pct >= 45 && pct < 65) return "Ya mero cocineros, estamos a la mitad 💪";
+  if (pct >= 65) return "Vamos derecho a la meta, sin frenar.";
+  if (pct >= 25) return "Buen ritmo, no soltamos.";
+  if (daysPassed <= 5) return "Empieza el mes con todo, cocineros 🥐";
+  if (daysLeft > 15) return "Calentamos horno — todavía hay mes por delante.";
+  return "Toca apretar el paso, cocineros.";
 }
 
 export default async function DashboardPage() {
@@ -86,6 +88,7 @@ export default async function DashboardPage() {
     { data: monthOrders },
     { data: prevMonthOrders },
     { count: totalCustomers },
+    { data: goalSetting },
   ] = await Promise.all([
     supabase
       .from("orders")
@@ -101,7 +104,17 @@ export default async function DashboardPage() {
       .neq("status", "cancelled")
       .neq("status", "declined"),
     supabase.from("customers").select("*", { count: "exact", head: true }),
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "monthly_sales_goal_mxn")
+      .maybeSingle(),
   ]);
+
+  const monthlyGoal = (() => {
+    const raw = Number(goalSetting?.value);
+    return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_MONTHLY_GOAL_MXN;
+  })();
 
   const mOrders = monthOrders ?? [];
   const pmOrders = prevMonthOrders ?? [];
@@ -147,12 +160,15 @@ export default async function DashboardPage() {
     .gte("created_at", weekAgo.toISOString());
 
   // ─── Meta del mes ─────────────────────────────────────────────────────
-  const metaPct = Math.min(100, (ventasMes / MONTHLY_GOAL_MXN) * 100);
+  // metaPctReal puede pasar 100 cuando sobrepasamos — la barra se capa a 100
+  // pero el mensaje de Miga necesita el % real para detectar "sobresaliente".
+  const metaPctReal = (ventasMes / monthlyGoal) * 100;
+  const metaPct = Math.min(100, metaPctReal);
   const ritmoNecesarioDiario =
-    daysLeft > 0 && ventasMes < MONTHLY_GOAL_MXN
-      ? (MONTHLY_GOAL_MXN - ventasMes) / daysLeft
+    daysLeft > 0 && ventasMes < monthlyGoal
+      ? (monthlyGoal - ventasMes) / daysLeft
       : 0;
-  const migaMsgMeta = migaSaysGoal(metaPct, daysLeft);
+  const migaMsgMeta = migaSaysGoal(metaPctReal, daysLeft, daysPassed);
 
   // ─── Retención 30 días ────────────────────────────────────────────────
   const thirtyDaysAgo = new Date(now);
@@ -360,7 +376,7 @@ export default async function DashboardPage() {
             {pesos(ventasMes)}
           </span>
           <span className="text-sm text-caramelo">
-            / {pesos(MONTHLY_GOAL_MXN)}
+            / {pesos(monthlyGoal)}
           </span>
         </div>
 
@@ -388,7 +404,7 @@ export default async function DashboardPage() {
 
         <div className="mt-2 flex items-center justify-between text-[11px]">
           <span className="text-crema font-bold">
-            {metaPct.toFixed(0)}% completado
+            {metaPctReal.toFixed(0)}% completado
           </span>
           {ritmoNecesarioDiario > 0 ? (
             <span className="text-caramelo">

@@ -6,7 +6,7 @@ import PrintButton from "./PrintButton";
 
 export const dynamic = "force-dynamic";
 
-const MONTHLY_GOAL_MXN = 15000;
+const DEFAULT_MONTHLY_GOAL_MXN = 8000;
 
 type Props = { params: { mes: string } };
 
@@ -47,6 +47,7 @@ export default async function ReportePage({ params }: Props) {
     { data: prevMonthOrders },
     { count: newCustomers },
     { count: totalCustomers },
+    { data: goalSetting },
   ] = await Promise.all([
     supabase
       .from("orders")
@@ -68,7 +69,17 @@ export default async function ReportePage({ params }: Props) {
       .gte("created_at", monthStart.toISOString())
       .lte("created_at", monthEnd.toISOString()),
     supabase.from("customers").select("*", { count: "exact", head: true }),
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "monthly_sales_goal_mxn")
+      .maybeSingle(),
   ]);
+
+  const monthlyGoal = (() => {
+    const raw = Number(goalSetting?.value);
+    return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_MONTHLY_GOAL_MXN;
+  })();
 
   const mOrders = monthOrders ?? [];
   const pmOrders = prevMonthOrders ?? [];
@@ -82,7 +93,7 @@ export default async function ReportePage({ params }: Props) {
   const numPedidosPrev = pmOrders.length;
   const ticket = numPedidos > 0 ? ventas / numPedidos : 0;
   const ticketPrev = numPedidosPrev > 0 ? ventasPrev / numPedidosPrev : 0;
-  const metaPct = (ventas / MONTHLY_GOAL_MXN) * 100;
+  const metaPct = (ventas / monthlyGoal) * 100;
 
   // ─── Top 5 productos ─────────────────
   const orderIds = mOrders.map((o: any) => o.id);
@@ -266,7 +277,7 @@ export default async function ReportePage({ params }: Props) {
             <Cell
               label="vs meta del mes"
               value={`${metaPct.toFixed(0)}%`}
-              sub={`meta: ${pesos(MONTHLY_GOAL_MXN)}`}
+              sub={`meta: ${pesos(monthlyGoal)}`}
             />
             <Cell label="Clientes nuevos" value={String(nuevos)} />
             <Cell label="Clientes recurrentes" value={String(recurrentes)} />

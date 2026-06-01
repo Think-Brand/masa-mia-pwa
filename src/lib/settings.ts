@@ -12,6 +12,10 @@ export type Settings = {
   contact_alex_wa: string;
   contact_fabiola_name: string;
   contact_fabiola_wa: string;
+  /** Meta de ventas mensual en MXN (string para conservar el patrón key-value).
+   *  Mario la edita desde /staff/ajustes → Negocio. Default 8000 para
+   *  emprendimientos arrancando — bajo a propósito, motiva sin desanimar. */
+  monthly_sales_goal_mxn: string;
 };
 
 const DEFAULTS: Settings = {
@@ -26,7 +30,15 @@ const DEFAULTS: Settings = {
   contact_alex_wa: "",
   contact_fabiola_name: "Fabiola",
   contact_fabiola_wa: "",
+  monthly_sales_goal_mxn: "8000",
 };
+
+/** Helper: lee la meta del mes como número, con fallback al default. */
+export function getMonthlyGoal(s: Settings): number {
+  const parsed = Number(s.monthly_sales_goal_mxn);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 8000;
+  return parsed;
+}
 
 let cached: Settings | null = null;
 

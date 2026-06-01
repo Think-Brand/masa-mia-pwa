@@ -1516,7 +1516,14 @@ function OptionRow({
 /* ===================== NEGOCIO ===================== */
 
 function NegocioPanel() {
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  // Defaults conocidos para keys que pueden no existir aún en la tabla settings.
+  // Garantiza que aparezcan en el formulario aunque no estén en BD y se
+  // inserten al guardar (vía upsert).
+  const SETTING_DEFAULTS: Record<string, string> = {
+    monthly_sales_goal_mxn: "8000",
+  };
+
+  const [settings, setSettings] = useState<Record<string, string>>(SETTING_DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -1525,7 +1532,7 @@ function NegocioPanel() {
     setLoading(true);
     const supabase = createClient();
     const { data } = await supabase.from("settings").select("key, value");
-    const map: Record<string, string> = {};
+    const map: Record<string, string> = { ...SETTING_DEFAULTS };
     for (const row of data ?? []) map[row.key] = row.value;
     setSettings(map);
     setLoading(false);
@@ -1545,9 +1552,8 @@ function NegocioPanel() {
       key,
       value,
     }));
-    for (const row of rows) {
-      await supabase.from("settings").update({ value: row.value }).eq("key", row.key);
-    }
+    // Upsert por key — inserta si no existe, actualiza si sí.
+    await supabase.from("settings").upsert(rows, { onConflict: "key" });
     setSaved(true);
     setSaving(false);
     setTimeout(() => setSaved(false), 2000);
@@ -1623,6 +1629,20 @@ function NegocioPanel() {
           value={settings.contact_alex_wa}
           onChange={(v) => update("contact_alex_wa", v)}
         />
+      </Section>
+
+      <Section title="🎯 Meta de ventas mensual">
+        <Field
+          label="Meta del mes (MXN)"
+          value={settings.monthly_sales_goal_mxn ?? "8000"}
+          onChange={(v) => update("monthly_sales_goal_mxn", v.replace(/[^0-9]/g, ""))}
+        />
+        <p className="text-[10px] text-canela italic leading-relaxed mt-1">
+          Esta meta aparece en la pantalla de Negocio con barra de progreso.
+          Recomendado: empezar bajo ($6K–$10K) los primeros 3 meses y subir
+          conforme tengas datos reales. Mejor superar metas pequeñas que
+          fallar metas grandes.
+        </p>
       </Section>
 
       <button
