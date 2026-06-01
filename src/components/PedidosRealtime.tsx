@@ -144,15 +144,24 @@ export default function PedidosRealtime({ initialPendingCount }: Props) {
         </div>
       </div>
 
-      {/* Toast pedido nuevo */}
-      {toastMsg && (
-        <div
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-antojo text-white px-4 py-3 rounded-2xl shadow-2xl fade-up flex items-center gap-2 font-bold"
-          style={{ fontFamily: "Termina", fontSize: 13 }}
-        >
-          {toastMsg}
-        </div>
-      )}
+      {/* Toast pedido nuevo — transition retargetable (Emil), el div siempre
+          está montado para que cambios rápidos de toastMsg interrumpan suave
+          la animación anterior en vez de hacer cola. */}
+      <div
+        className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-antojo text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 font-bold pointer-events-none ${
+          toastMsg
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-3"
+        }`}
+        style={{
+          fontFamily: "Termina",
+          fontSize: 13,
+          transition:
+            "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {toastMsg ?? " "}
+      </div>
     </>
   );
 }

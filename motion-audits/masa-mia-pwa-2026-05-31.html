@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion Audit — Masa Mía PWA — 2026-05-31</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Familjen+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ───────── Tokens Masa Mía ───────── */
+  :root {
+    --cafe:        #3a271d;
+    --canela:      #6e4933;
+    --canela-soft: #9a6b4a;
+    --caramelo:    #ac7b54;
+    --crema:       #f4e5cf;
+    --crema-soft:  #fbf4e6;
+    --avellana:    #f5e8ce;
+    --antojo:      #f25c20;
+    --verde:       #5b7a3a;
+    --rojo:        #c0392b;
+
+    --ink: var(--cafe);
+    --paper: var(--crema);
+    --paper-dim: var(--crema-soft);
+    --muted: var(--canela);
+    --faint: var(--caramelo);
+    --line: color-mix(in oklch, var(--cafe) 14%, transparent);
+    --line-strong: color-mix(in oklch, var(--cafe) 28%, transparent);
+
+    --display: "Familjen Grotesk", "Hanken Grotesk", system-ui, sans-serif;
+    --sans: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--crema);
+    color: var(--cafe);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  /* ───────── Report chrome (NO animation per the spec) ───────── */
+  .header { border-bottom: 1px solid var(--line-strong); padding-bottom: 24px; margin-bottom: 40px; }
+  .header__eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--canela); margin-bottom: 8px; }
+  .header h1 { font-family: var(--display); font-size: clamp(28px, 4vw, 38px); font-weight: 700; line-height: 1.1; margin: 0 0 12px; color: var(--cafe); letter-spacing: -0.02em; }
+  .header__sub { color: var(--canela); max-width: 60ch; font-size: 14.5px; }
+  .header__meta { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 20px; font-family: var(--mono); font-size: 11.5px; color: var(--caramelo); }
+  .header__meta strong { color: var(--cafe); font-weight: 600; }
+
+  .summary { background: var(--crema-soft); border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; margin-bottom: 44px; }
+  .summary__title { font-family: var(--display); font-size: 14px; font-weight: 600; color: var(--cafe); margin: 0 0 10px; letter-spacing: -0.01em; }
+  .summary__counts { display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--mono); font-size: 12.5px; color: var(--canela); }
+  .summary__counts span strong { color: var(--cafe); font-weight: 700; font-size: 14px; }
+  .summary__weighting { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--canela); }
+  .summary__weighting b { color: var(--cafe); font-weight: 600; }
+
+  .recon { margin-bottom: 56px; }
+  .recon h2 { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--cafe); margin: 0 0 16px; letter-spacing: -0.015em; }
+  .recon p { color: var(--canela); margin: 0 0 12px; max-width: 70ch; }
+  .recon ul { color: var(--canela); padding-left: 22px; margin: 0 0 12px; }
+  .recon li { margin-bottom: 4px; }
+  .recon code { font-family: var(--mono); font-size: 12.5px; background: var(--avellana); padding: 1px 6px; border-radius: 4px; color: var(--cafe); }
+
+  /* ───────── Findings ───────── */
+  .severity-header { display: flex; align-items: baseline; gap: 14px; margin: 56px 0 24px; padding-bottom: 12px; border-bottom: 1px dashed var(--line-strong); }
+  .severity-header__icon { font-size: 22px; }
+  .severity-header h2 { font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.015em; color: var(--cafe); }
+  .severity-header__count { font-family: var(--mono); font-size: 11px; color: var(--canela); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .finding { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 24px 26px; margin-bottom: 28px; }
+  .finding__head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .finding__num { font-family: var(--mono); font-size: 11.5px; color: var(--antojo); font-weight: 600; letter-spacing: 0.05em; }
+  .finding__title { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--cafe); margin: 0; letter-spacing: -0.01em; }
+  .finding__lens { font-family: var(--mono); font-size: 10.5px; color: var(--canela); padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .finding__where { font-family: var(--mono); font-size: 11.5px; color: var(--caramelo); margin: 0 0 14px; }
+  .finding__where a { color: inherit; text-decoration: underline; text-decoration-color: var(--line-strong); }
+  .finding__body { color: var(--canela); margin: 0 0 14px; font-size: 14.5px; }
+  .finding__body p { margin: 0 0 10px; }
+  .finding__body strong { color: var(--cafe); font-weight: 600; }
+  .finding__body code { font-family: var(--mono); font-size: 12.5px; background: var(--avellana); padding: 1px 6px; border-radius: 4px; color: var(--cafe); }
+  .finding__grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 18px; align-items: start; }
+  @media (min-width: 720px) {
+    .finding__grid { grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  }
+  .finding__code { background: var(--cafe); color: var(--crema); border-radius: 10px; padding: 14px 16px; font-family: var(--mono); font-size: 11.5px; line-height: 1.6; overflow-x: auto; }
+  .finding__code .c { color: var(--caramelo); }
+  .finding__code .k { color: #ffb787; }
+  .finding__code .s { color: #ffd6a0; }
+
+  /* ───────── Demo card (per-finding) ───────── */
+  .vh { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .demo { position: relative; width: 100%; }
+  .demo__bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .demo__title { font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--cafe); line-height: 1.3; }
+  .demo__timing { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--canela); margin-top: 2px; }
+  .demo__loop { font-family: var(--mono); font-size: 11px; color: var(--caramelo); }
+  .demo__stage {
+    --st-bg: var(--crema);
+    --st-fg: var(--cafe);
+    --st-line: color-mix(in oklch, var(--cafe) 20%, transparent);
+    --st-dim: color-mix(in oklch, var(--cafe) 50%, transparent);
+    --st-accent: var(--antojo);
+    background: var(--st-bg); color: var(--st-fg);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 28px 20px; min-height: 180px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .ui-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; background: var(--st-fg); color: var(--st-bg); font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+  .ui-card { background: var(--st-bg); border: 1px solid var(--st-line); border-radius: 12px; padding: 14px 16px; min-width: 200px; box-shadow: 0 8px 24px rgba(58, 39, 29, 0.10); }
+  .ui-pill { display: inline-block; padding: 3px 9px; border-radius: 99px; font-family: var(--sans); font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; }
+  .ui-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--st-fg); }
+  .ui-num { font-family: var(--display); font-size: 32px; font-weight: 700; color: var(--st-fg); }
+  .ui-icon { width: 18px; height: 18px; border-radius: 50%; background: var(--st-accent); flex-shrink: 0; }
+
+  /* ───────── Per-lens summary ───────── */
+  .lens-section { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--line-strong); }
+  .lens-section h2 { font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0 0 24px; color: var(--cafe); letter-spacing: -0.015em; }
+  .lens { background: var(--crema-soft); border-left: 3px solid var(--antojo); border-radius: 8px; padding: 18px 22px; margin-bottom: 18px; }
+  .lens__name { font-family: var(--mono); font-size: 11px; color: var(--antojo); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; }
+  .lens__quote { font-family: var(--display); font-size: 16px; font-style: italic; color: var(--cafe); margin: 0 0 12px; line-height: 1.4; }
+  .lens__body { color: var(--canela); font-size: 14px; margin: 0; }
+  .lens__body b { color: var(--cafe); font-weight: 600; }
+
+  .footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; color: var(--caramelo); text-align: center; line-height: 1.6; }
+  .footer a { color: inherit; }
+
+  /* ───────── Reduced motion guard ───────── */
+  @media (prefers-reduced-motion: reduce) {
+    .demo__loop { display: none; }
+    [class*="__mt"], [class*="__mt"] * { animation: none !important; transition: none !important; }
+  }
+
+  /* ───────── Per-finding motion ───────── */
+
+  /* Finding 1 — Universal reduced-motion guard demo (Jakub lens) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m1 {
+      0%   { transform: translateY(0); }
+      25%  { transform: translateY(-10px); }
+      50%  { transform: translateY(0); }
+      55%  { background: var(--st-accent); color: var(--st-bg); }
+      60%, 100% { transform: translateY(0); background: var(--st-bg); color: var(--st-fg); border-color: var(--st-line); }
+    }
+    .demo-1__mt {
+      display: flex; gap: 10px; align-items: center;
+      padding: 12px 16px; border: 1px solid var(--st-line); border-radius: 10px;
+      background: var(--st-bg); color: var(--st-fg);
+      font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+      animation: m1 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .demo-1__icon { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; flex-shrink: 0; }
+  }
+
+  /* Finding 2 — CancelOrderModal enter (Jakub lens) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m2 {
+      0%   { opacity: 0; transform: translateY(16px) scale(0.96); filter: blur(4px); }
+      60%  { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .demo-2__mt { animation: m2 3s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+  }
+
+  /* Finding 3 — NotificationBell panel enter (Jakub lens) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m3 {
+      0%   { opacity: 0; transform: translateY(-8px) scale(0.97); filter: blur(3px); }
+      60%  { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .demo-3__mt {
+      transform-origin: top right;
+      animation: m3 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+  }
+
+  /* Finding 4 — Toast staff with CSS transition (Emil lens) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m4 {
+      0%   { opacity: 0; transform: translateY(-12px); }
+      40%  { opacity: 1; transform: translateY(0); }
+      60%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .demo-4__mt { animation: m4 3s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  }
+
+  /* Finding 5 — Banner cortesía con spring sutil (Jhey lens, restrained) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m5 {
+      0%   { opacity: 0; transform: scale(0.95); }
+      30%  { opacity: 1; transform: scale(1.03); }
+      55%  { transform: scale(1); }
+      60%, 100% { opacity: 1; transform: scale(1); }
+    }
+    .demo-5__mt {
+      animation: m5 3s cubic-bezier(0.34, 1.3, 0.64, 1) infinite;
+      transform-origin: center;
+    }
+  }
+
+  /* Finding 6 — Miga pause on tap (Jhey lens, accessibility) */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes m6 {
+      0%   { transform: translateY(0); }
+      15%  { transform: translateY(-8px); }
+      30%  { transform: translateY(0); }
+      40%  { transform: scale(0.94); }
+      45%  { transform: scale(1); }
+      60%, 100% { transform: translateY(0) scale(1); }
+    }
+    .demo-6__mt {
+      animation: m6 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      transform-origin: bottom center;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ───────── Header ───────── -->
+  <header class="header">
+    <div class="header__eyebrow">Motion Audit · Masa Mía PWA</div>
+    <h1>El antojo se siente, no se anuncia.</h1>
+    <p class="header__sub">
+      Auditoría de animaciones e interacciones de la PWA, con tres lentes —
+      <b>Jakub Krehel</b> para el catálogo cliente, <b>Emil Kowalski</b> para el KDS de cocina,
+      y <b>Jhey Tompkins</b> para Miga y momentos de cortesía. Lo que sigue son hallazgos
+      con demos en vivo al lado; tú decides cuáles aplicar.
+    </p>
+    <div class="header__meta">
+      <span><strong>Fecha:</strong> 31 mayo 2026</span>
+      <span><strong>Stack:</strong> Next.js 14 + CSS puro</span>
+      <span><strong>Archivos analizados:</strong> 32</span>
+      <span><strong>Animaciones existentes:</strong> 9 Miga + 5 component-level</span>
+    </div>
+  </header>
+
+  <!-- ───────── Summary ───────── -->
+  <div class="summary">
+    <div class="summary__title">Resumen</div>
+    <div class="summary__counts">
+      <span>🔴 <strong>3</strong> Critical</span>
+      <span>🟡 <strong>3</strong> Important</span>
+      <span>🟢 <strong>3</strong> Opportunities</span>
+    </div>
+    <div class="summary__weighting">
+      <b>Ponderación de lentes:</b> Primary <b>Jakub</b> (catálogo cliente, en producción) ·
+      Secondary <b>Jhey</b> (Miga + cortesías) · Selective <b>Emil</b> (KDS, staff/pedidos —
+      alta frecuencia de uso por Fabi/Alex).
+    </div>
+  </div>
+
+  <!-- ───────── Reconnaissance ───────── -->
+  <section class="recon">
+    <h2>Reconnaissance</h2>
+    <p>
+      La PWA es <b>híbrida</b>: tienda consumer (catálogo, carrito, pedidos del cliente),
+      KDS operativo de cocina (alta frecuencia, Fabi/Alex usando 50–200 veces al día), y
+      una capa de marca fuerte con <b>Miga</b> como mascota lúdica. Esto significa que
+      <em>un solo lente no aplica</em>; cada zona necesita su propio criterio.
+    </p>
+    <p><b>Lo que ya está bien:</b></p>
+    <ul>
+      <li>Sistema de animaciones de Miga con 9 variantes (<code>anim-bounce</code>, <code>anim-sway</code>, <code>anim-pop</code>, etc.) — buena base de personalidad.</li>
+      <li>Uso consistente de <code>active:scale-95</code> en botones — feedback táctil clásico de Emil.</li>
+      <li>Custom bezier en cart-bounce y badge-pop ya suavizados en el commit anterior (de 1.56 → 1.2 overshoot).</li>
+      <li><code>fade-up</code> usado de forma moderada en confirmaciones y modales — no es uniform-fade-spam.</li>
+    </ul>
+    <p><b>Lo que detecté que falta o necesita ajuste:</b></p>
+    <ul>
+      <li><b>~10+ motion gaps</b> — modales, panels y banners que aparecen/desaparecen sin transición (snap-in feel).</li>
+      <li><b>Reduced-motion guard parcial</b> — solo cubre 4 de 9 animaciones Miga, no cubre <code>fade-up</code> ni component-level.</li>
+      <li><b>Sin framer-motion</b> — todo es CSS, lo cual está bien para mantener bundle bajo, pero limita la animación de exits (CSS no soporta enter+exit nativamente sin trucos).</li>
+    </ul>
+  </section>
+
+  <!-- ═════════ CRITICAL ═════════ -->
+
+  <div class="severity-header">
+    <span class="severity-header__icon">🔴</span>
+    <h2>Critical</h2>
+    <span class="severity-header__count">3 hallazgos · accesibilidad y UX core</span>
+  </div>
+
+  <!-- Finding 1 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#01</span>
+      <h3 class="finding__title">Reduced-motion guard parcial</h3>
+      <span class="finding__lens">Jakub · accesibilidad</span>
+    </div>
+    <p class="finding__where"><code>src/app/globals.css:149–151</code> · cobertura: 4 de 9 animaciones Miga, 0 component-level</p>
+    <div class="finding__body">
+      <p>
+        El guard actual solo cubre <code>.anim-bounce, .anim-sway, .anim-float, .anim-jump</code>.
+        Quedan fuera: <code>wiggle</code>, <code>shake</code>, <code>pop-in</code>, <code>breath</code>,
+        <code>stir</code>, todas las animaciones component-level (<code>fade-up</code>, Toast, BottomNav
+        <code>cart-bounce</code>/<code>badge-pop</code>, catalogo <code>qtyBump</code>), y los keyframes inline
+        de los modales.
+      </p>
+      <p>
+        <strong>Por qué es Critical:</strong> usuarios con vestibular sensitivity (más común de lo que se cree —
+        ~35% de adultos reportan algún grado de sensibilidad al movimiento) reciben motion que pidieron
+        explícitamente desactivar. La skill de Motion Principles lo marca como mandatory — no es opcional.
+      </p>
+      <p>
+        <strong>Fix:</strong> reemplazar el guard parcial por uno universal en <code>globals.css</code> que
+        colapse <em>cualquier</em> animation y transition en el documento. Mantiene los final states intactos
+        para que el layout no se rompa.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* globals.css — al final del archivo */</span>
+<span class="k">@media</span> (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: <span class="s">0.01ms</span> !important;
+    animation-iteration-count: <span class="s">1</span> !important;
+    transition-duration: <span class="s">0.01ms</span> !important;
+    scroll-behavior: auto !important;
+  }
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Notificación que respeta tu preferencia</div>
+            <span class="demo__timing">universal guard · 0.01ms cuando reduce</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage">
+          <div class="demo-1__mt">
+            <span class="demo-1__icon"></span>
+            <span>Tu pedido está listo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Finding 2 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#02</span>
+      <h3 class="finding__title">Modal CancelOrderModal aparece instantáneo</h3>
+      <span class="finding__lens">Jakub · production polish</span>
+    </div>
+    <p class="finding__where"><code>src/app/mis-pedidos/page.tsx:306</code> · <code>&#123;cancelTarget &amp;&amp; &lt;CancelOrderModal /&gt;&#125;</code></p>
+    <div class="finding__body">
+      <p>
+        Conditional render sin envoltura de animación — el modal hace pop-in instantáneo cuando el usuario
+        toca "Cancelar". Es UI crítica (acción destructiva), y el snap genera la sensación de "¿se abrió bien?"
+        que rompe confianza.
+      </p>
+      <p>
+        <strong>Fix Jakub:</strong> enter con <code>opacity + translateY + blur</code> (la receta canónica de Jakub).
+        El blur agrega esa sensación física de "materialización" que no logra un fade puro.
+        Exit en mitad de intensidad — el usuario ya se está moviendo a otra cosa.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* CancelOrderModal.tsx — wrapper interno */</span>
+<span class="k">@keyframes</span> modalIn {
+  <span class="s">0%</span>   { opacity: 0; transform: translateY(<span class="s">16px</span>) scale(<span class="s">0.96</span>);
+         filter: blur(<span class="s">4px</span>); }
+  <span class="s">100%</span> { opacity: 1; transform: translateY(<span class="s">0</span>) scale(<span class="s">1</span>);
+         filter: blur(<span class="s">0</span>); }
+}
+.modal-card {
+  animation: modalIn <span class="s">280ms</span>
+    cubic-bezier(<span class="s">0.22, 1, 0.36, 1</span>) both;
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Enter del modal (blur + scale + translateY)</div>
+            <span class="demo__timing">280ms · ease-out-quart</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage">
+          <div class="demo-2__mt">
+            <div class="ui-card">
+              <div style="font-family: var(--display); font-size: 16px; font-weight: 700; margin-bottom: 6px;">¿Cancelar pedido?</div>
+              <div style="font-size: 12px; color: var(--st-dim); margin-bottom: 14px;">Folio MM-0042 · $250</div>
+              <div style="display: flex; gap: 8px;">
+                <span class="ui-btn" style="background: var(--rojo); color: white;">Cancelar</span>
+                <span class="ui-btn" style="background: transparent; color: var(--st-fg); border: 1px solid var(--st-line);">No</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Finding 3 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#03</span>
+      <h3 class="finding__title">Panel de NotificationBell aparece instantáneo</h3>
+      <span class="finding__lens">Jakub · origin-aware</span>
+    </div>
+    <p class="finding__where"><code>src/components/NotificationBell.tsx:180</code> · <code>&#123;open &amp;&amp; &lt;panel /&gt;&#125;</code></p>
+    <div class="finding__body">
+      <p>
+        El panel de notificaciones (dropdown grande) aparece sin transición. Es UI consumer-facing,
+        repetida (cliente lo abre cada vez que quiere ver el estado de su pedido), y la falta de
+        animación lo hace sentir <em>brusco</em>, casi como un error del sistema.
+      </p>
+      <p>
+        <strong>Fix Jakub + Emil (origin-aware):</strong> el panel debe expandirse <em>desde la campanita</em>
+        (top-right), no desde el centro. Emil insiste mucho en esto — los dropdowns deben respetar
+        su trigger visual. <code>transform-origin: top right</code> + escala desde 0.97 + blur sutil.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* NotificationBell.tsx — al panel */</span>
+.notif-panel {
+  transform-origin: top right;
+  animation: panelIn <span class="s">220ms</span>
+    cubic-bezier(<span class="s">0.22, 1, 0.36, 1</span>) both;
+}
+<span class="k">@keyframes</span> panelIn {
+  <span class="s">0%</span>   { opacity: 0; transform: scale(<span class="s">0.97</span>)
+         translateY(<span class="s">-8px</span>); filter: blur(<span class="s">3px</span>); }
+  <span class="s">100%</span> { opacity: 1; transform: scale(<span class="s">1</span>)
+         translateY(<span class="s">0</span>); filter: blur(<span class="s">0</span>); }
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Panel desde la campanita (origin-aware)</div>
+            <span class="demo__timing">220ms · ease-out-quart · top-right</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage" style="align-items: flex-start; justify-content: flex-end; padding: 14px;">
+          <div class="demo-3__mt" style="width: 70%;">
+            <div class="ui-card" style="padding: 10px 12px;">
+              <div style="font-family: var(--mono); font-size: 10px; color: var(--st-dim); margin-bottom: 8px;">2 NUEVAS</div>
+              <div class="ui-row" style="margin-bottom: 6px;"><span class="ui-icon" style="background: var(--verde);"></span><span>Pedido aceptado</span></div>
+              <div class="ui-row"><span class="ui-icon"></span><span>En el horno 🔥</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═════════ IMPORTANT ═════════ -->
+
+  <div class="severity-header">
+    <span class="severity-header__icon">🟡</span>
+    <h2>Important</h2>
+    <span class="severity-header__count">3 hallazgos · pulido y consistencia</span>
+  </div>
+
+  <!-- Finding 4 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#04</span>
+      <h3 class="finding__title">Toast staff usa keyframes — no se puede interrumpir</h3>
+      <span class="finding__lens">Emil · interruptibility</span>
+    </div>
+    <p class="finding__where"><code>src/components/PedidosRealtime.tsx:148–155</code> · toast "Pedido nuevo: MM-XXXX"</p>
+    <div class="finding__body">
+      <p>
+        El toast usa la clase <code>fade-up</code> que es <code>@keyframes</code>. Problema clásico de Emil:
+        si llegan 2 pedidos seguidos (común en hora pico de un domingo), el segundo toast
+        <em>no puede interrumpir</em> al primero porque keyframes no retarget mid-flight. El segundo se queda
+        en cola, o pisa visualmente al primero sin gracia.
+      </p>
+      <p>
+        <strong>Fix Emil:</strong> usar <code>CSS transition</code> con clase de estado <code>mounted</code> en lugar
+        de keyframes. Permite interrupción suave y retargeting. Plus: bajar duración a 200ms — es UI de
+        alta frecuencia para Fabi/Alex, no necesita 400ms de fade.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* Toast del staff — transition retargetable */</span>
+.staff-toast {
+  opacity: 0;
+  transform: translateY(<span class="s">-12px</span>);
+  transition: opacity <span class="s">200ms</span> cubic-bezier(<span class="s">0.16, 1, 0.3, 1</span>),
+              transform <span class="s">200ms</span> cubic-bezier(<span class="s">0.16, 1, 0.3, 1</span>);
+}
+.staff-toast.mounted {
+  opacity: 1;
+  transform: translateY(<span class="s">0</span>);
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Toast retargetable (transition, no keyframes)</div>
+            <span class="demo__timing">200ms · ease-out-expo</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage" style="align-items: flex-start; padding-top: 18px;">
+          <div class="demo-4__mt">
+            <div class="ui-pill" style="background: var(--antojo); color: white; padding: 8px 14px; font-size: 12px;">
+              🛎️ Pedido nuevo: MM-0042
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Finding 5 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#05</span>
+      <h3 class="finding__title">Banners de cortesía aparecen sin presentación</h3>
+      <span class="finding__lens">Jhey · momento de delight</span>
+    </div>
+    <p class="finding__where"><code>src/app/carrito/page.tsx:332</code> (cumple) · <code>:631</code> (welcome)</p>
+    <div class="finding__body">
+      <p>
+        Cuando el usuario aplica un código de cumple o welcome courtesy, el banner aparece instantáneo.
+        Este es <em>exactamente</em> el tipo de momento donde Jhey diría: "esto sí merece presentación".
+        Es un delight moment intencional — el cliente acaba de recibir algo gratis.
+      </p>
+      <p>
+        <strong>Fix Jhey (con restraint):</strong> spring sutil con overshoot mínimo. Importante:
+        este overshoot vive en un momento <em>raro</em> (aplicar cortesía pasa una vez por compra,
+        no es high-frequency), así que cumple la frequency-gate de Emil para permitirse delight.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* Banner cumple/welcome — entry spring */</span>
+<span class="k">@keyframes</span> cortesia-pop {
+  <span class="s">0%</span>   { opacity: 0; transform: scale(<span class="s">0.95</span>); }
+  <span class="s">50%</span>  { opacity: 1; transform: scale(<span class="s">1.03</span>); }
+  <span class="s">100%</span> { opacity: 1; transform: scale(<span class="s">1</span>); }
+}
+.cortesia-banner {
+  animation: cortesia-pop <span class="s">420ms</span>
+    cubic-bezier(<span class="s">0.34, 1.3, 0.64, 1</span>) both;
+  transform-origin: center;
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Banner de cumple con spring contenido</div>
+            <span class="demo__timing">420ms · spring (overshoot 1.3)</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage">
+          <div class="demo-5__mt">
+            <div class="ui-card" style="background: var(--antojo); color: white; border: none;">
+              <div style="font-family: var(--display); font-size: 15px; font-weight: 700; margin-bottom: 4px;">🎂 ¡Felicidades!</div>
+              <div style="font-size: 12px; opacity: 0.9;">Tu cortesía de cumple ya se aplicó</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Finding 6 -->
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#06</span>
+      <h3 class="finding__title">Miga loop infinito sin control de pausa</h3>
+      <span class="finding__lens">Jhey · accesibilidad vestibular</span>
+    </div>
+    <p class="finding__where"><code>src/app/globals.css:127–135</code> · <code>.anim-bounce</code>, <code>.anim-sway</code>, <code>.anim-float</code>, <code>.anim-jump</code>, <code>.anim-breath</code>, <code>.anim-stir</code></p>
+    <div class="finding__body">
+      <p>
+        Las animaciones infinitas de Miga son personalidad de marca (Jhey las defendería siempre),
+        pero hay un requisito de accesibilidad que la skill marca como obligatorio: <em>"looping animations
+        can be paused"</em>. El usuario debe poder pausar el movimiento ambiental aunque no tenga
+        <code>prefers-reduced-motion</code> activado.
+      </p>
+      <p>
+        <strong>Fix mínimo:</strong> hacer las animaciones <code>animation-play-state: paused</code> al tap
+        sostenido sobre Miga, o agregar un toggle global en <code>/yo</code> tipo "Miga tranquila". Lo
+        primero es más juguetón (Jhey-friendly), lo segundo es más sobrio (Jakub-friendly).
+      </p>
+      <p>
+        Demo muestra la versión "tap para pausar" — Miga responde con un squash sutil que comunica
+        el cambio de estado.
+      </p>
+    </div>
+    <div class="finding__grid">
+      <div class="finding__code">
+<span class="c">/* Miga con pausa al toque sostenido */</span>
+.miga-clickable {
+  cursor: pointer;
+  transition: transform <span class="s">200ms</span> ease;
+}
+.miga-clickable:active {
+  transform: scale(<span class="s">0.94</span>);
+  animation-play-state: paused;
+}
+.miga-clickable:active * {
+  animation-play-state: paused;
+}</div>
+      <div class="demo">
+        <div class="demo__bar">
+          <div>
+            <div class="demo__title">Miga responde al toque (squash + pause)</div>
+            <span class="demo__timing">200ms · ease-out-expo</span>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+        <div class="demo__stage">
+          <div class="demo-6__mt" style="width: 64px; height: 64px; border-radius: 50%; background: var(--antojo); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+            🥐
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═════════ OPPORTUNITIES ═════════ -->
+
+  <div class="severity-header">
+    <span class="severity-header__icon">🟢</span>
+    <h2>Opportunities</h2>
+    <span class="severity-header__count">3 ideas · sin demo (texto solo)</span>
+  </div>
+
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#07</span>
+      <h3 class="finding__title">Errores de formulario con shake sutil</h3>
+      <span class="finding__lens">Emil · feedback claro</span>
+    </div>
+    <p class="finding__where"><code>src/app/recuperar/[folio]/page.tsx:399</code>, <code>src/app/staff/login/page.tsx:123</code></p>
+    <div class="finding__body">
+      <p>
+        Los mensajes de error aparecen instantáneos. Un <code>shake</code> de 250ms en el campo erróneo
+        (no en el mensaje) ayudaría a localizar el problema sin gritar. La <code>miga-shake</code> que ya tienes
+        en globals.css es casi perfecta — solo bájale duración a 250ms y aplícala al input, no al texto.
+      </p>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#08</span>
+      <h3 class="finding__title">Stagger ligero en confirmación de pedido</h3>
+      <span class="finding__lens">Jhey · momento ceremonial</span>
+    </div>
+    <p class="finding__where"><code>src/app/confirmacion/[folio]/page.tsx</code> — folio, contact_person, pickup_date, dirección</p>
+    <div class="finding__body">
+      <p>
+        La pantalla de confirmación es un <em>momento</em> en la experiencia del cliente
+        ("acabo de hacer mi pedido"). Las secciones podrían aparecer con un stagger muy ligero
+        (60ms entre cada uno) — folio primero, contacto, fecha, dirección. Es la única
+        pantalla que se ve <em>una vez por compra</em>, así que cumple la frequency-gate para delight.
+        Cuidado: no lo apliques en <code>/mis-pedidos</code> ni en <code>/catalogo</code>, ahí sería stagger-spam.
+      </p>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding__head">
+      <span class="finding__num">#09</span>
+      <h3 class="finding__title">Tabs del catálogo sin transition al cambiar</h3>
+      <span class="finding__lens">Emil · clip-path</span>
+    </div>
+    <p class="finding__where"><code>src/app/catalogo/page.tsx</code> — tabs Todo / Roles / Berlinesas / RollinBox / LuvinBox</p>
+    <div class="finding__body">
+      <p>
+        Al cambiar de tab, el contenido se reemplaza instantáneo. Emil recomienda
+        <code>clip-path</code> para transiciones de tab — hardware-accelerated, sin layout shift, sin
+        cambiar el DOM. Una transición de 180ms con <code>clip-path</code> + opacity le daría sensación
+        de pulido sin sacrificar velocidad.
+      </p>
+    </div>
+  </article>
+
+  <!-- ═════════ Per-lens summary ═════════ -->
+
+  <section class="lens-section">
+    <h2>A través de cada lente</h2>
+
+    <div class="lens">
+      <div class="lens__name">Through Jakub's lens</div>
+      <p class="lens__quote">"Is this subtle and polished enough for production?"</p>
+      <p class="lens__body">
+        El catálogo cliente está <b>cerca</b> pero le faltan transiciones en momentos clave (modales,
+        panels, dropdowns). El stack CSS-puro es defendible — Jakub lo aprobaría sobre framer-motion en
+        un proyecto con bundle restringido como una PWA — pero implica que los exits sean simétricos
+        a los enters, y eso choca con su principio de "exits subtler than enters". Si crece la PWA,
+        framer-motion con <code>AnimatePresence</code> sería el upgrade natural; mientras tanto, los enter-only
+        son suficientes para Jakub. <b>Score: 7/10</b> tras aplicar Critical 1–3.
+      </p>
+    </div>
+
+    <div class="lens">
+      <div class="lens__name">Through Emil's lens</div>
+      <p class="lens__quote">"Should this animate at all?"</p>
+      <p class="lens__body">
+        El KDS de cocina se ve <b>conservador en el lugar correcto</b> — botones con scale-95, sin animaciones
+        decorativas, urgencia comunicada por color (border-l-8 verde/amarillo/rojo en KitchenDisplay).
+        Emil aprobaría. El único hallazgo es el <b>Toast staff (Finding #4)</b>: keyframes no permite
+        interrupción cuando llegan 2 pedidos seguidos. Fix con CSS transition + clase de estado.
+        Adicionalmente, Emil aplaudiría <b>quitar</b> la <code>cart-bounce</code> del BottomNav si descubres en
+        analítica que el cliente agrega productos 10+ veces por sesión — en ese punto cruza el threshold
+        de "delight" a "ruido". <b>Score: 8/10</b> para staff, <b>6.5/10</b> para cliente.
+      </p>
+    </div>
+
+    <div class="lens">
+      <div class="lens__name">Through Jhey's lens</div>
+      <p class="lens__quote">"What could this become?"</p>
+      <p class="lens__body">
+        Miga es el alma de la PWA y eso se nota — 9 variantes de animación es <b>generoso</b> y honesto
+        con la marca. Jhey defendería todas, pero también pediría dos cosas: (1) <b>permitir pausarlas</b>
+        (Finding #6, no es opcional para accesibilidad), (2) <b>premiar momentos raros con más cariño</b>
+        — la cortesía de cumple (Finding #5) y la confirmación de pedido (Opportunity #8) merecen
+        celebración explícita, no son high-frequency. Aquí Jhey querría que se sienta el "te lo ganaste".
+        <b>Score: 9/10</b> en personalidad, <b>5/10</b> en accesibilidad — fixable.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Generado con <a href="https://github.com/kylezantos/design-motion-principles">design-motion-principles</a> ·
+    Lentes: Emil Kowalski · Jakub Krehel · Jhey Tompkins ·
+    Distillation, not authored or endorsed by them ·
+    Para Masa Mía PWA · 2026-05-31
+  </footer>
+
+</div>
+</body>
+</html>

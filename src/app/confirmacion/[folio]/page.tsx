@@ -151,7 +151,10 @@ function Confirmacion() {
       </p>
 
       {/* Folio */}
-      <div className="mt-6 bg-white rounded-2xl px-6 py-4 shadow-sm fade-up">
+      <div
+        className="mt-6 bg-white rounded-2xl px-6 py-4 shadow-sm stagger-item"
+        data-stagger="0"
+      >
         <div className="text-[10px] font-bold text-canela uppercase tracking-widest">
           Folio
         </div>
@@ -164,7 +167,10 @@ function Confirmacion() {
       </div>
 
       {/* Resumen */}
-      <div className="mt-4 w-full bg-white/70 backdrop-blur rounded-2xl p-4 text-left fade-up">
+      <div
+        className="mt-4 w-full bg-white/70 backdrop-blur rounded-2xl p-4 text-left stagger-item"
+        data-stagger="1"
+      >
         <div className="text-[10px] font-bold text-canela uppercase tracking-widest mb-2">
           Resumen
         </div>
@@ -218,7 +224,10 @@ function Confirmacion() {
 
       {/* Dirección de recogida (solo después de confirmar) */}
       {settings && settings.pickup_address_full && (
-        <div className="mt-4 w-full bg-white rounded-2xl p-4 text-left shadow-sm fade-up">
+        <div
+          className="mt-4 w-full bg-white rounded-2xl p-4 text-left shadow-sm stagger-item"
+          data-stagger="2"
+        >
           <div className="flex items-start gap-2">
             <IconMapPin size={18} className="text-antojo flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
@@ -258,7 +267,10 @@ function Confirmacion() {
 
       {/* Banner si está declinado: opción de cambiar fecha */}
       {order.status === "declined" && (
-        <div className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 fade-up">
+        <div
+          className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 stagger-item"
+          data-stagger="3"
+        >
           <div className="text-[10px] font-bold text-rojo uppercase tracking-wider text-center">
             Lo sentimos 🥲
           </div>

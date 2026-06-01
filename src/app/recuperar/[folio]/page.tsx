@@ -397,7 +397,9 @@ function Recuperar() {
         </div>
 
         {error && (
-          <p className="text-xs text-rojo text-center fade-up">{error}</p>
+          <p key={error} className="text-xs text-rojo text-center error-shake">
+            {error}
+          </p>
         )}
 
         <button

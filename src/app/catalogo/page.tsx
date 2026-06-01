@@ -157,8 +157,11 @@ export default function Catalogo() {
         ))}
       </nav>
 
-      {/* Grid de productos */}
-      <div className="flex-1 px-3 pt-2 grid grid-cols-2 gap-2.5 content-start">
+      {/* Grid de productos — key={activeTab} dispara tab-fade al cambiar filtro */}
+      <div
+        key={activeTab}
+        className="flex-1 px-3 pt-2 grid grid-cols-2 gap-2.5 content-start tab-fade"
+      >
         {loading &&
           [...Array(4)].map((_, i) => (
             <div
@@ -185,7 +188,7 @@ export default function Catalogo() {
             return (
               <article
                 key={p.id}
-                className="bg-white rounded-xl overflow-hidden flex flex-col fade-up shadow-sm"
+                className="bg-white rounded-xl overflow-hidden flex flex-col shadow-sm"
               >
                 <Link href={detalleHref} className="relative block">
                   {p.image_url ? (

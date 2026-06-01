@@ -183,7 +183,7 @@ export default function NotificationBell() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="absolute top-14 right-3 left-3 sm:left-auto sm:w-96 bg-crema rounded-2xl shadow-2xl max-h-[75vh] overflow-hidden flex flex-col fade-up"
+            className="absolute top-14 right-3 left-3 sm:left-auto sm:w-96 bg-crema rounded-2xl shadow-2xl max-h-[75vh] overflow-hidden flex flex-col panel-enter"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

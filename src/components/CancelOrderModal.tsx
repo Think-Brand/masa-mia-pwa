@@ -86,7 +86,7 @@ export default function CancelOrderModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl fade-up max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl modal-enter max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-canela/40 rounded-full mx-auto mb-3 sm:hidden" />

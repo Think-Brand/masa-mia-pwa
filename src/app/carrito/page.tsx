@@ -330,7 +330,7 @@ export default function Carrito() {
           <>
             {/* Banner cumpleaños (solo si aplica hoy) */}
             {aplicaCumple && (
-              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg fade-up">
+              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
                 <div className="text-3xl">🎂</div>
                 <div className="flex-1">
                   <div
@@ -347,7 +347,7 @@ export default function Carrito() {
               </div>
             )}
             {cumpleHoy && !hasRol && (
-              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 fade-up">
+              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 cortesia-pop">
                 <span className="text-2xl">🎂</span>
                 <p className="text-[11px] leading-snug">
                   Hoy es tu cumple — <b>agrega un rol</b> y se te descuenta
@@ -629,7 +629,7 @@ export default function Carrito() {
 
             {/* Welcome courtesy banner (automática, sin código) */}
             {aplicaWelcome && (
-              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg fade-up mt-1">
+              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop mt-1">
                 <div className="text-3xl">🎁</div>
                 <div className="flex-1">
                   <div
@@ -646,7 +646,7 @@ export default function Carrito() {
               </div>
             )}
             {welcomeStatus?.eligible && !hasRol && (
-              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 fade-up mt-1">
+              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 cortesia-pop mt-1">
                 <span className="text-2xl">🎁</span>
                 <p className="text-[11px] leading-snug">
                   Tienes un <b>rol cortesía de bienvenida</b> esperándote —

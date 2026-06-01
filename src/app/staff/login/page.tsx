@@ -121,7 +121,10 @@ export default function StaffLogin() {
         </div>
 
         {error && (
-          <div className="text-xs text-[#FFB4A8] text-center px-2 fade-up">
+          <div
+            key={error}
+            className="text-xs text-[#FFB4A8] text-center px-2 error-shake"
+          >
             {error}
           </div>
         )}
