@@ -218,6 +218,37 @@ body {
 }
 .error-shake { animation: error-shake-in 0.28s ease-out both; }
 
+/* === Estilos de impresión (reporte mensual /staff/reporte/[mes]) ===
+ * Oculta navegación, ajusta fondo, evita corte feo de tablas.
+ * El usuario hace Cmd/Ctrl+P → Guardar como PDF y obtiene un PDF limpio.
+ */
+@media print {
+  html, body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Oculta header staff, bottom nav, toolbar del reporte */
+  header, nav, footer.print\:hidden, .print\:hidden {
+    display: none !important;
+  }
+  /* Container del reporte: full width, sin sombras */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  /* Evita cortar tablas a la mitad de página */
+  table, tr, thead, tbody {
+    page-break-inside: avoid;
+  }
+  /* Conserva colores en chart bars (algunos browsers los borran al imprimir) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 /* === Respeta usuarios que prefieren menos movimiento ===
  * Guard universal: colapsa cualquier animation/transition en el documento
  * a 0.01ms, manteniendo los final states intactos para no romper layout.

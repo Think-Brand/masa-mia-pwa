@@ -30,7 +30,7 @@ export default function StaffHeader({ userName }: Props) {
   const nav = [
     { href: "/staff/pedidos", label: "Pedidos", Icon: IconReceipt2 },
     { href: "/staff/cocina", label: "Cocina", Icon: IconChefHat },
-    { href: "/staff/dashboard", label: "Datos", Icon: IconDashboard },
+    { href: "/staff/dashboard", label: "Negocio", Icon: IconDashboard },
     { href: "/staff/ajustes", label: "Ajustes", Icon: IconSettings },
   ];
 
