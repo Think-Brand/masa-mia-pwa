@@ -95,19 +95,19 @@ export default function BottomNav() {
           100% {
             transform: translateY(0);
           }
-          30% {
-            transform: translateY(-8px) scale(1.1);
+          35% {
+            transform: translateY(-6px) scale(1.08);
           }
-          60% {
-            transform: translateY(2px) scale(0.95);
+          70% {
+            transform: translateY(1px) scale(0.98);
           }
         }
         @keyframes badgePop {
           0% {
             transform: scale(1);
           }
-          40% {
-            transform: scale(1.6);
+          45% {
+            transform: scale(1.3);
             background-color: #5b7a3a;
           }
           100% {
@@ -115,10 +115,10 @@ export default function BottomNav() {
           }
         }
         .cart-bounce {
-          animation: cartBounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: cartBounce 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .badge-pop {
-          animation: badgePop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: badgePop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </nav>

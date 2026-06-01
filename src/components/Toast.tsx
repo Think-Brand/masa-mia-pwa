@@ -82,7 +82,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={t.id}
             className="pointer-events-auto w-full max-w-sm bg-cafe text-crema rounded-2xl shadow-2xl flex items-center gap-3 px-3 py-2.5 toast-slide-up"
-            style={{ animation: "toastSlideUp 220ms cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+            style={{ animation: "toastSlideUp 260ms cubic-bezier(0.16, 1, 0.3, 1)" }}
           >
             <div className="w-11 h-11 rounded-xl overflow-hidden bg-crema flex-shrink-0 flex items-center justify-center relative">
               {t.imageUrl ? (

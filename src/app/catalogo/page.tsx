@@ -330,8 +330,8 @@ function ProductStepper({
           0% {
             transform: scale(1);
           }
-          40% {
-            transform: scale(1.35);
+          45% {
+            transform: scale(1.22);
             color: #fff5e0;
           }
           100% {
@@ -340,7 +340,7 @@ function ProductStepper({
         }
         .qty-bump {
           display: inline-block;
-          animation: qtyBump 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: qtyBump 0.36s cubic-bezier(0.22, 1.2, 0.36, 1);
         }
       `}</style>
     </div>
