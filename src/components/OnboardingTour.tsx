@@ -55,7 +55,14 @@ export default function OnboardingTour({
         if (cancelled) return;
         if (data?.value === "on") {
           // Pausita para que la pantalla detrás termine de cargar
-          setTimeout(() => setVisible(true), 600);
+          setTimeout(() => {
+            if (cancelled) return;
+            setVisible(true);
+            // Marca como visto AL MOSTRARSE — si el usuario cierra con back,
+            // recarga, o no termina el tour, igual no le aparece otra vez.
+            // Para re-ver, hay botón "Ver tour" en Ajustes (forceShow=true).
+            markTourCompleted(tourId);
+          }, 600);
         }
       });
     return () => {
@@ -79,8 +86,14 @@ export default function OnboardingTour({
   const isLast = index === steps.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-cafe/80 backdrop-blur-md flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up relative">
+    <div
+      className="fixed inset-0 z-[70] bg-cafe/80 backdrop-blur-md flex items-center justify-center px-4"
+      onClick={close}
+    >
+      <div
+        className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Cerrar */}
         <button
           onClick={close}
