@@ -42,3 +42,7 @@ assets/
 
 # impeccable skills (regenerar con: npx impeccable skills install)
 /.claude/
+
+# skills CLI artifacts (regenerar con: npx skills add <repo>)
+/.agents/
+skills-lock.json
