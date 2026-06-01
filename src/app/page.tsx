@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -179,8 +180,25 @@ export default function LeadGate() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between px-6 py-10 max-w-md mx-auto">
-      <div className="flex-1 flex flex-col items-center justify-center text-center pt-16">
+    <main className="min-h-screen flex flex-col items-center justify-between px-6 pt-6 pb-10 max-w-md mx-auto">
+      {/* Logo de marca — primer touchpoint */}
+      <div className="w-full flex justify-center">
+        <Image
+          src="/icons/icon-512.png"
+          alt="Masa Mía"
+          width={64}
+          height={64}
+          priority
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            display: "block",
+          }}
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center text-center pt-4">
         {/* Easter egg: 3 toques rápidos = acceso staff */}
         <div
           onClick={tapMiga}

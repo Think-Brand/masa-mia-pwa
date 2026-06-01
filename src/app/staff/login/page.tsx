@@ -54,18 +54,35 @@ export default function StaffLogin() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-10 max-w-md mx-auto bg-cafe">
-      <div className="w-full flex flex-col items-center gap-4">
+    <main className="min-h-screen flex flex-col items-center px-6 pt-6 pb-10 max-w-md mx-auto bg-cafe">
+      {/* Logo de marca — coherencia con landing del cliente */}
+      <div className="w-full flex justify-center">
+        <Image
+          src="/icons/icon-512.png"
+          alt="Masa Mía"
+          width={64}
+          height={64}
+          priority
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            display: "block",
+          }}
+        />
+      </div>
+
+      <div className="w-full flex flex-col items-center gap-3 mt-2">
         <Image
           src="/mascota/miga-chef.png"
           alt="Miga Chef"
-          width={140}
-          height={140}
+          width={210}
+          height={210}
           priority
           className="anim-breath"
         />
         <h1
-          className="text-3xl text-crema text-center leading-none mt-2"
+          className="text-3xl text-crema text-center leading-none mt-1"
           style={{ fontFamily: "ReginaBlack" }}
         >
           La cocina te saluda
@@ -77,7 +94,7 @@ export default function StaffLogin() {
 
       <form
         onSubmit={onSubmit}
-        className="w-full mt-8 flex flex-col gap-3 fade-up"
+        className="w-full mt-6 flex flex-col gap-3 fade-up"
       >
         <div className="relative">
           <IconMail

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { CarritoProvider } from "@/components/CarritoProvider";
 import { ToastProvider } from "@/components/Toast";
+import Splash from "@/components/Splash";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,6 +44,7 @@ export default function RootLayout({
         <CarritoProvider>
           <ToastProvider>{children}</ToastProvider>
         </CarritoProvider>
+        <Splash />
       </body>
     </html>
   );
