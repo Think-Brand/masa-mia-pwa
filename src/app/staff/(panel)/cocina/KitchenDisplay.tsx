@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   IconCheck,
   IconFlame,
@@ -22,7 +23,7 @@ import {
 import { createClient } from "@/lib/supabase";
 
 type ActiveStatus = "pending" | "accepted" | "baking" | "ready";
-type AllStatus = ActiveStatus | "delivered";
+type AllStatus = ActiveStatus | "delivered" | "declined" | "cancelled";
 
 type OrderRow = {
   id: string;
@@ -38,6 +39,9 @@ type OrderRow = {
   ready_at: string | null;
   delivered_at?: string | null;
   notes: string | null;
+  decline_reason?: string | null;
+  cancel_reason?: string | null;
+  cancelled_by?: "customer" | "staff" | null;
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
   is_welcome_courtesy: boolean | null;
@@ -153,22 +157,34 @@ function statusBadge(status: AllStatus) {
   return { emoji: "✅", label: "Entregado", color: "bg-canela text-crema" };
 }
 
+type DrawerTab = "entregados" | "declinados" | "cancelados" | "historico";
+
 export default function KitchenDisplay({
   initialOrders,
   initialDelivered,
+  initialDeclined,
+  initialCancelled,
+  initialHistory,
 }: {
   initialOrders: OrderRow[];
   initialDelivered: OrderRow[];
+  initialDeclined: OrderRow[];
+  initialCancelled: OrderRow[];
+  initialHistory: OrderRow[];
 }) {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [delivered, setDelivered] = useState<OrderRow[]>(initialDelivered);
+  const [declined, setDeclined] = useState<OrderRow[]>(initialDeclined);
+  const [cancelled, setCancelled] = useState<OrderRow[]>(initialCancelled);
+  const [history, setHistory] = useState<OrderRow[]>(initialHistory);
   const [theme, setTheme] = useState<Theme>("light");
   const [soundOn, setSoundOn] = useState(true);
   const [, setTick] = useState(0); // forzar re-render para tiempo transcurrido
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ColumnKey>("pedidos");
   const [showDelivered, setShowDelivered] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>("entregados");
   const wakeLockRef = useRef<any>(null);
 
   // Cargar preferencias
@@ -272,6 +288,15 @@ export default function KitchenDisplay({
   useEffect(() => {
     setDelivered(initialDelivered);
   }, [initialDelivered]);
+  useEffect(() => {
+    setDeclined(initialDeclined);
+  }, [initialDeclined]);
+  useEffect(() => {
+    setCancelled(initialCancelled);
+  }, [initialCancelled]);
+  useEffect(() => {
+    setHistory(initialHistory);
+  }, [initialHistory]);
 
   const advance = async (
     orderId: string,
@@ -505,76 +530,222 @@ export default function KitchenDisplay({
         </div>
       </div>
 
-      {/* Drawer de entregados */}
+      {/* Drawer histórico con tabs */}
       {showDelivered && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowDelivered(false)}
-        >
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <aside
-            className={`absolute right-0 top-0 h-full w-full sm:w-[420px] ${cardBg} shadow-2xl flex flex-col`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <header className={`flex items-center justify-between p-4 border-b border-current/10 ${cardText}`}>
-              <div>
-                <h2 className="text-lg font-bold" style={{ fontFamily: "Termina" }}>
-                  Entregados hoy
-                </h2>
-                <p className={`text-xs ${subText}`}>
-                  {delivered.length} pedido{delivered.length === 1 ? "" : "s"}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowDelivered(false)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center ${surfaceBg} active:scale-90 transition`}
-              >
-                <IconX size={18} />
-              </button>
-            </header>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {delivered.length === 0 ? (
-                <div className={`text-center py-12 ${subText}`}>
-                  <IconChefHat size={40} className="mx-auto mb-2 opacity-50" />
-                  <p className="text-sm italic">Aún nada entregado hoy.</p>
-                </div>
-              ) : (
-                delivered.map((o) => (
-                  <div
-                    key={o.id}
-                    className={`${surfaceBg} rounded-xl p-3 flex items-center justify-between gap-2`}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div
-                        className={`text-base font-bold ${cardText} truncate`}
-                        style={{ fontFamily: "ReginaBlack" }}
-                      >
-                        {o.folio}
-                      </div>
-                      <div className={`text-xs ${cardText} truncate`}>
-                        {o.customer?.name ?? "—"} ·{" "}
-                        {o.items.reduce((a, b) => a + b.quantity, 0)} pza
-                      </div>
-                    </div>
-                    <div className={`text-right text-xs ${subText} flex-shrink-0`}>
-                      <div>
-                        {o.delivered_at
-                          ? new Date(o.delivered_at).toLocaleTimeString(
-                              "es-MX",
-                              { hour: "2-digit", minute: "2-digit" }
-                            )
-                          : "—"}
-                      </div>
-                      <div className="font-bold text-verde">✅</div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </aside>
-        </div>
+        <HistoryDrawer
+          drawerTab={drawerTab}
+          setDrawerTab={setDrawerTab}
+          delivered={delivered}
+          declined={declined}
+          cancelled={cancelled}
+          history={history}
+          onClose={() => setShowDelivered(false)}
+          cardBg={cardBg}
+          cardText={cardText}
+          subText={subText}
+          surfaceBg={surfaceBg}
+        />
       )}
     </div>
+  );
+}
+
+// ============================================================
+// DRAWER HISTÓRICO CON TABS
+// ============================================================
+function HistoryDrawer({
+  drawerTab,
+  setDrawerTab,
+  delivered,
+  declined,
+  cancelled,
+  history,
+  onClose,
+  cardBg,
+  cardText,
+  subText,
+  surfaceBg,
+}: {
+  drawerTab: DrawerTab;
+  setDrawerTab: (t: DrawerTab) => void;
+  delivered: OrderRow[];
+  declined: OrderRow[];
+  cancelled: OrderRow[];
+  history: OrderRow[];
+  onClose: () => void;
+  cardBg: string;
+  cardText: string;
+  subText: string;
+  surfaceBg: string;
+}) {
+  const tabs: { key: DrawerTab; label: string; count: number; emoji: string }[] = [
+    { key: "entregados", label: "Entregados hoy", count: delivered.length, emoji: "✅" },
+    { key: "declinados", label: "Declinados", count: declined.length, emoji: "❌" },
+    { key: "cancelados", label: "Cancelados", count: cancelled.length, emoji: "🚫" },
+    { key: "historico", label: "Histórico 30d", count: history.length, emoji: "📜" },
+  ];
+  const activeRows: OrderRow[] =
+    drawerTab === "entregados"
+      ? delivered
+      : drawerTab === "declinados"
+      ? declined
+      : drawerTab === "cancelados"
+      ? cancelled
+      : history;
+
+  return (
+    <div className="fixed inset-0 z-40" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <aside
+        className={`absolute right-0 top-0 h-full w-full sm:w-[460px] ${cardBg} shadow-2xl flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className={`flex items-center justify-between p-4 border-b border-current/10 ${cardText}`}>
+          <div>
+            <h2 className="text-lg font-bold" style={{ fontFamily: "Termina" }}>
+              Histórico
+            </h2>
+            <p className={`text-xs ${subText}`}>
+              Pedidos cerrados y archivados
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className={`w-9 h-9 rounded-full flex items-center justify-center ${surfaceBg} active:scale-90 transition`}
+          >
+            <IconX size={18} />
+          </button>
+        </header>
+
+        {/* Tabs */}
+        <div className={`px-3 pt-3 pb-2 border-b border-current/10 ${cardText}`}>
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setDrawerTab(t.key)}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition flex items-center gap-1.5 ${
+                  drawerTab === t.key
+                    ? `${surfaceBg} shadow-sm`
+                    : "opacity-60 hover:opacity-100"
+                }`}
+                style={{ fontFamily: "Termina" }}
+              >
+                <span>{t.emoji}</span>
+                <span className="uppercase tracking-wider">{t.label}</span>
+                <span className={`text-[10px] px-1.5 rounded-full ${drawerTab === t.key ? "bg-current/15" : "bg-current/10"}`}>
+                  {t.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {activeRows.length === 0 ? (
+            <div className={`text-center py-12 ${subText}`}>
+              <IconChefHat size={40} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm italic">
+                {drawerTab === "entregados" && "Aún nada entregado hoy."}
+                {drawerTab === "declinados" && "Sin declinados en 30 días."}
+                {drawerTab === "cancelados" && "Sin cancelados en 30 días."}
+                {drawerTab === "historico" && "Sin movimientos en 30 días."}
+              </p>
+            </div>
+          ) : (
+            activeRows.map((o) => (
+              <HistoryItem
+                key={o.id}
+                order={o}
+                tab={drawerTab}
+                surfaceBg={surfaceBg}
+                cardText={cardText}
+                subText={subText}
+                onClose={onClose}
+              />
+            ))
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function HistoryItem({
+  order: o,
+  tab,
+  surfaceBg,
+  cardText,
+  subText,
+  onClose,
+}: {
+  order: OrderRow;
+  tab: DrawerTab;
+  surfaceBg: string;
+  cardText: string;
+  subText: string;
+  onClose: () => void;
+}) {
+  const piezas = o.items.reduce((a, b) => a + b.quantity, 0);
+
+  // Para histórico, mostrar el badge de status
+  const statusInfo = (() => {
+    if (o.status === "delivered") return { emoji: "✅", color: "text-verde" };
+    if (o.status === "declined") return { emoji: "❌", color: "text-rojo" };
+    if (o.status === "cancelled") return { emoji: "🚫", color: "text-canela" };
+    return { emoji: "·", color: subText };
+  })();
+
+  const hora = (() => {
+    if (o.status === "delivered" && o.delivered_at)
+      return new Date(o.delivered_at).toLocaleTimeString("es-MX", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    const d = new Date(o.created_at);
+    const today = new Date();
+    const sameDay =
+      d.toDateString() === today.toDateString();
+    return sameDay
+      ? d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+      : d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+  })();
+
+  return (
+    <Link
+      href={`/staff/pedidos/${o.id}`}
+      onClick={onClose}
+      className={`${surfaceBg} rounded-xl p-3 flex items-center justify-between gap-2 active:scale-[0.99] transition`}
+    >
+      <div className="min-w-0 flex-1">
+        <div
+          className={`text-base font-bold ${cardText} truncate`}
+          style={{ fontFamily: "ReginaBlack" }}
+        >
+          {o.folio}
+        </div>
+        <div className={`text-xs ${cardText} truncate`}>
+          {o.customer?.name ?? "—"} · {piezas} pza
+        </div>
+        {(tab === "declinados" || tab === "historico") && o.decline_reason && (
+          <div className={`text-[10px] italic ${subText} truncate`}>
+            Razón: {o.decline_reason}
+          </div>
+        )}
+        {(tab === "cancelados" || tab === "historico") && o.cancel_reason && (
+          <div className={`text-[10px] italic ${subText} truncate`}>
+            {o.cancelled_by === "customer" ? "Cliente canceló: " : "Cancelado: "}
+            {o.cancel_reason}
+          </div>
+        )}
+      </div>
+      <div className={`text-right text-xs ${subText} flex-shrink-0`}>
+        <div>{hora}</div>
+        <div className={`font-bold ${statusInfo.color}`}>
+          {statusInfo.emoji}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -683,8 +854,9 @@ function Card({
   const badge = statusBadge(o.status);
 
   return (
-    <article
-      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden`}
+    <Link
+      href={`/staff/pedidos/${o.id}`}
+      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden active:scale-[0.99] hover:shadow-lg transition cursor-pointer`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
@@ -767,9 +939,16 @@ function Card({
         )}
       </div>
 
-      {/* Botón principal */}
-      <ActionButton o={o} updating={updating} advance={advance} />
-    </article>
+      {/* Botón principal — clicks no deben llevar al detalle */}
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
+        <ActionButton o={o} updating={updating} advance={advance} />
+      </div>
+    </Link>
   );
 }
 

@@ -5,12 +5,11 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   IconLogout,
-  IconReceipt2,
   IconSettings,
-  IconChartBar,
   IconChefHat,
   IconDashboard,
   IconEye,
+  IconUsers,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
@@ -28,8 +27,8 @@ export default function StaffHeader({ userName }: Props) {
   };
 
   const nav = [
-    { href: "/staff/pedidos", label: "Pedidos", Icon: IconReceipt2 },
     { href: "/staff/cocina", label: "Cocina", Icon: IconChefHat },
+    { href: "/staff/clientes", label: "Clientes", Icon: IconUsers },
     { href: "/staff/dashboard", label: "Negocio", Icon: IconDashboard },
     { href: "/staff/ajustes", label: "Ajustes", Icon: IconSettings },
   ];
@@ -37,7 +36,7 @@ export default function StaffHeader({ userName }: Props) {
   return (
     <header className="sticky top-0 z-30 bg-cafe text-crema">
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-        <Link href="/staff/pedidos" className="flex items-center gap-2">
+        <Link href="/staff/cocina" className="flex items-center gap-2">
           <Image
             src="/mascota/miga-chef.png"
             alt="Miga Chef"
