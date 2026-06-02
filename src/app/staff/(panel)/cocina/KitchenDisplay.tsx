@@ -296,7 +296,7 @@ export default function KitchenDisplay({
     <div className={`min-h-screen ${bgClass} -mt-0 transition-colors`}>
       {/* Top controls */}
       <div className="sticky top-[88px] z-20 backdrop-blur" style={{ background: theme === 'dark' ? 'rgba(58,39,29,0.92)' : 'rgba(251,244,230,0.92)' }}>
-        <div className="px-4 py-2 flex items-center justify-between gap-2 flex-wrap">
+        <div className="px-3 lg:px-4 py-1.5 lg:py-2 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <FilterChip active={filter === "todos"} onClick={() => setFilter("todos")} theme={theme}>
               Todos ({orders.length})
@@ -345,7 +345,7 @@ export default function KitchenDisplay({
       </div>
 
       {/* Grid de cards */}
-      <div className="p-4">
+      <div className="p-3 lg:p-4">
         {filtered.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-3">🧑‍🍳</div>
@@ -357,7 +357,7 @@ export default function KitchenDisplay({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 gap-3 lg:gap-4">
             {filtered.map((o) => {
               const mins = minutesAgo(phaseStartIso(o));
               const borderColor = urgencyColor(o, mins, theme);
@@ -365,13 +365,13 @@ export default function KitchenDisplay({
               return (
                 <article
                   key={o.id}
-                  className={`${cardBg} rounded-2xl shadow-lg p-4 flex flex-col gap-3 border-l-8 ${borderColor} transition`}
+                  className={`${cardBg} rounded-2xl shadow-lg p-3 lg:p-4 flex flex-col gap-2.5 lg:gap-3 border-l-8 ${borderColor} transition overflow-hidden`}
                 >
                   {/* Header card */}
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div
-                        className={`text-3xl font-bold ${cardText} flex items-center gap-1.5`}
+                        className={`text-2xl lg:text-3xl font-bold ${cardText} flex items-center gap-1.5 truncate`}
                         style={{ fontFamily: "ReginaBlack" }}
                       >
                         {o.is_birthday_treat && (
@@ -385,23 +385,23 @@ export default function KitchenDisplay({
                           !o.is_welcome_courtesy && (
                             <span title="Cortesía piloto (código)">🎁</span>
                           )}
-                        {o.folio}
+                        <span className="truncate">{o.folio}</span>
                       </div>
                       <div
-                        className={`text-sm font-bold ${cardText}`}
+                        className={`text-sm font-bold ${cardText} truncate`}
                         style={{ fontFamily: "Termina" }}
                       >
                         {o.customer?.name ?? "—"}
                       </div>
                     </div>
-                    <div className={`text-right ${subText}`}>
-                      <div className="text-xs font-bold uppercase tracking-wider">
+                    <div className={`text-right ${subText} flex-shrink-0`}>
+                      <div className="text-[10px] lg:text-xs font-bold uppercase tracking-wider whitespace-nowrap">
                         {statusEmoji(o.status)} {statusLabel(o.status)}
                       </div>
-                      <div className="text-lg font-bold mt-1">
+                      <div className="text-base lg:text-lg font-bold mt-1 whitespace-nowrap">
                         ⏱ {formatElapsed(mins)}
                       </div>
-                      <div className={`text-[10px] uppercase tracking-wider ${subText}`}>
+                      <div className={`text-[10px] uppercase tracking-wider ${subText} whitespace-nowrap`}>
                         {phaseTimerLabel(o.status)}
                       </div>
                     </div>
