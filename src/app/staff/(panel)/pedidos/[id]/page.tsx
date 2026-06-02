@@ -67,7 +67,7 @@ export default async function PedidoDetalle({
     : null;
 
   return (
-    <main className="px-4 pt-4">
+    <main className="px-4 pt-4 max-w-2xl mx-auto">
       <Link
         href="/staff/pedidos"
         className="inline-flex items-center gap-1 text-xs text-canela mb-3"

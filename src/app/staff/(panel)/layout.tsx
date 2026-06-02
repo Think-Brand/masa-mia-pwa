@@ -30,7 +30,12 @@ export default async function PanelLayout({
   return (
     <div className="min-h-screen bg-crema-soft">
       <StaffHeader userName={name} />
-      <div className="max-w-2xl mx-auto pb-8">{children}</div>
+      {/*
+        Sin max-width aquí: cada página decide su propio ancho.
+        Cocina usa todo el viewport (kanban full responsive).
+        Pedidos/Dashboard/Ajustes/Detalle aplican su propio max-w-2xl.
+      */}
+      <div className="pb-8">{children}</div>
       {/* Tour de Miga al primer login (solo si pilot_mode = on) */}
       <StaffOnboarding />
     </div>

@@ -343,7 +343,7 @@ export default async function DashboardPage() {
   const mesNombre = now.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
 
   return (
-    <main className="px-4 pt-4 pb-6">
+    <main className="px-4 pt-4 pb-6 max-w-2xl mx-auto">
       <h1
         className="text-3xl text-cafe leading-none"
         style={{ fontFamily: "ReginaBlack" }}

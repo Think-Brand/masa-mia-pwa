@@ -57,7 +57,7 @@ export default async function PedidosPage() {
   };
 
   return (
-    <main className="px-4 pt-4">
+    <main className="px-4 pt-4 max-w-2xl mx-auto">
       <h1
         className="text-3xl text-cafe leading-none"
         style={{ fontFamily: "ReginaBlack" }}

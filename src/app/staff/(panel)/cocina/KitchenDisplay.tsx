@@ -321,44 +321,50 @@ export default function KitchenDisplay({
             : "rgba(251,244,230,0.92)",
         }}
       >
-        <div className="px-3 lg:px-4 py-2 flex items-center justify-between gap-2 flex-wrap">
-          {/* Tabs solo visibles en md y abajo */}
-          <div className="flex items-center gap-1.5 lg:hidden">
+        <div className="px-3 lg:px-6 py-2 lg:py-2.5 flex items-center justify-between gap-2 flex-wrap">
+          {/* Tabs en mobile (md y abajo) — táctiles, más grandes */}
+          <div className="flex items-center gap-1.5 lg:hidden w-full sm:w-auto">
             <TabChip
               active={activeTab === "pedidos"}
               onClick={() => setActiveTab("pedidos")}
               theme={theme}
-              icon={<IconClipboardList size={14} />}
+              icon={<IconClipboardList size={16} />}
+              count={columns.pedidos.length}
+              tone="amarillo"
             >
-              Pedidos ({columns.pedidos.length})
+              Pedidos
             </TabChip>
             <TabChip
               active={activeTab === "horno"}
               onClick={() => setActiveTab("horno")}
               theme={theme}
-              icon={<IconFlame size={14} />}
+              icon={<IconFlame size={16} />}
+              count={columns.horno.length}
+              tone="antojo"
             >
-              Horno ({columns.horno.length})
+              Horno
             </TabChip>
             <TabChip
               active={activeTab === "listos"}
               onClick={() => setActiveTab("listos")}
               theme={theme}
-              icon={<IconPackage size={14} />}
+              icon={<IconPackage size={16} />}
+              count={columns.listos.length}
+              tone="verde"
             >
-              Listos ({columns.listos.length})
+              Listos
             </TabChip>
           </div>
 
           {/* Resumen en horizontal lg+ */}
-          <div className="hidden lg:flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+          <div className="hidden lg:flex items-center gap-3 text-xs font-bold uppercase tracking-wider">
             <span className={subText}>Total activos:</span>
-            <span className={cardText}>{orders.length}</span>
+            <span className={`${cardText} text-base`}>{orders.length}</span>
             <span className={subText}>·</span>
-            <span>🟡 {columns.pedidos.filter((o) => o.status === "pending").length}</span>
-            <span>🟢 {columns.pedidos.filter((o) => o.status === "accepted").length}</span>
-            <span>🔥 {columns.horno.length}</span>
-            <span>✨ {columns.listos.length}</span>
+            <span>🟡 {columns.pedidos.filter((o) => o.status === "pending").length} nuevos</span>
+            <span>🟢 {columns.pedidos.filter((o) => o.status === "accepted").length} en cola</span>
+            <span>🔥 {columns.horno.length} hornean</span>
+            <span>✨ {columns.listos.length} listos</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -402,9 +408,9 @@ export default function KitchenDisplay({
       </div>
 
       {/* Kanban en lg+, una columna en md y abajo */}
-      <div className="p-3 lg:p-4">
-        {/* Vista kanban (lg+) */}
-        <div className="hidden lg:grid grid-cols-3 gap-3 xl:gap-4 min-h-[calc(100vh-180px)]">
+      <div className="p-3 lg:p-4 xl:p-6">
+        {/* Vista kanban (lg+) — full width del viewport */}
+        <div className="hidden lg:grid grid-cols-3 gap-4 xl:gap-6 min-h-[calc(100vh-180px)]">
           <ColumnView
             title="Pedidos"
             icon={<IconClipboardList size={20} />}
@@ -678,13 +684,13 @@ function Card({
 
   return (
     <article
-      className={`${cardBg} rounded-xl shadow p-3 flex flex-col gap-2 border-l-4 ${border} overflow-hidden`}
+      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div
-            className={`text-xl xl:text-2xl font-bold ${cardText} flex items-center gap-1.5`}
+            className={`text-xl lg:text-2xl xl:text-3xl font-bold ${cardText} flex items-center gap-1.5`}
             style={{ fontFamily: "ReginaBlack" }}
           >
             {o.is_birthday_treat && <span title="Cumple">🎂</span>}
@@ -697,7 +703,7 @@ function Card({
             <span className="truncate">{o.folio}</span>
           </div>
           <div
-            className={`text-xs font-bold ${cardText} truncate`}
+            className={`text-xs lg:text-sm font-bold ${cardText} truncate mt-0.5`}
             style={{ fontFamily: "Termina" }}
           >
             {o.customer?.name ?? "—"}
@@ -705,28 +711,28 @@ function Card({
         </div>
         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
           <span
-            className={`${badge.color} text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap`}
+            className={`${badge.color} text-[10px] lg:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap`}
           >
             {badge.emoji} {badge.label}
           </span>
-          <div className={`text-sm font-bold ${cardText} whitespace-nowrap`}>
+          <div className={`text-sm lg:text-base xl:text-lg font-bold ${cardText} whitespace-nowrap mt-1`}>
             ⏱ {formatElapsed(mins)}
           </div>
-          <div className={`text-[9px] uppercase tracking-wider ${subText} whitespace-nowrap`}>
+          <div className={`text-[9px] lg:text-[10px] uppercase tracking-wider ${subText} whitespace-nowrap`}>
             {phaseTimerLabel(o.status)}
           </div>
         </div>
       </div>
 
       {/* Items */}
-      <ul className={`text-xs space-y-0.5 ${cardText} bg-current/[0.03] rounded-md px-2 py-1.5`}>
+      <ul className={`text-xs lg:text-sm space-y-0.5 lg:space-y-1 ${cardText} bg-current/[0.03] rounded-md px-2 lg:px-3 py-1.5 lg:py-2`}>
         {o.items.map((it) => {
           const [name, detail] = it.product_name.split(" [");
           return (
             <li key={it.id} className="leading-tight">
               <span className="font-bold">{it.quantity}×</span> {name}
               {detail && (
-                <div className={`text-[9px] ${subText} italic pl-5`}>
+                <div className={`text-[9px] lg:text-[10px] ${subText} italic pl-5`}>
                   {detail.replace(/\]$/, "")}
                 </div>
               )}
@@ -736,7 +742,7 @@ function Card({
       </ul>
 
       {/* Logística mini */}
-      <div className={`text-[11px] space-y-0.5 ${subText}`}>
+      <div className={`text-[11px] lg:text-xs space-y-0.5 ${subText}`}>
         {o.pickup_date && (
           <div className="flex items-center gap-1">
             📅
@@ -777,8 +783,8 @@ function ActionButton({
   advance: (id: string, next: "accepted" | "baking" | "ready" | "delivered") => void;
 }) {
   const base =
-    "w-full rounded-lg py-2.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60 shadow-sm";
-  const spinner = <IconLoader2 size={16} className="animate-spin" />;
+    "w-full rounded-lg py-2.5 lg:py-3 text-sm lg:text-base font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60 shadow-sm mt-1";
+  const spinner = <IconLoader2 size={18} className="animate-spin" />;
 
   if (o.status === "pending") {
     return (
@@ -850,26 +856,45 @@ function TabChip({
   children,
   theme,
   icon,
+  count,
+  tone,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   theme: Theme;
   icon?: React.ReactNode;
+  count?: number;
+  tone?: "amarillo" | "antojo" | "verde";
 }) {
-  const activeCls =
-    theme === "dark" ? "bg-crema text-cafe" : "bg-cafe text-crema";
+  const toneActive = {
+    amarillo: "bg-[#F4B84D] text-cafe",
+    antojo: "bg-antojo text-white",
+    verde: "bg-verde text-white",
+  };
   const inactiveCls =
     theme === "dark" ? "bg-canela text-crema" : "bg-white text-cafe";
+  const activeBase =
+    tone && toneActive[tone] ? toneActive[tone] : theme === "dark" ? "bg-crema text-cafe" : "bg-cafe text-crema";
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1 ${
-        active ? activeCls + " shadow" : inactiveCls
+      className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+        active ? activeBase + " shadow-md scale-[1.02]" : inactiveCls + " opacity-80"
       }`}
+      style={{ fontFamily: "Termina" }}
     >
       {icon}
-      {children}
+      <span className="uppercase tracking-wider">{children}</span>
+      {typeof count === "number" && (
+        <span
+          className={`min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
+            active ? "bg-black/20" : "bg-current/15"
+          }`}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }
