@@ -89,11 +89,12 @@ export default function MisPedidos() {
   useEffect(() => {
     // Detección de cliente fantasma (logout legacy con name vacío).
     const valido =
-      !!cliente?.id &&
-      !!cliente?.name?.trim() &&
-      !!cliente?.whatsapp &&
+      !!cliente &&
+      !!cliente.id &&
+      !!cliente.name?.trim() &&
+      !!cliente.whatsapp &&
       cliente.whatsapp.length === 10;
-    if (!valido) {
+    if (!cliente || !valido) {
       router.replace("/");
       return;
     }
@@ -102,7 +103,7 @@ export default function MisPedidos() {
       const { data: ords } = await supabase
         .from("orders")
         .select("*")
-        .eq("customer_id", cliente!.id)
+        .eq("customer_id", cliente.id)
         .order("created_at", { ascending: false });
 
       if (!ords || ords.length === 0) {

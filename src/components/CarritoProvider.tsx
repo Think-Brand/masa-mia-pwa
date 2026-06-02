@@ -172,7 +172,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const setCliente = (c: Cliente) => setClienteState(c);
+  const setCliente = (c: Cliente | null) => setClienteState(c);
 
   const total = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
   const count = items.reduce((sum, it) => sum + it.quantity, 0);

@@ -157,10 +157,12 @@ export default function Carrito() {
   // Validación estricta: aceptamos cliente solo si tiene id + name + whatsapp.
   // Si alguno falta (ej. logout legacy dejó {name:"", whatsapp:""}), tratamos
   // como si no hubiera cliente y mostramos el registro inline.
+  // `!!cliente` arriba para que TS narrows en el resto del chain.
   const clienteValido =
-    !!cliente?.id &&
-    !!cliente?.name?.trim() &&
-    !!cliente?.whatsapp &&
+    !!cliente &&
+    !!cliente.id &&
+    !!cliente.name?.trim() &&
+    !!cliente.whatsapp &&
     cliente.whatsapp.length === 10;
 
   // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de la mínima

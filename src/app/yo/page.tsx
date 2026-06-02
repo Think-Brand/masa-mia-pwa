@@ -66,10 +66,12 @@ export default function Yo() {
   // Validación estricta del cliente (Modelo B).
   // Detecta y limpia "clientes fantasma" que quedaron de logouts viejos
   // (objeto truthy pero sin name/whatsapp/id válidos).
+  // Usamos `!!cliente` primero para que TS narrows el resto del chain.
   const clienteValido =
-    !!cliente?.id &&
-    !!cliente?.name?.trim() &&
-    !!cliente?.whatsapp &&
+    !!cliente &&
+    !!cliente.id &&
+    !!cliente.name?.trim() &&
+    !!cliente.whatsapp &&
     cliente.whatsapp.length === 10;
 
   const currentAvatar = cliente?.avatar_pose;
@@ -89,7 +91,9 @@ export default function Yo() {
 
   useEffect(() => {
     // Si no hay cliente válido, mostramos empty state en lugar de cargar stats.
-    if (!clienteValido || !cliente?.id) {
+    // Combinamos !cliente con !clienteValido para que TS narrows el tipo
+    // de `cliente` a no-null dentro del async siguiente.
+    if (!cliente || !clienteValido) {
       setLoading(false);
       return;
     }
@@ -264,7 +268,10 @@ export default function Yo() {
   // Empty state cuando no hay cliente válido (Modelo B).
   // Reemplaza el viejo redirect a "/" — más amable y consistente con la
   // navegación del bottom nav.
-  if (!clienteValido) {
+  // Nota TS: `!cliente` y `!clienteValido` cubren cosas distintas. El
+  // primero narrows el tipo a null; el segundo cubre los fantasmas. Se
+  // combinan para que el resto del componente trate cliente como Cliente.
+  if (!cliente || !clienteValido) {
     return (
       <div className="min-h-screen flex flex-col max-w-md mx-auto pb-28 bg-crema">
         <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur px-4 py-3 border-b border-caramelo/20">

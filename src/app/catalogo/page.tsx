@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+// Nota: ya no usamos useRouter aquí porque Modelo B no redirige al
+// catálogo cuando falta cliente.
 import { IconPlus, IconMinus, IconCheck, IconSparkles } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
@@ -41,8 +42,7 @@ function slugify(name: string) {
 }
 
 export default function Catalogo() {
-  const router = useRouter();
-  const { cliente, add, getProductQty, decreaseOne } = useCarrito();
+  const { add, getProductQty, decreaseOne } = useCarrito();
   const { show: showToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,8 +70,7 @@ export default function Catalogo() {
   };
 
   // Modelo B: el catálogo se navega libre, sin gate.
-  // Si no hay cliente, NO redirigimos — sólo pedimos sus datos al pagar.
-  // (Mantenemos `router` por si en el futuro necesitamos redirecciones.)
+  // Si no hay cliente, NO redirigimos — los datos se piden al pagar.
 
   useEffect(() => {
     const supabase = createClient();
