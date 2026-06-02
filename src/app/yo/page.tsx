@@ -18,6 +18,7 @@ import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
 import CumpleModal from "@/components/CumpleModal";
+import YoRegistroEmptyState from "@/components/YoRegistroEmptyState";
 import { resetTour, CLIENTE_TOUR_ID } from "@/lib/onboarding";
 import { formatBirthday, isBirthdayToday } from "@/lib/birthday";
 
@@ -266,63 +267,10 @@ export default function Yo() {
   };
 
   // Empty state cuando no hay cliente válido (Modelo B).
-  // Reemplaza el viejo redirect a "/" — más amable y consistente con la
-  // navegación del bottom nav.
-  // Nota TS: `!cliente` y `!clienteValido` cubren cosas distintas. El
-  // primero narrows el tipo a null; el segundo cubre los fantasmas. Se
-  // combinan para que el resto del componente trate cliente como Cliente.
+  // En lugar de redirigir al inicio, ofrecemos el registro AQUÍ mismo
+  // (menos clics, menos rebote). El componente vive abajo.
   if (!cliente || !clienteValido) {
-    return (
-      <div className="min-h-screen flex flex-col max-w-md mx-auto pb-28 bg-crema">
-        <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur px-4 py-3 border-b border-caramelo/20">
-          <h1
-            className="text-2xl text-cafe text-center"
-            style={{ fontFamily: "ReginaBlack" }}
-          >
-            Yo
-          </h1>
-        </header>
-
-        <div className="flex-1 px-6 pt-10 flex flex-col items-center text-center gap-4">
-          <Image
-            src="/mascota/miga-sentada.png"
-            alt="Miga sentada"
-            width={160}
-            height={160}
-            className="w-40 h-40 object-contain anim-sway"
-            priority
-          />
-          <h2
-            className="text-2xl text-cafe leading-tight"
-            style={{ fontFamily: "ReginaBlack" }}
-          >
-            ¿Nos conocemos
-            <br />
-            todavía?
-          </h2>
-          <p className="text-sm text-canela max-w-[260px] leading-relaxed">
-            Tu perfil aparece después de tu primer antojo.{" "}
-            <span className="italic">Aún no nos hemos cruzado.</span>
-          </p>
-
-          <div className="w-full flex flex-col gap-2 mt-4">
-            <Link
-              href="/catalogo"
-              className="w-full bg-antojo text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md"
-            >
-              Ver el menú
-            </Link>
-            <Link
-              href="/"
-              className="w-full bg-transparent border border-caramelo/40 text-cafe rounded-2xl py-2.5 text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition"
-            >
-              ¿Ya pediste antes? <span className="underline">Encuéntrame</span>
-            </Link>
-          </div>
-        </div>
-        <BottomNav />
-      </div>
-    );
+    return <YoRegistroEmptyState />;
   }
 
   return (

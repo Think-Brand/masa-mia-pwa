@@ -31,12 +31,16 @@ export default function HeaderCliente() {
         <Link
           href="/carrito"
           aria-label="Mi antojo"
-          className="relative text-cafe p-1 active:scale-95 transition w-10 flex items-center justify-center"
+          className="relative w-9 h-9 flex items-center justify-center active:scale-95 transition"
         >
-          <IconShoppingBag size={30} />
+          <IconShoppingBag
+            size={22}
+            stroke={2}
+            className={count > 0 ? "text-antojo" : "text-cafe"}
+          />
           {count > 0 && (
-            <span className="absolute top-0 -right-0.5 bg-antojo text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              {count}
+            <span className="absolute -top-0.5 -right-0.5 bg-antojo text-white text-[11px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 shadow">
+              {count > 9 ? "9+" : count}
             </span>
           )}
         </Link>

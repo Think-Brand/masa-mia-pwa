@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   IconArrowRight,
-  IconChefHat,
   IconUser,
   IconX,
 } from "@tabler/icons-react";
@@ -15,52 +14,88 @@ import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 
 /**
- * Landing pública (Modelo B): hero sin barrera.
+ * Pool de frases protagonistas para el landing público.
+ * Una se selecciona al azar en cada montaje. Mantiene la marca fresca y
+ * evita que la home se sienta clichada.
+ */
+const FRASES = [
+  "Pide primero. Haz dieta después. ¿O era al revés?",
+  "El que te mandó aquí, sí te quiere.",
+  "Hola. Sí, también sentimos ese vacío. Se llama falta de rol.",
+  "Llegaste al lugar correcto. Tu fuerza de voluntad no.",
+  "Bienvenido. Tenemos roles pequeños para problemas grandes. Emocionalmente sí.",
+  "Un rol no cambia tu vida. Pero prueba con 4: podría funcionar.",
+  "Bienvenido al club de “solo iba a ver”.",
+  "Haz tu pedido. Yo distraigo a la culpa.",
+  "Pide ahora. Luego vemos cómo justificamos esto.",
+  "Dale. Nadie llegó hasta aquí para pedir ensalada.",
+  "Tu antojo y yo hablamos. Quiere verte.",
+  "Hoy se antoja algo. Y ese algo no es responsabilidad fiscal.",
+];
+
+/**
+ * Landing pública (Modelo B + redesign):
  *
- *  - CTA primario: "Ver el menú" → /catalogo (sin pedir nada).
- *  - CTA secundario: "Ya pedí antes" → abre modal de auto-reconocer con WA.
- *  - Easter egg: 3 toques rápidos a Miga → /staff/login.
- *
- *  Si ya hay cliente guardado en localStorage, salta directo al catálogo.
- *  Captura de datos pasó al carrito; cumpleaños es opcional post-compra.
+ *  - Hero con frase protagonista rotativa por carga.
+ *  - Logo grande (75px, ~150% del anterior).
+ *  - "Ya pedí antes · Encuéntrame" como link discreto arriba a la derecha,
+ *    estilo "Iniciar sesión" de marcas modernas.
+ *  - Easter egg: long press (2.5s) en Miga → /staff/login. Reemplaza el
+ *    triple tap viejo, más oculto, menos accidental.
+ *  - Sin CTA explícito de staff en pantalla.
+ *  - Si ya hay cliente guardado en localStorage, salta directo al catálogo.
  */
 export default function Landing() {
   const router = useRouter();
   const { cliente, setCliente } = useCarrito();
   const [showLookup, setShowLookup] = useState(false);
   const [whatsapp, setWhatsapp] = useState("");
-  const [recognized, setRecognized] = useState<{ id: string; name: string; avatar_pose: string | null } | null>(null);
+  const [recognized, setRecognized] = useState<{
+    id: string;
+    name: string;
+    avatar_pose: string | null;
+  } | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const lookupTimer = useRef<number | null>(null);
 
-  // Si ya hay cliente, al catálogo directo
+  // Frase aleatoria al montar — protagonista del hero
+  const fraseProtagonista = useMemo(
+    () => FRASES[Math.floor(Math.random() * FRASES.length)],
+    []
+  );
+
+  // Si ya hay cliente válido, salto al catálogo
   useEffect(() => {
-    if (cliente?.whatsapp && cliente.whatsapp.length === 10 && cliente.name) {
+    if (
+      cliente?.whatsapp &&
+      cliente.whatsapp.length === 10 &&
+      cliente.name?.trim()
+    ) {
       router.replace("/catalogo");
     }
   }, [cliente, router]);
 
-  // Easter egg: 3 toques rápidos a Miga → staff
-  const tapState = useRef<{ count: number; lastTap: number }>({
-    count: 0,
-    lastTap: 0,
-  });
-  const tapMiga = () => {
-    const now = Date.now();
-    if (now - tapState.current.lastTap > 900) {
-      tapState.current.count = 1;
-    } else {
-      tapState.current.count += 1;
-    }
-    tapState.current.lastTap = now;
-    if (tapState.current.count >= 3) {
-      tapState.current.count = 0;
+  // Easter egg: long press 2.5s en Miga → staff
+  const pressTimer = useRef<number | null>(null);
+  const [longPressActive, setLongPressActive] = useState(false);
+
+  const startLongPress = () => {
+    setLongPressActive(true);
+    pressTimer.current = window.setTimeout(() => {
+      setLongPressActive(false);
       router.push("/staff/login");
+    }, 2500);
+  };
+  const cancelLongPress = () => {
+    setLongPressActive(false);
+    if (pressTimer.current) {
+      window.clearTimeout(pressTimer.current);
+      pressTimer.current = null;
     }
   };
 
-  // Auto-lookup dentro del modal
+  // Auto-lookup dentro del modal "Encuéntrame"
   useEffect(() => {
     if (!showLookup) return;
     if (lookupTimer.current) window.clearTimeout(lookupTimer.current);
@@ -84,7 +119,7 @@ export default function Landing() {
       } else {
         setRecognized(null);
         setLookupError(
-          "No te encontramos con ese número. ¿Es tu primera vez? Mejor pasa al menú."
+          "No te encontramos con ese número. ¿Primera vez? Mejor pasa al menú."
         );
       }
     }, 400);
@@ -95,7 +130,6 @@ export default function Landing() {
 
   const continueAsRecognized = async () => {
     if (!recognized) return;
-    // Traer datos completos para hidratar el contexto
     const supabase = createClient();
     const { data: full } = await supabase
       .from("customers")
@@ -118,75 +152,73 @@ export default function Landing() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between px-6 pt-6 pb-10 max-w-md mx-auto">
-      {/* Logo */}
-      <div className="w-full flex justify-center">
+    <main className="relative min-h-screen flex flex-col items-center justify-between px-6 pt-5 pb-10 max-w-md mx-auto">
+      {/* Logo + acceso "Encuéntrame" arriba a la derecha */}
+      <div className="w-full flex items-center justify-between gap-3">
         <Image
           src="/logos/logo-02.png"
           alt="Masa Mía"
-          width={72}
-          height={72}
+          width={110}
+          height={110}
           priority
-          style={{ width: 72, height: "auto", display: "block" }}
+          style={{ width: 110, height: "auto", display: "block" }}
         />
+
+        <button
+          type="button"
+          onClick={() => setShowLookup(true)}
+          className="text-[11px] font-bold text-canela uppercase tracking-wider active:scale-95 transition flex items-center gap-1 px-2 py-1 rounded-lg hover:text-cafe"
+          style={{ fontFamily: "Termina" }}
+        >
+          <IconUser size={13} />
+          Ya pedí antes
+        </button>
       </div>
 
-      {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center pt-4">
+      {/* Hero: frase protagonista + Miga acompañando */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center pt-2">
         <div
-          onClick={tapMiga}
-          role="button"
-          tabIndex={-1}
+          onMouseDown={startLongPress}
+          onMouseUp={cancelLongPress}
+          onMouseLeave={cancelLongPress}
+          onTouchStart={startLongPress}
+          onTouchEnd={cancelLongPress}
+          onTouchCancel={cancelLongPress}
+          onContextMenu={(e) => e.preventDefault()}
+          role="presentation"
           aria-label="Miga"
-          className="cursor-pointer select-none"
+          className={`cursor-pointer select-none transition ${
+            longPressActive ? "scale-95 opacity-80" : "scale-100"
+          }`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <Miga pose="chef" animation="breath" size={210} priority />
+          <Miga
+            pose="chef"
+            animation="breath"
+            size={180}
+            priority
+          />
         </div>
 
         <h1
-          className="text-4xl mt-4 leading-none text-cafe"
+          className="text-[28px] sm:text-3xl mt-5 leading-[1.1] text-cafe px-2 max-w-[330px]"
           style={{ fontFamily: "ReginaBlack" }}
         >
-          Hornado fresco,
-          <br />
-          hecho con cariño.
+          {fraseProtagonista}
         </h1>
 
-        <p className="text-canela text-xs mt-4 max-w-[280px] leading-relaxed">
-          Roles, berlinesas y antojos artesanales.
-          <br />
-          <span className="text-canela italic">
-            Mira el menú y pídete lo tuyo.
-          </span>
+        <p className="text-canela text-sm mt-5 italic max-w-[260px] leading-relaxed">
+          Vamos directo al menú, te lo mereces…
         </p>
       </div>
 
       {/* CTAs */}
-      <div className="w-full flex flex-col gap-3 fade-up">
+      <div className="w-full flex flex-col gap-2 fade-up">
         <Link
           href="/catalogo"
           className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md"
         >
           Ver el menú <IconArrowRight size={16} />
-        </Link>
-
-        <button
-          type="button"
-          onClick={() => setShowLookup(true)}
-          className="w-full bg-transparent text-canela text-xs font-bold flex items-center justify-center gap-1.5 py-2 active:scale-95 transition hover:text-cafe"
-        >
-          <IconUser size={13} />
-          Ya pedí antes <span className="underline">Encuéntrame</span>
-        </button>
-
-        {/* Acceso staff discreto */}
-        <Link
-          href="/staff/login"
-          className="mt-1 text-[11px] text-canela text-center flex items-center justify-center gap-1.5 hover:text-cafe transition active:scale-95"
-        >
-          <IconChefHat size={13} />
-          ¿Eres del staff? <span className="font-bold underline">Entrar a la cocina</span>
         </Link>
 
         <Link
@@ -224,7 +256,8 @@ export default function Landing() {
               </button>
             </div>
             <p className="text-xs text-canela mb-4">
-              Pon tu WhatsApp y Miga te reconoce. Si es tu primera vez, mejor pasa al menú.
+              Pon tu WhatsApp y Miga te reconoce. Si es tu primera vez, mejor
+              pasa al menú.
             </p>
             <input
               type="tel"
@@ -233,7 +266,9 @@ export default function Landing() {
               placeholder="WhatsApp · 10 dígitos"
               maxLength={10}
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) =>
+                setWhatsapp(e.target.value.replace(/\D/g, ""))
+              }
               className="w-full bg-white border border-caramelo rounded-2xl px-4 py-3 text-sm text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition"
             />
 

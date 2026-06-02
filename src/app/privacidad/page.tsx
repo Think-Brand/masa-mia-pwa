@@ -64,7 +64,10 @@ export default function PrivacidadPage() {
             </li>
             <li>
               Tu <b>cumpleaños</b> (solo mes y día, sin año), si decides
-              compartirlo, para enviarte una cortesía ese día.
+              compartirlo. El día de tu cumple te acreditamos{" "}
+              <b>1 rol gratis</b> en tu próximo pedido — pasas a recogerlo
+              tú o lo acuerdas por WhatsApp con Fabi o Alex. No hacemos
+              envíos.
             </li>
             <li>
               El <b>historial de tus pedidos</b>: qué pediste, cuándo y
@@ -93,8 +96,9 @@ export default function PrivacidadPage() {
               Reconocerte cuando vuelves para no pedirte los datos otra vez.
             </li>
             <li>
-              Avisarte de cortesías y promos puntuales (puedes pedirnos
-              que dejemos de hacerlo cuando quieras).
+              Avisarte por WhatsApp de cortesías puntuales (como tu rol de
+              cumpleaños) y promos. Puedes pedirnos que dejemos de hacerlo
+              cuando quieras.
             </li>
             <li>
               Mejorar el menú con datos agregados de qué se pide más.

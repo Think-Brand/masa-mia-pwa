@@ -269,32 +269,99 @@ function Confirmacion() {
         </div>
       )}
 
-      {/* Banner si está declinado: opción de cambiar fecha */}
-      {order.status === "declined" && (
-        <div
-          className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 stagger-item"
-          data-stagger="3"
-        >
-          <div className="text-[11px] font-bold text-rojo uppercase tracking-wider text-center">
-            Lo sentimos 🥲
-          </div>
-          {order.decline_message && (
-            <p className="text-xs text-cafe italic mt-2 text-center">
-              "{order.decline_message}"
-            </p>
-          )}
-          <Link
-            href={`/recuperar/${order.folio}`}
-            className="mt-3 w-full bg-antojo text-white rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition shadow"
+      {/* Banner si está declinado: razón completa + alternativas */}
+      {order.status === "declined" && (() => {
+        const REASON_LABELS: Record<string, string> = {
+          horno_lleno: "El horno está lleno ese día.",
+          sin_tiempo: "No alcanzamos el tiempo de preparación.",
+          insumo_agotado: "Se nos agotó un insumo clave.",
+          fuera_horario: "Fecha fuera de nuestro horario habitual.",
+          otro: "Tuvimos un imprevisto.",
+        };
+        const reasonLabel = order.decline_reason
+          ? REASON_LABELS[order.decline_reason] ?? "Tuvimos un imprevisto."
+          : null;
+        const contactName =
+          order.contact_person === "alex" ? "Alex" : "Faby";
+        const destinoWa = settings
+          ? order.contact_person === "alex"
+            ? settings.contact_alex_wa
+            : settings.contact_fabiola_wa
+          : null;
+        const waMessage = cliente
+          ? encodeURIComponent(
+              `Hola ${contactName}, soy ${cliente.name}. Mi pedido ${order.folio} no se pudo concretar. ¿Podemos verlo?`
+            )
+          : "";
+        return (
+          <div
+            className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 stagger-item"
+            data-stagger="3"
           >
-            <IconCalendarEvent size={14} />
-            Cambiar fecha sin rehacer
-          </Link>
-          <p className="text-[11px] text-canela text-center mt-2 italic">
-            Tu antojo se conserva tal cual lo armaste 🤎
-          </p>
-        </div>
-      )}
+            <div className="flex items-center gap-2 justify-center mb-2">
+              <span className="text-2xl">🥲</span>
+              <h3
+                className="text-xl text-rojo leading-none"
+                style={{ fontFamily: "ReginaBlack" }}
+              >
+                No se pudo esta vez
+              </h3>
+            </div>
+
+            {/* Razón categórica */}
+            {reasonLabel && (
+              <p className="text-xs text-cafe text-center mt-1 font-bold">
+                {reasonLabel}
+              </p>
+            )}
+
+            {/* Mensaje del staff (Faby/Alex) */}
+            {order.decline_message && (
+              <div className="mt-3 bg-white/80 rounded-xl p-3 border border-rojo/20">
+                <div className="text-[11px] font-bold text-rojo uppercase tracking-wider">
+                  {contactName} te explica
+                </div>
+                <p className="text-sm text-cafe mt-1 italic leading-relaxed">
+                  “{order.decline_message}”
+                </p>
+              </div>
+            )}
+
+            {/* Alternativas */}
+            <div className="mt-4 flex flex-col gap-2">
+              <Link
+                href={`/recuperar/${order.folio}`}
+                className="w-full bg-antojo text-white rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition shadow"
+              >
+                <IconCalendarEvent size={16} />
+                Cambiar la fecha
+              </Link>
+              <Link
+                href={`/recuperar/${order.folio}?modo=editar`}
+                className="w-full bg-white text-cafe border border-caramelo/50 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition"
+              >
+                Cambiar productos
+              </Link>
+              {destinoWa && (
+                <a
+                  href={`https://wa.me/${destinoWa}?text=${waMessage}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full bg-[#25D366] text-white rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition shadow"
+                >
+                  <IconBrandWhatsapp size={16} />
+                  Hablar con {contactName}
+                </a>
+              )}
+            </div>
+
+            <p className="text-[11px] text-canela text-center mt-3 italic">
+              Si cambias la fecha, tu antojo se conserva tal cual lo armaste
+              🤎
+            </p>
+          </div>
+        );
+      })()}
 
       {/* Acciones */}
       <div className="mt-6 w-full flex flex-col gap-2 fade-up">
