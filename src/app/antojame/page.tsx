@@ -172,7 +172,13 @@ export default function Antojame() {
   );
 
   useEffect(() => {
-    if (!cliente) {
+    // Detección de cliente fantasma (logout legacy con name vacío).
+    const valido =
+      !!cliente?.id &&
+      !!cliente?.name?.trim() &&
+      !!cliente?.whatsapp &&
+      cliente.whatsapp.length === 10;
+    if (!valido) {
       router.replace("/");
       return;
     }

@@ -21,7 +21,13 @@ export default function NotificacionesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!cliente) {
+    // Detección de cliente fantasma (logout legacy con name vacío).
+    const valido =
+      !!cliente?.id &&
+      !!cliente?.name?.trim() &&
+      !!cliente?.whatsapp &&
+      cliente.whatsapp.length === 10;
+    if (!valido) {
       router.replace("/");
       return;
     }
@@ -30,7 +36,7 @@ export default function NotificacionesPage() {
       const { data } = await supabase
         .from("notifications")
         .select("*")
-        .eq("customer_id", cliente.id)
+        .eq("customer_id", cliente!.id)
         .order("created_at", { ascending: false })
         .limit(100);
       setNotifs((data ?? []) as Notification[]);
