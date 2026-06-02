@@ -7,7 +7,7 @@ Aplicación web progresiva para Masa Mía. Catálogo público con captura de lea
 - **Next.js 14** (App Router) + TypeScript
 - **Tailwind CSS** con paleta oficial
 - **Supabase** (Postgres + Auth + Storage + Realtime)
-- **Netlify** para hosting
+- **Vercel** para hosting (dominio masamia.mx)
 
 ## Cómo levantar el proyecto en local
 
@@ -35,8 +35,12 @@ src/
 │   ├── producto/[slug]/ # Detalle de producto (Pantalla 3-4)
 │   ├── carrito/         # Carrito + pago (Pantalla 5)
 │   └── staff/
-│       ├── login/       # Login staff (Pantalla 6)
-│       └── pedidos/     # Kanban de pedidos (Pantalla 7-8)
+│       ├── login/       # Login staff
+│       └── (panel)/
+│           ├── cocina/    # KDS kanban (pedidos activos)
+│           ├── clientes/  # CRM lite con filtros + historial
+│           ├── dashboard/ # Métricas del negocio
+│           └── ajustes/   # Productos, boxes, settings
 ├── components/          # Botones, inputs, cards reutilizables
 └── lib/
     ├── supabase.ts      # Cliente Supabase
@@ -54,4 +58,5 @@ src/
 
 ## Despliegue
 
-Cada push a `main` despliega automáticamente en Netlify.
+Cada push a `main` despliega automáticamente en Vercel a producción
+(dominio `masamia.mx`).
