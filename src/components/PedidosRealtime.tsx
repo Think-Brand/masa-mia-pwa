@@ -115,7 +115,7 @@ export default function PedidosRealtime({ initialPendingCount }: Props) {
       <div className="flex items-center justify-between mt-3 mb-3 gap-2">
         <div className="flex items-center gap-2">
           {pending > 0 && (
-            <span className="inline-flex items-center gap-1 bg-antojo text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1 bg-antojo text-white text-[11px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
               <IconReceipt2 size={12} />
               {pending} {pending === 1 ? "pendiente" : "pendientes"}
             </span>

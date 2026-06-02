@@ -329,19 +329,19 @@ function CustomerCard({
           )}
           {isBdayWeek && (
             <span
-              className="text-[9px] font-bold uppercase tracking-wider bg-[#FFD9E5] text-rojo px-1.5 py-0.5 rounded-full"
+              className="text-[11px] font-bold uppercase tracking-wider bg-[#FFD9E5] text-rojo px-1.5 py-0.5 rounded-full"
               title={`Cumple ${formatBirthday(c.birthday)}`}
             >
               🎂 Cumple
             </span>
           )}
           {isNew && (
-            <span className="text-[9px] font-bold uppercase tracking-wider bg-verde/15 text-verde px-1.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-bold uppercase tracking-wider bg-verde/15 text-verde px-1.5 py-0.5 rounded-full">
               Nuevo
             </span>
           )}
           {isLapsed && !isBdayWeek && (
-            <span className="text-[9px] font-bold uppercase tracking-wider bg-canela/20 text-canela px-1.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-bold uppercase tracking-wider bg-canela/20 text-canela px-1.5 py-0.5 rounded-full">
               Lapso
             </span>
           )}
@@ -402,7 +402,7 @@ function FilterPill({
       {icon}
       <span className="uppercase tracking-wider">{children}</span>
       <span
-        className={`text-[10px] px-1.5 rounded-full ${
+        className={`text-[11px] px-1.5 rounded-full ${
           active ? "bg-black/20" : "bg-canela/20"
         }`}
       >

@@ -51,7 +51,7 @@ export default function StaffHeader({ userName }: Props) {
             >
               Masa Mía
             </div>
-            <div className="text-[9px] uppercase tracking-widest text-caramelo">
+            <div className="text-[11px] uppercase tracking-widest text-caramelo">
               Cocina
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function StaffHeader({ userName }: Props) {
             href="/catalogo"
             aria-label="Ver como cliente"
             title="Ver la tienda como cliente"
-            className="text-crema p-2 rounded-lg active:scale-90 transition flex items-center gap-1 text-[10px] font-bold"
+            className="text-crema p-2 rounded-lg active:scale-90 transition flex items-center gap-1 text-[11px] font-bold"
             style={{ fontFamily: "Termina" }}
           >
             <IconEye size={16} />

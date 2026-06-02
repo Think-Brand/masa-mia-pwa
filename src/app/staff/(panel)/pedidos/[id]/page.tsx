@@ -82,7 +82,7 @@ export default async function PedidoDetalle({
         >
           {order.folio}
         </h1>
-        <span className="text-[10px] uppercase tracking-widest text-canela font-bold">
+        <span className="text-[11px] uppercase tracking-widest text-canela font-bold">
           {order.status}
         </span>
       </div>
@@ -91,7 +91,7 @@ export default async function PedidoDetalle({
         <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎁</span>
           <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
               Cortesía piloto
             </div>
             <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
@@ -104,7 +104,7 @@ export default async function PedidoDetalle({
         <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎂</span>
           <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
               Cumpleaños del cliente
             </div>
             <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
@@ -117,7 +117,7 @@ export default async function PedidoDetalle({
         <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎁</span>
           <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">
+            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
               Cortesía de bienvenida
             </div>
             <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
@@ -128,7 +128,7 @@ export default async function PedidoDetalle({
       )}
       {order.status === "cancelled" && order.cancelled_by === "customer" && (
         <div className="mt-3 bg-canela/15 border border-canela/40 text-cafe rounded-2xl p-3">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-canela">
+          <div className="text-[11px] font-bold uppercase tracking-widest text-canela">
             Cancelado por el cliente
           </div>
           {order.cancel_reason && (
@@ -142,7 +142,7 @@ export default async function PedidoDetalle({
 
       {/* Cliente */}
       <section className="mt-5 bg-white rounded-2xl p-3 shadow-sm">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-canela">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-canela">
           Cliente
         </div>
         <div className="flex items-center justify-between mt-1 gap-2">
@@ -174,7 +174,7 @@ export default async function PedidoDetalle({
 
       {/* Items */}
       <section className="mt-3 bg-white rounded-2xl p-3 shadow-sm">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-canela mb-2">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-canela mb-2">
           Pedido
         </div>
         <ul className="space-y-2">
@@ -191,7 +191,7 @@ export default async function PedidoDetalle({
                   </span>
                 </div>
                 {detail && (
-                  <div className="text-[10px] text-canela italic pl-4">
+                  <div className="text-[11px] text-canela italic pl-4">
                     {detail.replace(/\]$/, "")}
                   </div>
                 )}
@@ -212,7 +212,7 @@ export default async function PedidoDetalle({
 
       {/* Logística */}
       <section className="mt-3 bg-white rounded-2xl p-3 shadow-sm">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-canela mb-2">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-canela mb-2">
           Logística
         </div>
         <div className="text-sm text-cafe space-y-1.5">
@@ -248,7 +248,7 @@ export default async function PedidoDetalle({
         {/* Si está declinado, mostrar motivo */}
         {order.status === "declined" && order.decline_reason && (
           <div className="mt-3 pt-3 border-t border-rojo/20">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-rojo mb-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-rojo mb-1">
               Motivo de declinación
             </div>
             <div className="text-xs text-cafe capitalize">

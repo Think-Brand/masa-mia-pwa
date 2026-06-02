@@ -68,7 +68,7 @@ export default function BottomNav() {
                 <item.Icon size={22} stroke={active ? 2.4 : 1.8} />
                 {badgeCount !== null && (
                   <span
-                    className={`absolute -top-1.5 -right-2 bg-antojo text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md ${
+                    className={`absolute -top-1.5 -right-2 bg-antojo text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md ${
                       pulse && item.badgeKey === "count"
                         ? "badge-pop"
                         : ""
@@ -79,7 +79,7 @@ export default function BottomNav() {
                 )}
               </div>
               <span
-                className="text-[9.5px] font-bold"
+                className="text-[11px] font-bold"
                 style={{ fontFamily: "Termina" }}
               >
                 {item.label}

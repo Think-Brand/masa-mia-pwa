@@ -171,7 +171,7 @@ export default function NotificationBell() {
           />
         )}
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 bg-antojo text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 shadow">
+          <span className="absolute -top-0.5 -right-0.5 bg-antojo text-white text-[11px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 shadow">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -197,7 +197,7 @@ export default function NotificationBell() {
                   Notificaciones
                 </h2>
                 {unreadCount > 0 && (
-                  <span className="bg-antojo text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                  <span className="bg-antojo text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full">
                     {unreadCount} nueva{unreadCount !== 1 ? "s" : ""}
                   </span>
                 )}
@@ -233,7 +233,7 @@ export default function NotificationBell() {
                   {grouped.map((group) => (
                     <div key={group.label}>
                       <div className="px-4 py-1.5 bg-crema-soft sticky top-0 z-10">
-                        <span className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-canela uppercase tracking-wider">
                           {group.label}
                         </span>
                       </div>
@@ -264,7 +264,7 @@ export default function NotificationBell() {
                                 {n.body}
                               </p>
                             )}
-                            <div className="text-[9px] text-caramelo mt-1">
+                            <div className="text-[11px] text-caramelo mt-1">
                               {formatRelativeTime(n.created_at)}
                             </div>
                           </div>
@@ -285,7 +285,7 @@ export default function NotificationBell() {
                 <button
                   onClick={markAllAsRead}
                   disabled={unreadCount === 0}
-                  className="text-[10px] font-bold text-cafe flex items-center gap-1 active:scale-95 disabled:opacity-30"
+                  className="text-[11px] font-bold text-cafe flex items-center gap-1 active:scale-95 disabled:opacity-30"
                 >
                   <IconCheck size={12} />
                   Marcar todo leído
@@ -293,7 +293,7 @@ export default function NotificationBell() {
                 <Link
                   href="/notificaciones"
                   onClick={() => setOpen(false)}
-                  className="text-[10px] font-bold text-antojo"
+                  className="text-[11px] font-bold text-antojo"
                 >
                   Ver todas →
                 </Link>

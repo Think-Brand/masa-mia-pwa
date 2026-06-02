@@ -162,7 +162,7 @@ export default function CumpleModal({ open, onClose }: Props) {
             {/* Selectores mes / día */}
             <div className="grid grid-cols-2 gap-3 mt-6">
               <div>
-                <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
                   Mes
                 </label>
                 <select
@@ -178,7 +178,7 @@ export default function CumpleModal({ open, onClose }: Props) {
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
                   Día
                 </label>
                 <select
@@ -197,7 +197,7 @@ export default function CumpleModal({ open, onClose }: Props) {
 
             {/* Preview */}
             <div className="mt-4 bg-white/80 rounded-2xl px-4 py-3 text-center">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
                 Tu día especial
               </div>
               <div
@@ -210,7 +210,7 @@ export default function CumpleModal({ open, onClose }: Props) {
             </div>
 
             {/* Anti-trampa info */}
-            <div className="mt-3 bg-antojo/5 border border-antojo/20 rounded-xl px-3 py-2 text-[10px] text-canela leading-relaxed">
+            <div className="mt-3 bg-antojo/5 border border-antojo/20 rounded-xl px-3 py-2 text-[11px] text-canela leading-relaxed">
               <b className="text-antojo">Aviso justo:</b> el rol cortesía aplica
               si tu cumple lleva al menos {BIRTHDAY_SETTLE_DAYS} días registrado
               antes de la fecha. Sin trampitas, todos felices 🤎
@@ -236,7 +236,7 @@ export default function CumpleModal({ open, onClose }: Props) {
               )}
             </div>
 
-            <p className="text-[10px] text-canela text-center mt-3 max-w-xs mx-auto leading-relaxed">
+            <p className="text-[11px] text-canela text-center mt-3 max-w-xs mx-auto leading-relaxed">
               Solo Fabi y Alex pueden verlo, y solo para mandarte el cariño.
             </p>
           </>

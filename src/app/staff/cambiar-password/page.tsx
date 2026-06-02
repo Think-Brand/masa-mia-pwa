@@ -35,7 +35,10 @@ export default function CambiarPassword() {
     setLoading(true);
     const supabase = createClient();
 
-    // Cambia password y limpia el flag must_change_password
+    // Cambia password y limpia el flag must_change_password.
+    // Nota seguridad: el flag autoritativo vive en app_metadata (no editable
+    // por el usuario). Para usuarios nuevos, el admin debe setearlo desde
+    // Supabase Dashboard. Aquí limpiamos user_metadata por compat legacy.
     const { error } = await supabase.auth.updateUser({
       password: pwd,
       data: { must_change_password: false },
@@ -47,7 +50,7 @@ export default function CambiarPassword() {
       return;
     }
 
-    router.push("/staff/pedidos");
+    router.push("/staff/cocina");
   };
 
   return (

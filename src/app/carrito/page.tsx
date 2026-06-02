@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import BottomNav from "@/components/BottomNav";
+import RegistroInline from "@/components/RegistroInline";
 import {
   getMinPickupDate,
   formatDeliveryDate,
@@ -151,9 +152,8 @@ export default function Carrito() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
-  useEffect(() => {
-    if (!cliente) router.replace("/");
-  }, [cliente, router]);
+  // Modelo B: ya no redirigimos si no hay cliente — el carrito muestra
+  // un registro inline antes de poder confirmar.
 
   // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de la mínima
   useEffect(() => {
@@ -162,8 +162,6 @@ export default function Carrito() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxPrepDays]);
-
-  if (!cliente) return null;
 
   const copiarCuenta = async () => {
     try {
@@ -302,7 +300,7 @@ export default function Carrito() {
                 />
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <div className="text-[10px] font-bold opacity-90 uppercase tracking-wider">
+                <div className="text-[11px] font-bold opacity-90 uppercase tracking-wider">
                   No sé qué pedir…
                 </div>
                 <div
@@ -328,8 +326,13 @@ export default function Carrito() {
 
         {items.length > 0 && (
           <>
+            {/* Registro inline (Modelo B): solo si aún no hay cliente */}
+            {!cliente && (
+              <RegistroInline />
+            )}
+
             {/* Banner cumpleaños (solo si aplica hoy) */}
-            {aplicaCumple && (
+            {aplicaCumple && cliente && (
               <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
                 <div className="text-3xl">🎂</div>
                 <div className="flex-1">
@@ -339,7 +342,7 @@ export default function Carrito() {
                   >
                     ¡Feliz cumple, {cliente.name}!
                   </div>
-                  <p className="text-[10px] opacity-95 mt-0.5 leading-snug">
+                  <p className="text-[11px] opacity-95 mt-0.5 leading-snug">
                     Un rol va por la casa. Ya se descontó ($
                     {descuentoCumple.toFixed(0)}).
                   </p>
@@ -406,7 +409,7 @@ export default function Carrito() {
                     </div>
                   </div>
                   {it.composition && it.composition.length > 0 && (
-                    <ul className="ml-14 text-[10px] text-canela border-l-2 border-caramelo/30 pl-2 space-y-0.5">
+                    <ul className="ml-14 text-[11px] text-canela border-l-2 border-caramelo/30 pl-2 space-y-0.5">
                       {it.composition.map((c, i) => (
                         <li key={i}>
                           <b className="text-cafe">{c.componentName}:</b>{" "}
@@ -423,10 +426,10 @@ export default function Carrito() {
 
             {/* Cuándo recoges */}
             <div className="bg-white rounded-xl p-3 mt-1">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-1">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1">
                 ¿Cuándo pasas por tu antojo?
               </div>
-              <div className="text-[10px] text-canela mb-2">
+              <div className="text-[11px] text-canela mb-2">
                 Lo más pronto:{" "}
                 <b className="text-cafe capitalize">
                   {formatDeliveryDate(minDate)}
@@ -458,7 +461,7 @@ export default function Carrito() {
                             ? "Pocos cupos"
                             : undefined
                       }
-                      className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition ${
+                      className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition ${
                         blocked
                           ? "bg-canela/15 text-canela/50 line-through cursor-not-allowed"
                           : active
@@ -469,7 +472,7 @@ export default function Carrito() {
                       }`}
                     >
                       {tight && !blocked && (
-                        <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[8px] rounded-full px-1 leading-tight">
+                        <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[11px] rounded-full px-1 leading-tight">
                           !
                         </span>
                       )}
@@ -488,7 +491,7 @@ export default function Carrito() {
                 const check = canDateAcceptCart(occ, cartCounts);
                 if (!check.ok) {
                   return (
-                    <div className="mt-2 bg-antojo/10 border border-antojo/30 text-cafe rounded-lg px-2.5 py-1.5 text-[10px] leading-snug">
+                    <div className="mt-2 bg-antojo/10 border border-antojo/30 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
                       🚫 Este día ya está lleno para{" "}
                       <b>{check.blockingCategories.join(", ")}</b>. Mejor escoge
                       otro día 🤎
@@ -500,7 +503,7 @@ export default function Carrito() {
                   occ.worstStatus === "tight"
                 ) {
                   return (
-                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/30 text-cafe rounded-lg px-2.5 py-1.5 text-[10px] leading-snug">
+                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/30 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
                       ⚠️ Día con pocos cupos. Si puedes mover tu antojo a otro
                       día nos das chance 🤎
                     </div>
@@ -508,7 +511,7 @@ export default function Carrito() {
                 }
                 return null;
               })()}
-              <div className="text-[10px] text-canela mt-2 italic">
+              <div className="text-[11px] text-canela mt-2 italic">
                 Pasa por tu antojo o mándalo a recoger (Uber, DiDi, persona de
                 confianza).
               </div>
@@ -524,7 +527,7 @@ export default function Carrito() {
             />
 
             {/* Punto de contacto */}
-            <div className="text-[10px] font-bold text-canela uppercase tracking-wider mt-1">
+            <div className="text-[11px] font-bold text-canela uppercase tracking-wider mt-1">
               ¿Quién te atiende?
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -551,12 +554,12 @@ export default function Carrito() {
                 Alex
               </button>
             </div>
-            <p className="text-[10px] text-canela italic -mt-1">
+            <p className="text-[11px] text-canela italic -mt-1">
               Tu pedido lo recibe quien tú elijas.
             </p>
 
             {/* Pago */}
-            <div className="text-[10px] font-bold text-canela uppercase tracking-wider mt-1">
+            <div className="text-[11px] font-bold text-canela uppercase tracking-wider mt-1">
               ¿Cómo pagas?
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -588,7 +591,7 @@ export default function Carrito() {
             {pago === "transferencia" && (
               <div className="bg-white rounded-xl p-3 border border-[#004481]/30 fade-up">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-[#004481] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  <span className="bg-[#004481] text-white text-[11px] font-bold px-1.5 py-0.5 rounded">
                     BBVA
                   </span>
                   <span
@@ -598,7 +601,7 @@ export default function Carrito() {
                     {BENEFICIARIO}
                   </span>
                 </div>
-                <div className="text-[10px] text-canela mb-1.5">
+                <div className="text-[11px] text-canela mb-1.5">
                   Número de tarjeta
                 </div>
                 <div className="flex items-center gap-2">
@@ -620,7 +623,7 @@ export default function Carrito() {
                     )}
                   </button>
                 </div>
-                <div className="text-[10px] text-canela mt-2 leading-relaxed">
+                <div className="text-[11px] text-canela mt-2 leading-relaxed">
                   Manda el comprobante por WhatsApp para confirmar tu antojo
                   🤎
                 </div>
@@ -638,7 +641,7 @@ export default function Carrito() {
                   >
                     ¡Bienvenido al antojo!
                   </div>
-                  <p className="text-[10px] opacity-95 mt-0.5 leading-snug">
+                  <p className="text-[11px] opacity-95 mt-0.5 leading-snug">
                     Eres parte de nuestros primeros comensales. Un rol va por
                     la casa — ya se descontó.
                   </p>
@@ -707,23 +710,26 @@ export default function Carrito() {
                 ? canDateAcceptCart(occ, cartCounts)
                 : { ok: true, blockingCategories: [] };
               const bloqueado = !check.ok;
+              const sinCliente = !cliente;
               return (
                 <button
                   onClick={confirmarPedido}
-                  disabled={enviando || bloqueado}
+                  disabled={enviando || bloqueado || sinCliente}
                   className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-50"
                   style={{ letterSpacing: "0.2px" }}
                 >
                   <IconCircleCheck size={18} />
-                  {bloqueado
-                    ? "Día lleno · cambia la fecha"
-                    : enviando
-                      ? "Anotando tu antojo..."
-                      : "Confirmar pedido"}
+                  {sinCliente
+                    ? "Cuéntanos quién eres ↑"
+                    : bloqueado
+                      ? "Día lleno · cambia la fecha"
+                      : enviando
+                        ? "Anotando tu antojo..."
+                        : "Confirmar pedido"}
                 </button>
               );
             })()}
-            <p className="text-[10px] text-canela text-center -mt-1">
+            <p className="text-[11px] text-canela text-center -mt-1">
               Te confirmamos por WhatsApp cuando esté en el horno 🔥
             </p>
           </>

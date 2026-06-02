@@ -159,7 +159,7 @@ export default function FeedbackPopup({ folio, page }: Props) {
                   >
                     <span className="text-3xl">{r.emoji}</span>
                     <span
-                      className="text-[10px] font-bold text-cafe"
+                      className="text-[11px] font-bold text-cafe"
                       style={{ fontFamily: "Termina" }}
                     >
                       {r.label}
@@ -171,7 +171,7 @@ export default function FeedbackPopup({ folio, page }: Props) {
 
             {rating && (
               <div className="mt-4 fade-up">
-                <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
                   Cuéntanos qué piensas (opcional pero amado)
                 </label>
                 <textarea

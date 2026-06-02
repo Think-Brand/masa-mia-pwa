@@ -166,7 +166,7 @@ export default function MisPedidos() {
                 />
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <div className="text-[10px] font-bold opacity-90 uppercase tracking-wider">
+                <div className="text-[11px] font-bold opacity-90 uppercase tracking-wider">
                   No sé qué pedir…
                 </div>
                 <div
@@ -220,19 +220,19 @@ export default function MisPedidos() {
                         {o.folio}
                       </div>
                       <div
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${status.color}`}
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${status.color}`}
                       >
                         {status.label}
                       </div>
                     </div>
-                    <div className="text-[10px] text-canela">{fecha}</div>
+                    <div className="text-[11px] text-canela">{fecha}</div>
                     <div className="text-xs text-cafe mt-1 line-clamp-2">
                       {o.items
                         .map((it) => `${it.quantity}× ${it.product_name.split(" [")[0]}`)
                         .join(", ")}
                     </div>
                     <div className="flex justify-between items-baseline mt-1">
-                      <span className="text-[10px] text-canela">Total</span>
+                      <span className="text-[11px] text-canela">Total</span>
                       <span
                         className="text-base text-[#F25C20]"
                         style={{ fontFamily: "ReginaBlack" }}

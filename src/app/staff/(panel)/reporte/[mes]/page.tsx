@@ -244,7 +244,7 @@ export default async function ReportePage({ params }: Props) {
       <article className="bg-white rounded-2xl p-8 shadow-sm print:shadow-none print:p-0">
         {/* Header */}
         <header className="border-b border-cafe/15 pb-4 mb-5">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-canela">
+          <div className="text-[11px] font-bold uppercase tracking-widest text-canela">
             Reporte mensual · Masa Mía
           </div>
           <h1
@@ -257,7 +257,7 @@ export default async function ReportePage({ params }: Props) {
 
         {/* Resumen ejecutivo */}
         <section className="mb-6">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-canela mb-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-canela mb-3">
             Resumen ejecutivo
           </h2>
           <div className="grid grid-cols-2 gap-4">
@@ -286,7 +286,7 @@ export default async function ReportePage({ params }: Props) {
 
         {/* Top productos */}
         <section className="mb-6">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-canela mb-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-canela mb-3">
             Top 5 sabores · qué jaló más
           </h2>
           {topProducts.length === 0 ? (
@@ -295,16 +295,16 @@ export default async function ReportePage({ params }: Props) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-canela border-b border-cafe/10">
-                  <th className="text-left py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-left py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     #
                   </th>
-                  <th className="text-left py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-left py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Producto
                   </th>
-                  <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Unidades
                   </th>
-                  <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Ingreso
                   </th>
                 </tr>
@@ -336,19 +336,19 @@ export default async function ReportePage({ params }: Props) {
         {/* Top clientes */}
         {topCustomers.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-[10px] font-bold uppercase tracking-widest text-canela mb-3">
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-canela mb-3">
               Top 5 clientes · quién compra más
             </h2>
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-canela border-b border-cafe/10">
-                  <th className="text-left py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-left py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Cliente
                   </th>
-                  <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Pedidos
                   </th>
-                  <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                  <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                     Gastado
                   </th>
                 </tr>
@@ -378,7 +378,7 @@ export default async function ReportePage({ params }: Props) {
 
         {/* Highlights */}
         <section className="mb-6">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-canela mb-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-canela mb-3">
             Highlights del mes
           </h2>
           <ul className="text-xs text-cafe space-y-1.5">
@@ -415,22 +415,22 @@ export default async function ReportePage({ params }: Props) {
 
         {/* Comparativa con mes anterior */}
         <section>
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-canela mb-3">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-canela mb-3">
             Comparativa con {prevMesNombre}
           </h2>
           <table className="w-full text-xs">
             <thead>
               <tr className="text-canela border-b border-cafe/10">
-                <th className="text-left py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                <th className="text-left py-1.5 font-bold uppercase text-[11px] tracking-wider">
                   Métrica
                 </th>
-                <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                   Este mes
                 </th>
-                <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                   Mes pasado
                 </th>
-                <th className="text-right py-1.5 font-bold uppercase text-[9px] tracking-wider">
+                <th className="text-right py-1.5 font-bold uppercase text-[11px] tracking-wider">
                   Δ
                 </th>
               </tr>
@@ -458,7 +458,7 @@ export default async function ReportePage({ params }: Props) {
           </table>
         </section>
 
-        <footer className="mt-8 pt-4 border-t border-cafe/10 text-[10px] text-canela italic text-center">
+        <footer className="mt-8 pt-4 border-t border-cafe/10 text-[11px] text-canela italic text-center">
           Generado el{" "}
           {new Date().toLocaleString("es-MX", {
             dateStyle: "long",
@@ -488,7 +488,7 @@ function Cell({
   const isUp = (delta ?? 0) >= 0;
   return (
     <div className="border border-cafe/10 rounded-xl p-3">
-      <div className="text-[9px] font-bold uppercase tracking-widest text-canela">
+      <div className="text-[11px] font-bold uppercase tracking-widest text-canela">
         {label}
       </div>
       <div
@@ -497,7 +497,7 @@ function Cell({
       >
         {value}
       </div>
-      <div className="text-[10px] text-canela mt-0.5 flex items-center gap-1">
+      <div className="text-[11px] text-canela mt-0.5 flex items-center gap-1">
         {sub && <span>{sub}</span>}
         {showDelta && (
           <span

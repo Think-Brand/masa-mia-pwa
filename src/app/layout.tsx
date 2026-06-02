@@ -29,8 +29,10 @@ export const viewport: Viewport = {
   themeColor: "#3A271D",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Sin maximumScale ni userScalable: false — permitir zoom es requisito
+  // de accesibilidad (WCAG 1.4.4) y evita bounce de usuarios con dificultad
+  // visual.
+  maximumScale: 5,
 };
 
 export default function RootLayout({

@@ -273,7 +273,7 @@ export default function Yo() {
                 unoptimized={currentAvatar?.startsWith("data:")}
               />
             </div>
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-antojo text-white text-[10px] font-bold px-3 py-0.5 rounded-full shadow whitespace-nowrap">
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-antojo text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow whitespace-nowrap">
               cambiar
             </span>
           </button>
@@ -345,7 +345,7 @@ export default function Yo() {
               🤎
             </div>
             <div className="flex-1">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
                 Miembro desde
               </div>
               <div
@@ -375,7 +375,7 @@ export default function Yo() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
                 Tu favorito
               </div>
               <div
@@ -384,7 +384,7 @@ export default function Yo() {
               >
                 {stats.favorite.name}
               </div>
-              <div className="text-[10px] text-caramelo italic">
+              <div className="text-[11px] text-caramelo italic">
                 Lo has pedido {stats.favorite.count}{" "}
                 {stats.favorite.count === 1 ? "vez" : "veces"}
               </div>
@@ -399,10 +399,10 @@ export default function Yo() {
             className="bg-white rounded-2xl p-3 shadow-sm fade-up active:scale-[0.98] transition block"
           >
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
                 Tus últimos antojos
               </div>
-              <span className="text-[10px] text-antojo font-bold flex items-center gap-0.5">
+              <span className="text-[11px] text-antojo font-bold flex items-center gap-0.5">
                 Ver todos <IconChevronRight size={11} />
               </span>
             </div>
@@ -426,14 +426,14 @@ export default function Yo() {
                     )}
                   </div>
                   <div className="px-1.5 py-1 text-center">
-                    <div className="text-[9px] text-canela truncate">
+                    <div className="text-[11px] text-canela truncate">
                       {new Date(o.created_at).toLocaleDateString("es-MX", {
                         day: "numeric",
                         month: "short",
                       })}
                     </div>
                     <div
-                      className="text-[10px] font-bold text-antojo leading-none"
+                      className="text-[11px] font-bold text-antojo leading-none"
                       style={{ fontFamily: "Termina" }}
                     >
                       ${o.total.toFixed(0)}
@@ -534,7 +534,7 @@ export default function Yo() {
                 >
                   Subir mi foto
                 </div>
-                <div className="text-[10px] text-canela">
+                <div className="text-[11px] text-canela">
                   Desde tu galería o cámara
                 </div>
               </div>
@@ -548,7 +548,7 @@ export default function Yo() {
               className="hidden"
             />
 
-            <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-2">
+            <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-2">
               O elige una Miga
             </div>
             <div className="grid grid-cols-3 gap-3">

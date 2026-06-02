@@ -19,8 +19,12 @@ export default async function PanelLayout({
     redirect("/staff/login");
   }
 
-  // Si el usuario aún tiene must_change_password, forzar cambio
-  const mustChange = user.user_metadata?.must_change_password === true;
+  // Si el usuario aún tiene must_change_password, forzar cambio.
+  // Leemos primero de app_metadata (no editable por el usuario) y caemos
+  // a user_metadata por compatibilidad con cuentas legacy.
+  const mustChange =
+    user.app_metadata?.must_change_password === true ||
+    user.user_metadata?.must_change_password === true;
   if (mustChange) {
     redirect("/staff/cambiar-password");
   }

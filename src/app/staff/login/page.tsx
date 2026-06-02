@@ -43,8 +43,11 @@ export default function StaffLogin() {
       return;
     }
 
-    // Forzar cambio de contraseña si es primer login
+    // Forzar cambio de contraseña si es primer login.
+    // Leemos de app_metadata (no editable por el usuario) con fallback a
+    // user_metadata por compatibilidad con cuentas legacy todavía no migradas.
     const mustChange =
+      data.user?.app_metadata?.must_change_password === true ||
       data.user?.user_metadata?.must_change_password === true;
     if (mustChange) {
       router.push("/staff/cambiar-password");
@@ -159,7 +162,7 @@ export default function StaffLogin() {
           )}
         </button>
 
-        <p className="text-[10px] text-caramelo text-center mt-3">
+        <p className="text-[11px] text-caramelo text-center mt-3">
           ¿Olvidaste tu contraseña? Pídele a Mario que la resetee.
         </p>
 
@@ -171,7 +174,7 @@ export default function StaffLogin() {
           <IconBread size={14} />
           Ver la app como cliente
         </Link>
-        <p className="text-[10px] text-caramelo/70 text-center mt-1 italic">
+        <p className="text-[11px] text-caramelo/70 text-center mt-1 italic">
           Para hacer pruebas, ver el menú o probar un pedido.
         </p>
       </form>

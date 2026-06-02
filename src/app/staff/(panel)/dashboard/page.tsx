@@ -359,11 +359,11 @@ export default async function DashboardPage() {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <IconTarget size={16} className="text-antojo" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-caramelo">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-caramelo">
               Meta de {mesNombre}
             </span>
           </div>
-          <span className="text-[10px] text-caramelo font-mono">
+          <span className="text-[11px] text-caramelo font-mono">
             {daysLeft} {daysLeft === 1 ? "día" : "días"} restantes
           </span>
         </div>
@@ -533,7 +533,7 @@ export default async function DashboardPage() {
                           })}
                     </span>
                     <span
-                      className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[day.worstStatus].text} bg-white border ${STATUS_STYLE[day.worstStatus].dot.replace("bg-", "border-")}`}
+                      className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[day.worstStatus].text} bg-white border ${STATUS_STYLE[day.worstStatus].dot.replace("bg-", "border-")}`}
                     >
                       {STATUS_STYLE[day.worstStatus].label}
                     </span>
@@ -547,7 +547,7 @@ export default async function DashboardPage() {
                       .map((r) => (
                         <span
                           key={r.category}
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[r.status].text} bg-white border ${STATUS_STYLE[r.status].dot.replace("bg-", "border-")}`}
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[r.status].text} bg-white border ${STATUS_STYLE[r.status].dot.replace("bg-", "border-")}`}
                         >
                           {CATEGORY_LABEL[r.category]} {r.used}/{r.limit}
                         </span>
@@ -557,7 +557,7 @@ export default async function DashboardPage() {
               );
             })}
           </ul>
-          <p className="text-[10px] text-canela italic mt-2 text-center">
+          <p className="text-[11px] text-canela italic mt-2 text-center">
             El cliente no puede pedir más en estos días/categorías. Ajusta
             capacidad en Ajustes → Capacidad.
           </p>
@@ -577,7 +577,7 @@ export default async function DashboardPage() {
                 key={d.day}
                 className="flex flex-col items-center gap-1 flex-1"
               >
-                <div className="text-[10px] font-bold text-cafe">
+                <div className="text-[11px] font-bold text-cafe">
                   {d.count}
                 </div>
                 <div
@@ -585,7 +585,7 @@ export default async function DashboardPage() {
                   style={{ height: `${Math.max(2, height)}%` }}
                   title={`${d.label} · ${d.count} pedidos · ${pesos(d.total)}`}
                 />
-                <div className="text-[9px] text-canela capitalize">
+                <div className="text-[11px] text-canela capitalize">
                   {d.label}
                 </div>
               </div>
@@ -600,11 +600,11 @@ export default async function DashboardPage() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-canela flex items-center gap-1">
             <IconClock size={12} /> Hora pico · últimos 30 días
           </h2>
-          <span className="text-[9px] text-caramelo">cuándo entran pedidos</span>
+          <span className="text-[11px] text-caramelo">cuándo entran pedidos</span>
         </div>
         <div className="min-w-[420px]">
           {/* Header de horas */}
-          <div className="grid grid-cols-[28px_repeat(16,minmax(0,1fr))] gap-px text-[8px] text-canela mb-1">
+          <div className="grid grid-cols-[28px_repeat(16,minmax(0,1fr))] gap-px text-[11px] text-canela mb-1">
             <div></div>
             {hoursToShow.map((h) => (
               <div key={h} className="text-center font-mono">
@@ -618,7 +618,7 @@ export default async function DashboardPage() {
               key={label}
               className="grid grid-cols-[28px_repeat(16,minmax(0,1fr))] gap-px mb-px"
             >
-              <div className="text-[9px] font-bold text-canela self-center">
+              <div className="text-[11px] font-bold text-canela self-center">
                 {label}
               </div>
               {hoursToShow.map((h) => {
@@ -642,7 +642,7 @@ export default async function DashboardPage() {
               })}
             </div>
           ))}
-          <div className="flex items-center justify-end gap-1 mt-2 text-[8px] text-canela">
+          <div className="flex items-center justify-end gap-1 mt-2 text-[11px] text-canela">
             <span>menos</span>
             <div className="flex gap-px">
               {[0.18, 0.4, 0.6, 0.8, 1].map((i) => (
@@ -686,13 +686,13 @@ export default async function DashboardPage() {
                       {c.recientlyAdded && (
                         <span
                           title={`Agregó su cumple hace ${c.daysSinceSet} días — descuento NO aplica`}
-                          className="text-[9px] bg-[#F2A516] text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                          className="text-[11px] bg-[#F2A516] text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
                         >
                           ⚠️ reciente
                         </span>
                       )}
                     </div>
-                    <div className="text-[10px] text-canela capitalize">
+                    <div className="text-[11px] text-canela capitalize">
                       {c.isToday
                         ? c.recientlyAdded
                           ? "¡Es hoy! (sin rol auto)"
@@ -745,7 +745,7 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <span
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
                       i === 0
                         ? "bg-antojo text-white"
                         : i === 1
@@ -803,7 +803,7 @@ export default async function DashboardPage() {
                         {f.customer_name || "Anónimo"}
                       </span>
                     </div>
-                    <span className="text-[9px] text-canela">
+                    <span className="text-[11px] text-canela">
                       {f.page}
                     </span>
                   </div>
@@ -827,7 +827,7 @@ export default async function DashboardPage() {
               <IconCrown size={24} />
             </div>
             <div className="flex-1">
-              <div className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+              <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">
                 Cliente del mes
               </div>
               <div
@@ -852,7 +852,7 @@ export default async function DashboardPage() {
         <IconFileText size={16} />
         Ver reporte de {now.toLocaleDateString("es-MX", { month: "long" })}
       </Link>
-      <p className="text-[10px] text-canela text-center mt-2 italic">
+      <p className="text-[11px] text-canela text-center mt-2 italic">
         Vista para imprimir o guardar como PDF (1 página).
       </p>
     </main>
@@ -890,7 +890,7 @@ function KpiCard({
     <div className="bg-white rounded-2xl p-3 shadow-sm">
       <div className={`flex items-center gap-1.5 ${toneClass}`}>
         {icon}
-        <span className="text-[10px] font-bold uppercase tracking-wider">
+        <span className="text-[11px] font-bold uppercase tracking-wider">
           {label}
         </span>
       </div>
@@ -900,7 +900,7 @@ function KpiCard({
       >
         {value}
       </div>
-      <div className="text-[10px] text-canela mt-0.5 flex items-center gap-1 flex-wrap">
+      <div className="text-[11px] text-canela mt-0.5 flex items-center gap-1 flex-wrap">
         <span>{sub}</span>
         {showDelta && (
           <span

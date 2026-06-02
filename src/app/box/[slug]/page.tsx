@@ -326,18 +326,18 @@ function BoxConstructor() {
                     {c.component.name}
                   </div>
                   {c.component.description && (
-                    <div className="text-[10px] text-canela">
+                    <div className="text-[11px] text-canela">
                       {c.component.description}
                     </div>
                   )}
                 </div>
                 {isFixed ? (
-                  <div className="text-[10px] bg-crema text-cafe rounded-full px-2 py-0.5 font-bold">
+                  <div className="text-[11px] bg-crema text-cafe rounded-full px-2 py-0.5 font-bold">
                     × {c.component.quantity} incluido
                   </div>
                 ) : (
                   <div
-                    className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${
+                    className={`text-[11px] rounded-full px-2 py-0.5 font-bold ${
                       completo
                         ? "bg-verde text-white"
                         : "bg-canela/20 text-canela"
@@ -375,7 +375,7 @@ function BoxConstructor() {
                               className="w-full aspect-square object-cover"
                             />
                             {qty > 0 && (
-                              <span className="absolute top-1 left-1 bg-antojo text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                              <span className="absolute top-1 left-1 bg-antojo text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
                                 {qty}
                               </span>
                             )}
@@ -394,7 +394,7 @@ function BoxConstructor() {
                               {opt.name}
                             </span>
                             {qty > 0 && (
-                              <span className="absolute top-1 left-1 bg-antojo text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                              <span className="absolute top-1 left-1 bg-antojo text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
                                 {qty}
                               </span>
                             )}
@@ -403,14 +403,14 @@ function BoxConstructor() {
                         <div className="bg-white p-1.5">
                           {fullColorUrl && (
                             <div
-                              className="text-[10px] font-bold text-cafe text-center truncate"
+                              className="text-[11px] font-bold text-cafe text-center truncate"
                               style={{ fontFamily: "Termina" }}
                             >
                               {opt.name}
                             </div>
                           )}
                           {opt.price_modifier > 0 && (
-                            <div className="text-[9px] text-antojo text-center">
+                            <div className="text-[11px] text-antojo text-center">
                               +${opt.price_modifier.toFixed(0)}
                             </div>
                           )}

@@ -18,6 +18,7 @@ import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import FeedbackPopup from "@/components/FeedbackWidget";
 import CancelOrderModal from "@/components/CancelOrderModal";
+import BirthdayPrompt from "@/components/BirthdayPrompt";
 import { generarMensajeWhatsapp } from "@/lib/whatsapp";
 import { getSettings, Settings } from "@/lib/settings";
 import { formatDeliveryDate } from "@/lib/delivery";
@@ -155,7 +156,7 @@ function Confirmacion() {
         className="mt-6 bg-white rounded-2xl px-6 py-4 shadow-sm stagger-item"
         data-stagger="0"
       >
-        <div className="text-[10px] font-bold text-canela uppercase tracking-widest">
+        <div className="text-[11px] font-bold text-canela uppercase tracking-widest">
           Folio
         </div>
         <div
@@ -171,7 +172,7 @@ function Confirmacion() {
         className="mt-4 w-full bg-white/70 backdrop-blur rounded-2xl p-4 text-left stagger-item"
         data-stagger="1"
       >
-        <div className="text-[10px] font-bold text-canela uppercase tracking-widest mb-2">
+        <div className="text-[11px] font-bold text-canela uppercase tracking-widest mb-2">
           Resumen
         </div>
         <ul className="space-y-1">
@@ -198,12 +199,12 @@ function Confirmacion() {
             ${Number(order.total).toFixed(0)}
           </span>
         </div>
-        <div className="text-[10px] text-canela mt-2 flex items-center gap-1">
+        <div className="text-[11px] text-canela mt-2 flex items-center gap-1">
           <IconCheck size={11} />
           Pago: {pago === "transferencia" ? "Transferencia BBVA" : "Efectivo al recibir"}
         </div>
         {order.pickup_date && (
-          <div className="text-[10px] text-canela mt-1 flex items-center gap-1">
+          <div className="text-[11px] text-canela mt-1 flex items-center gap-1">
             <IconCheck size={11} />
             Recoges:{" "}
             <span className="capitalize">
@@ -212,7 +213,7 @@ function Confirmacion() {
           </div>
         )}
         {order.contact_person && (
-          <div className="text-[10px] text-canela mt-1 flex items-center gap-1">
+          <div className="text-[11px] text-canela mt-1 flex items-center gap-1">
             <IconCheck size={11} />
             Te atiende:{" "}
             <span className="capitalize">
@@ -221,6 +222,9 @@ function Confirmacion() {
           </div>
         )}
       </div>
+
+      {/* Captura opcional de cumpleaños (Modelo B) — solo si no lo ha dado */}
+      <BirthdayPrompt />
 
       {/* Dirección de recogida (solo después de confirmar) */}
       {settings && settings.pickup_address_full && (
@@ -231,7 +235,7 @@ function Confirmacion() {
           <div className="flex items-start gap-2">
             <IconMapPin size={18} className="text-antojo flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-bold text-canela uppercase tracking-widest">
+              <div className="text-[11px] font-bold text-canela uppercase tracking-widest">
                 Pasa por tu antojo
               </div>
               <div
@@ -256,7 +260,7 @@ function Confirmacion() {
                 </a>
               )}
               {settings.pickup_hours_note && (
-                <p className="text-[10px] text-canela mt-2 italic">
+                <p className="text-[11px] text-canela mt-2 italic">
                   {settings.pickup_hours_note}
                 </p>
               )}
@@ -271,7 +275,7 @@ function Confirmacion() {
           className="mt-5 w-full bg-rojo/5 border-2 border-rojo/30 rounded-2xl p-4 stagger-item"
           data-stagger="3"
         >
-          <div className="text-[10px] font-bold text-rojo uppercase tracking-wider text-center">
+          <div className="text-[11px] font-bold text-rojo uppercase tracking-wider text-center">
             Lo sentimos 🥲
           </div>
           {order.decline_message && (
@@ -286,7 +290,7 @@ function Confirmacion() {
             <IconCalendarEvent size={14} />
             Cambiar fecha sin rehacer
           </Link>
-          <p className="text-[10px] text-canela text-center mt-2 italic">
+          <p className="text-[11px] text-canela text-center mt-2 italic">
             Tu antojo se conserva tal cual lo armaste 🤎
           </p>
         </div>
@@ -325,7 +329,7 @@ function Confirmacion() {
         )}
       </div>
 
-      <p className="text-[10px] text-canela mt-5 max-w-xs">
+      <p className="text-[11px] text-canela mt-5 max-w-xs">
         Guarda este folio. Fabi o Alex lo van a ver en su panel.
       </p>
 

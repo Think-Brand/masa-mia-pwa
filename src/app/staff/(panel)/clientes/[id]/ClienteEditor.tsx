@@ -77,7 +77,7 @@ export default function ClienteEditor({
     <section className="mt-4 flex flex-col gap-3">
       {/* Notas */}
       <div className="bg-white rounded-2xl p-3 shadow-sm">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-canela flex items-center gap-1">
+        <label className="text-[11px] font-bold uppercase tracking-wider text-canela flex items-center gap-1">
           <IconNotes size={12} /> Notas internas
         </label>
         <textarea
@@ -107,7 +107,7 @@ export default function ClienteEditor({
 
       {/* Cumpleaños */}
       <div className="bg-white rounded-2xl p-3 shadow-sm">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-canela">
+        <label className="text-[11px] font-bold uppercase tracking-wider text-canela">
           🎂 Cumpleaños
         </label>
         <div className="mt-1.5 flex gap-2">

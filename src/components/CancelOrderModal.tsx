@@ -192,7 +192,7 @@ export default function CancelOrderModal({
               </button>
             </div>
 
-            <p className="text-[10px] text-canela text-center mt-3 italic max-w-xs mx-auto leading-relaxed">
+            <p className="text-[11px] text-canela text-center mt-3 italic max-w-xs mx-auto leading-relaxed">
               Mientras falten más de {MIN_HOURS_TO_CANCEL}h, puedes cancelar
               sin pena. Después solo por WhatsApp 🤎
             </p>

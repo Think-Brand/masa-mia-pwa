@@ -183,7 +183,7 @@ export function DeclineButton({
                   </button>
                 </div>
 
-                <p className="text-[10px] text-canela italic mt-3 max-w-xs mx-auto leading-relaxed">
+                <p className="text-[11px] text-canela italic mt-3 max-w-xs mx-auto leading-relaxed">
                   Aunque no le mandes WhatsApp, el cliente verá el aviso en la
                   app la próxima vez que la abra.
                 </p>
@@ -236,7 +236,7 @@ export function DeclineButton({
                         {m.label}
                       </div>
                       <div
-                        className={`text-[10px] ${
+                        className={`text-[11px] ${
                           active ? "text-white/80" : "text-canela"
                         }`}
                       >
@@ -251,7 +251,7 @@ export function DeclineButton({
             {/* Mensaje editable */}
             {motivo && (
               <div className="px-4 mt-4 fade-up">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-canela mb-1">
+                <div className="text-[11px] font-bold uppercase tracking-widest text-canela mb-1">
                   Mensaje para {customerName}
                 </div>
                 <textarea
@@ -260,7 +260,7 @@ export function DeclineButton({
                   rows={4}
                   className="w-full bg-white border border-caramelo/40 rounded-xl px-3 py-2.5 text-xs text-cafe focus:outline-none focus:border-cafe resize-none"
                 />
-                <p className="text-[10px] text-canela italic mt-1">
+                <p className="text-[11px] text-canela italic mt-1">
                   Quedará guardado en el pedido. (Notificación al cliente se enviará en una próxima fase.)
                 </p>
               </div>

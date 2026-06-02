@@ -69,10 +69,9 @@ export default function Catalogo() {
     decreaseOne(p.id);
   };
 
-  // Si no hay cliente, regresa al lead gate
-  useEffect(() => {
-    if (!cliente) router.replace("/");
-  }, [cliente, router]);
+  // Modelo B: el catálogo se navega libre, sin gate.
+  // Si no hay cliente, NO redirigimos — sólo pedimos sus datos al pagar.
+  // (Mantenemos `router` por si en el futuro necesitamos redirecciones.)
 
   useEffect(() => {
     const supabase = createClient();
@@ -101,8 +100,6 @@ export default function Catalogo() {
     return products.filter((p) => p.category === activeTab);
   }, [products, activeTab]);
 
-  if (!cliente) return null;
-
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
@@ -123,7 +120,7 @@ export default function Catalogo() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-[10px] font-bold opacity-90 uppercase tracking-wider"
+            className="text-[11px] font-bold opacity-90 uppercase tracking-wider"
             style={{ fontFamily: "Termina" }}
           >
             No sé qué pedir…
@@ -205,7 +202,7 @@ export default function Catalogo() {
                     </div>
                   )}
                   {p.is_limited && (
-                    <span className="absolute top-1.5 left-1.5 bg-antojo text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                    <span className="absolute top-1.5 left-1.5 bg-antojo text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full shadow">
                       ✨ Edición limitada
                     </span>
                   )}
@@ -223,7 +220,7 @@ export default function Catalogo() {
                       style={{ fontFamily: "Termina" }}
                     >
                       {p.price_is_starting && (
-                        <span className="text-[9px] text-canela font-medium mr-0.5">desde</span>
+                        <span className="text-[11px] text-canela font-medium mr-0.5">desde</span>
                       )}
                       ${Number(p.price).toFixed(0)}
                     </div>

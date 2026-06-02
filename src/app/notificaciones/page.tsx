@@ -97,7 +97,7 @@ export default function NotificacionesPage() {
             {grouped.map((group) => (
               <section key={group.label}>
                 <div className="px-2 pb-1.5">
-                  <span className="text-[10px] font-bold text-canela uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-canela uppercase tracking-wider">
                     {group.label}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ export default function NotificacionesPage() {
                               {n.body}
                             </p>
                           )}
-                          <div className="text-[10px] text-caramelo mt-1">
+                          <div className="text-[11px] text-caramelo mt-1">
                             {formatRelativeTime(n.created_at)}
                           </div>
                         </div>

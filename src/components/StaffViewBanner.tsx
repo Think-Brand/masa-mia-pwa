@@ -56,7 +56,7 @@ export default function StaffViewBanner() {
         <IconChefHat size={16} />
       </span>
       <span className="flex flex-col leading-tight">
-        <span className="text-[8px] uppercase tracking-widest text-caramelo">
+        <span className="text-[11px] uppercase tracking-widest text-caramelo">
           Vista cliente
         </span>
         <span className="text-[11px] font-bold flex items-center gap-1">

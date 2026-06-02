@@ -24,7 +24,7 @@ export default function HeaderCliente() {
             width={360}
             height={108}
             priority
-            style={{ height: 100, width: "auto" }}
+            style={{ height: 56, width: "auto" }}
           />
         </Link>
 

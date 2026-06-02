@@ -62,6 +62,34 @@ body {
   box-sizing: border-box;
 }
 
+/* === Accesibilidad: focus visible global ===
+ * Cualquier elemento focuseable (botones, inputs, links) muestra anillo
+ * ámbar antojo cuando se navega con teclado. Mouse/touch no lo dispara
+ * gracias a :focus-visible (a diferencia de :focus). Útil para WCAG 2.4.7.
+ */
+:focus-visible {
+  outline: 2px solid var(--antojo);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* === Guía de contraste (NO cambia visual; documenta uso seguro) ===
+ *
+ *  Sobre fondo --crema (#F4E5CF):
+ *    --cafe       #3A271D  → 10.5:1   ✓ AA / AAA cualquier tamaño
+ *    --canela     #6E4933  → 5.2:1    ✓ AA normal, ✓ AAA large
+ *    --canela-soft #9A6B4A → 3.2:1    ⚠ AA solo en ≥18pt o ≥14pt bold
+ *    --caramelo   #AC7B54  → 2.1:1    ✗ NO usar para texto. OK iconos
+ *                                       decorativos o bordes.
+ *    --antojo     #F25C20  → 3.3:1    ⚠ AA solo en large text / botones
+ *                                       grandes; OK para CTA con fondo.
+ *
+ *  Regla: para body text (<18px) usar --cafe o --canela.
+ *  Para hints / metadatos (≥11px), --canela-soft puede usarse con bold.
+ *  --caramelo queda restringido a elementos NO textuales o texto
+ *  decorativo en pantallas oscuras (sobre --cafe da contraste alto).
+ */
+
 /* === Micro-animaciones de Miga === */
 
 @keyframes miga-bounce {

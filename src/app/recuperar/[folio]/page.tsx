@@ -335,7 +335,7 @@ function Recuperar() {
             ))}
           </ul>
           <div className="mt-3 pt-3 border-t border-caramelo/20">
-            <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
               {contactName} te explicó
             </div>
             <p className="text-xs text-cafe mt-1 italic">"{motivoFinal}"</p>
@@ -344,7 +344,7 @@ function Recuperar() {
 
         {/* Selector de fecha */}
         <div className="bg-white rounded-xl p-3 mt-1">
-          <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-1">
+          <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1">
             Nueva fecha de recogida
           </div>
           <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -365,7 +365,7 @@ function Recuperar() {
                   key={iso}
                   onClick={() => !blocked && setPickupDate(iso)}
                   disabled={blocked}
-                  className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition ${
+                  className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition ${
                     blocked
                       ? "bg-canela/15 text-canela/50 line-through cursor-not-allowed"
                       : active
@@ -376,7 +376,7 @@ function Recuperar() {
                   }`}
                 >
                   {tight && !blocked && (
-                    <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[8px] rounded-full px-1 leading-tight">
+                    <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[11px] rounded-full px-1 leading-tight">
                       !
                     </span>
                   )}
@@ -388,7 +388,7 @@ function Recuperar() {
               );
             })}
           </div>
-          <div className="text-[10px] text-canela mt-2 italic">
+          <div className="text-[11px] text-canela mt-2 italic">
             Escogiste:{" "}
             <b className="text-cafe capitalize">
               {formatDeliveryDate(new Date(pickupDate + "T12:00:00"))}
@@ -418,7 +418,7 @@ function Recuperar() {
           Mejor lo dejo así
         </Link>
 
-        <p className="text-[10px] text-canela text-center mt-2 italic max-w-xs mx-auto leading-relaxed">
+        <p className="text-[11px] text-canela text-center mt-2 italic max-w-xs mx-auto leading-relaxed">
           Tu antojo se conserva tal cual lo armaste — solo cambias la fecha 🤎
         </p>
       </div>

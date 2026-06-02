@@ -239,7 +239,7 @@ export default function Antojame() {
               />
             ))}
           </div>
-          <div className="text-[10px] text-canela mt-1.5 text-center">
+          <div className="text-[11px] text-canela mt-1.5 text-center">
             Pregunta {step} de 3
           </div>
         </div>
@@ -302,7 +302,7 @@ export default function Antojame() {
                     >
                       {opt.label}
                     </div>
-                    <div className="text-[10px] text-canela leading-tight">
+                    <div className="text-[11px] text-canela leading-tight">
                       {opt.sub}
                     </div>
                   </button>
@@ -386,7 +386,7 @@ export default function Antojame() {
                       >
                         {opt.label}
                       </div>
-                      <div className="text-[10px] text-canela">{opt.sub}</div>
+                      <div className="text-[11px] text-canela">{opt.sub}</div>
                     </div>
                   </button>
                 );
@@ -442,7 +442,7 @@ export default function Antojame() {
                         style={{ fontFamily: "ReginaBlack" }}
                       >
                         {resultado.main.price_is_starting && (
-                          <span className="text-[10px] text-canela font-normal mr-0.5">
+                          <span className="text-[11px] text-canela font-normal mr-0.5">
                             desde
                           </span>
                         )}
@@ -486,7 +486,7 @@ export default function Antojame() {
                 {/* Sugerencias */}
                 {resultado.suggestions.length > 0 && (
                   <div className="w-full mt-4 text-left">
-                    <div className="text-[10px] font-bold text-canela uppercase tracking-wider mb-2">
+                    <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-2">
                       O quizás te late
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -519,7 +519,7 @@ export default function Antojame() {
                               {s.name}
                             </div>
                             <div
-                              className="text-[10px] text-[#F25C20]"
+                              className="text-[11px] text-[#F25C20]"
                               style={{ fontFamily: "Termina" }}
                             >
                               ${Number(s.price).toFixed(0)}

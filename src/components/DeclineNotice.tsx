@@ -221,7 +221,7 @@ export default function DeclineNotice() {
 
         {/* Motivo */}
         <div className="mt-4 bg-white/80 rounded-2xl p-4 border border-caramelo/30">
-          <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+          <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
             {contactName} te explica
           </div>
           <p className="text-sm text-cafe mt-1 leading-relaxed">
@@ -256,7 +256,7 @@ export default function DeclineNotice() {
           </button>
         </div>
 
-        <p className="text-[10px] text-canela text-center mt-3 italic max-w-xs mx-auto leading-relaxed">
+        <p className="text-[11px] text-canela text-center mt-3 italic max-w-xs mx-auto leading-relaxed">
           Si cambias la fecha, tu antojo se conserva tal cual lo armaste. No
           tienes que volver a escoger nada 🤎
         </p>

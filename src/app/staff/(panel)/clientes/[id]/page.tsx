@@ -235,7 +235,7 @@ export default async function ClienteDetalle({
                   </div>
                   <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${status.color}`}
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${status.color}`}
                     >
                       {status.label}
                     </span>
@@ -269,7 +269,7 @@ function Stat({
     <div className="bg-white rounded-xl p-3 shadow-sm">
       <div className="flex items-center gap-1 text-canela">
         {icon}
-        <span className="text-[9px] font-bold uppercase tracking-wider">
+        <span className="text-[11px] font-bold uppercase tracking-wider">
           {label}
         </span>
       </div>

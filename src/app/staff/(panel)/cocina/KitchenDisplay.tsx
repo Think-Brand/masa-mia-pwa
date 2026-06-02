@@ -633,7 +633,7 @@ function HistoryDrawer({
               >
                 <span>{t.emoji}</span>
                 <span className="uppercase tracking-wider">{t.label}</span>
-                <span className={`text-[10px] px-1.5 rounded-full ${drawerTab === t.key ? "bg-current/15" : "bg-current/10"}`}>
+                <span className={`text-[11px] px-1.5 rounded-full ${drawerTab === t.key ? "bg-current/15" : "bg-current/10"}`}>
                   {t.count}
                 </span>
               </button>
@@ -728,12 +728,12 @@ function HistoryItem({
           {o.customer?.name ?? "—"} · {piezas} pza
         </div>
         {(tab === "declinados" || tab === "historico") && o.decline_reason && (
-          <div className={`text-[10px] italic ${subText} truncate`}>
+          <div className={`text-[11px] italic ${subText} truncate`}>
             Razón: {o.decline_reason}
           </div>
         )}
         {(tab === "cancelados" || tab === "historico") && o.cancel_reason && (
-          <div className={`text-[10px] italic ${subText} truncate`}>
+          <div className={`text-[11px] italic ${subText} truncate`}>
             {o.cancelled_by === "customer" ? "Cliente canceló: " : "Cancelado: "}
             {o.cancel_reason}
           </div>
@@ -883,14 +883,14 @@ function Card({
         </div>
         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
           <span
-            className={`${badge.color} text-[10px] lg:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap`}
+            className={`${badge.color} text-[11px] lg:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap`}
           >
             {badge.emoji} {badge.label}
           </span>
           <div className={`text-sm lg:text-base xl:text-lg font-bold ${cardText} whitespace-nowrap mt-1`}>
             ⏱ {formatElapsed(mins)}
           </div>
-          <div className={`text-[9px] lg:text-[10px] uppercase tracking-wider ${subText} whitespace-nowrap`}>
+          <div className={`text-[11px] lg:text-[11px] uppercase tracking-wider ${subText} whitespace-nowrap`}>
             {phaseTimerLabel(o.status)}
           </div>
         </div>
@@ -904,7 +904,7 @@ function Card({
             <li key={it.id} className="leading-tight">
               <span className="font-bold">{it.quantity}×</span> {name}
               {detail && (
-                <div className={`text-[9px] lg:text-[10px] ${subText} italic pl-5`}>
+                <div className={`text-[11px] lg:text-[11px] ${subText} italic pl-5`}>
                   {detail.replace(/\]$/, "")}
                 </div>
               )}
@@ -1067,7 +1067,7 @@ function TabChip({
       <span className="uppercase tracking-wider">{children}</span>
       {typeof count === "number" && (
         <span
-          className={`min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
+          className={`min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
             active ? "bg-black/20" : "bg-current/15"
           }`}
         >

@@ -195,7 +195,7 @@ function CapacidadPanel() {
                 }}
                 className="w-24 bg-white border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe text-center focus:outline-none focus:border-cafe"
               />
-              <span className="text-[10px] text-canela w-12">
+              <span className="text-[11px] text-canela w-12">
                 {c === "rol" || c === "berlinesa" ? "piezas" : "cajas"}
               </span>
             </div>
@@ -218,7 +218,7 @@ function CapacidadPanel() {
         </button>
 
         {!hasAnyLimit && (
-          <p className="text-[10px] text-canela italic mt-2 text-center">
+          <p className="text-[11px] text-canela italic mt-2 text-center">
             Mientras esté en blanco, no hay límite (sistema apagado).
           </p>
         )}
@@ -268,7 +268,7 @@ function CapacidadPanel() {
                     </div>
                     {occ.hasAlert && (
                       <span
-                        className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[occ.worstStatus].text} bg-white border ${STATUS_STYLE[occ.worstStatus].dot.replace("bg-", "border-")}`}
+                        className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_STYLE[occ.worstStatus].text} bg-white border ${STATUS_STYLE[occ.worstStatus].dot.replace("bg-", "border-")}`}
                       >
                         {STATUS_STYLE[occ.worstStatus].label}
                       </span>
@@ -282,7 +282,7 @@ function CapacidadPanel() {
                           key={r.category}
                           className="flex items-center gap-2"
                         >
-                          <span className="text-[10px] text-canela w-16">
+                          <span className="text-[11px] text-canela w-16">
                             {CATEGORY_LABEL[r.category]}
                           </span>
                           <div className="flex-1 bg-crema-soft rounded-full h-2 overflow-hidden">
@@ -294,7 +294,7 @@ function CapacidadPanel() {
                             />
                           </div>
                           <span
-                            className={`text-[10px] font-bold w-14 text-right ${STATUS_STYLE[r.status].text}`}
+                            className={`text-[11px] font-bold w-14 text-right ${STATUS_STYLE[r.status].text}`}
                           >
                             {r.used}/{r.limit}
                           </span>
@@ -398,7 +398,7 @@ function PilotoPanel() {
           value={pilotMode}
           onChange={togglePilot}
         />
-        <p className="text-[10px] text-canela italic">
+        <p className="text-[11px] text-canela italic">
           Cuando esté encendido: cada cliente <b>nuevo</b> (no Mario, Faby o
           Alex) recibe <b>1 rol cortesía</b> en su primer pedido,
           automáticamente — sin código. Pop-up de feedback al confirmar
@@ -432,7 +432,7 @@ function PilotoPanel() {
 
         {/* Editar tope */}
         <div className="flex items-center gap-2">
-          <label className="text-[10px] font-bold text-canela uppercase tracking-wider flex-1">
+          <label className="text-[11px] font-bold text-canela uppercase tracking-wider flex-1">
             Tope total
           </label>
           <input
@@ -458,12 +458,12 @@ function PilotoPanel() {
 
         <button
           onClick={resetContador}
-          className="mt-3 text-[10px] text-canela underline active:scale-95"
+          className="mt-3 text-[11px] text-canela underline active:scale-95"
         >
           Reiniciar contador a 0
         </button>
 
-        <p className="text-[10px] text-canela italic mt-2 leading-relaxed">
+        <p className="text-[11px] text-canela italic mt-2 leading-relaxed">
           Excluidos: Mario · Faby · Alex (no reciben la cortesía aunque pidan).
         </p>
       </Section>
@@ -485,7 +485,7 @@ function CodeStat({ label, value }: { label: string; value: string }) {
       >
         {value}
       </div>
-      <div className="text-[10px] text-canela uppercase tracking-wider">
+      <div className="text-[11px] text-canela uppercase tracking-wider">
         {label}
       </div>
     </div>
@@ -609,7 +609,7 @@ function ProductosPanel() {
                 >
                   {p.name}
                 </div>
-                <div className="text-[10px] text-canela capitalize">
+                <div className="text-[11px] text-canela capitalize">
                   {p.category} · ${Number(p.price).toFixed(0)}
                 </div>
                 <div className="flex gap-1 mt-1">
@@ -753,7 +753,7 @@ function NuevoProductoModal({
           <Field label="Nombre" value={name} onChange={setName} />
 
           <div>
-            <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+            <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
               Categoría
             </label>
             <select
@@ -783,7 +783,7 @@ function NuevoProductoModal({
 
           {/* Subir foto */}
           <div>
-            <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+            <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
               Foto del producto (opcional)
             </label>
             <input
@@ -802,7 +802,7 @@ function NuevoProductoModal({
                 />
               </div>
             )}
-            <p className="text-[10px] text-canela italic mt-1">
+            <p className="text-[11px] text-canela italic mt-1">
               Si no la subes ahora, puedes hacerlo después editando el producto.
             </p>
           </div>
@@ -897,7 +897,7 @@ function ProductEditForm({
     <div className="px-3 pb-3 border-t border-caramelo/20 pt-3 space-y-3">
       {/* Foto del producto */}
       <div>
-        <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+        <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
           Foto del producto
         </label>
         <div className="mt-1 flex items-center gap-3">
@@ -928,7 +928,7 @@ function ProductEditForm({
               <IconCamera size={14} />
               {product.image_url ? "Cambiar foto" : "Subir foto"}
             </button>
-            <p className="text-[10px] text-canela mt-1 italic">
+            <p className="text-[11px] text-canela mt-1 italic">
               JPG/PNG, máx 4 MB. La foto cambia en el catálogo al instante.
             </p>
           </div>
@@ -969,7 +969,7 @@ function ProductEditForm({
       />
 
       <div>
-        <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+        <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
           Precio
         </label>
         <div className="flex items-center gap-2 mt-1">
@@ -986,7 +986,7 @@ function ProductEditForm({
       </div>
 
       <div>
-        <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+        <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
           Descripción
         </label>
         <textarea
@@ -1343,7 +1343,7 @@ function ComponentCard({
 
       {comp.is_active && (
         <div className="border-t border-caramelo/20 pt-2 space-y-2">
-          <div className="text-[10px] font-bold text-canela uppercase tracking-wider">
+          <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
             Opciones disponibles
           </div>
 
@@ -1637,7 +1637,7 @@ function NegocioPanel() {
           value={settings.monthly_sales_goal_mxn ?? "8000"}
           onChange={(v) => update("monthly_sales_goal_mxn", v.replace(/[^0-9]/g, ""))}
         />
-        <p className="text-[10px] text-canela italic leading-relaxed mt-1">
+        <p className="text-[11px] text-canela italic leading-relaxed mt-1">
           Esta meta aparece en la pantalla de Negocio con barra de progreso.
           Recomendado: empezar bajo ($6K–$10K) los primeros 3 meses y subir
           conforme tengas datos reales. Mejor superar metas pequeñas que
@@ -1690,7 +1690,7 @@ function SwitchRow({
         >
           {label}
         </div>
-        {sub && <div className="text-[10px] text-canela">{sub}</div>}
+        {sub && <div className="text-[11px] text-canela">{sub}</div>}
       </div>
       <Switch value={value} onChange={onChange} />
     </div>
@@ -1735,7 +1735,7 @@ function Pill({
       ? "bg-verde/15 text-verde"
       : "bg-canela/20 text-canela";
   return (
-    <span className={`${cls} text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider`}>
+    <span className={`${cls} text-[11px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider`}>
       {children}
     </span>
   );
@@ -1772,7 +1772,7 @@ function Field({
   const v = value ?? "";
   return (
     <div>
-      <label className="text-[10px] font-bold text-canela uppercase tracking-wider">
+      <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
         {label}
       </label>
       {textarea ? (
