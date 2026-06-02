@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   IconArrowRight,
-  IconUser,
+  IconHeart,
   IconX,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
@@ -38,8 +38,10 @@ const FRASES = [
  *
  *  - Hero con frase protagonista rotativa por carga.
  *  - Logo grande (75px, ~150% del anterior).
- *  - "Ya pedí antes · Encuéntrame" como link discreto arriba a la derecha,
- *    estilo "Iniciar sesión" de marcas modernas.
+ *  - "Ya soy fan" como CTA secundario debajo del primario. Es solo para
+ *    casos de recovery (cliente con cache borrado, cambio de dispositivo,
+ *    incógnito). El cliente "del día a día" entra directo al catálogo
+ *    porque su sesión vive en localStorage.
  *  - Easter egg: 3 toques rápidos en Miga → /staff/login. Pasadizo secreto
  *    que no compite con el menú nativo de "guardar imagen" del navegador
  *    (lo que sí pasaba con long-press).
@@ -157,8 +159,8 @@ export default function Landing() {
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-between px-6 pt-5 pb-10 max-w-md mx-auto">
-      {/* Logo + acceso "Encuéntrame" arriba a la derecha */}
-      <div className="w-full flex items-center justify-between gap-3">
+      {/* Logo arriba — el CTA "Ya soy fan" vive abajo, junto a "Ver el menú" */}
+      <div className="w-full flex items-center justify-center">
         <Image
           src="/logos/logo-02.png"
           alt="Masa Mía"
@@ -167,16 +169,6 @@ export default function Landing() {
           priority
           style={{ width: 110, height: "auto", display: "block" }}
         />
-
-        <button
-          type="button"
-          onClick={() => setShowLookup(true)}
-          className="text-[11px] font-bold text-canela uppercase tracking-wider active:scale-95 transition flex items-center gap-1 px-2 py-1 rounded-lg hover:text-cafe"
-          style={{ fontFamily: "Termina" }}
-        >
-          <IconUser size={13} />
-          Ya pedí antes
-        </button>
       </div>
 
       {/* Hero: frase protagonista + Miga acompañando */}
@@ -204,7 +196,7 @@ export default function Landing() {
         </p>
       </div>
 
-      {/* CTAs */}
+      {/* CTAs — primario al menú, secundario "Ya soy fan" para recurrentes */}
       <div className="w-full flex flex-col gap-2 fade-up">
         <Link
           href="/catalogo"
@@ -212,6 +204,16 @@ export default function Landing() {
         >
           Ver el menú <IconArrowRight size={16} />
         </Link>
+
+        <button
+          type="button"
+          onClick={() => setShowLookup(true)}
+          className="w-full bg-transparent border border-cafe/30 text-cafe rounded-2xl py-2.5 text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition hover:border-cafe hover:bg-white/40"
+          style={{ fontFamily: "Termina" }}
+        >
+          <IconHeart size={15} />
+          Ya soy fan
+        </button>
 
         <Link
           href="/privacidad"
