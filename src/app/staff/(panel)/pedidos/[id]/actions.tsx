@@ -54,6 +54,7 @@ export function ChangeStatusButton({
     if (newStatus === "accepted") update.accepted_at = new Date().toISOString();
     if (newStatus === "baking")
       update.baking_started_at = new Date().toISOString();
+    if (newStatus === "ready") update.ready_at = new Date().toISOString();
     if (newStatus === "delivered")
       update.delivered_at = new Date().toISOString();
 

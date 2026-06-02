@@ -20,6 +20,7 @@ export function checkCancelEligibility(args: {
   if (!cancellableStatuses.includes(status)) {
     const labels: Record<string, string> = {
       baking: "ya está en el horno",
+      ready: "ya está listo para recoger",
       delivered: "ya fue entregado",
       declined: "ya fue declinado",
       cancelled: "ya fue cancelado",

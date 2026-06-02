@@ -24,6 +24,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendiente", color: "bg-[#F25C20] text-white" },
   accepted: { label: "Aceptado", color: "bg-verde text-white" },
   baking: { label: "En horno", color: "bg-antojo text-white" },
+  ready: { label: "Listo", color: "bg-cafe text-crema" },
   delivered: { label: "Entregado", color: "bg-canela text-white" },
   declined: { label: "Declinado", color: "bg-rojo text-white" },
   cancelled: { label: "Cancelado", color: "bg-canela/40 text-cafe" },
@@ -48,6 +49,7 @@ export default async function PedidosPage() {
     pending: rows.filter((o) => o.status === "pending"),
     accepted: rows.filter((o) => o.status === "accepted"),
     baking: rows.filter((o) => o.status === "baking"),
+    ready: rows.filter((o) => o.status === "ready"),
     delivered: rows.filter((o) => o.status === "delivered"),
     declined: rows.filter(
       (o) => o.status === "declined" || o.status === "cancelled"
@@ -95,6 +97,7 @@ export default async function PedidosPage() {
         />
         <Group title="🟢 Aceptados" rows={grouped.accepted} />
         <Group title="🔥 En el horno" rows={grouped.baking} />
+        <Group title="✨ Listos para entrega" rows={grouped.ready} />
         {grouped.delivered.length > 0 && (
           <Group title="✅ Entregados (últimos)" rows={grouped.delivered.slice(0, 10)} />
         )}

@@ -67,6 +67,7 @@ export type OrderStatus =
   | "pending"
   | "accepted"
   | "baking"
+  | "ready"
   | "delivered"
   | "declined"
   | "cancelled";
@@ -97,6 +98,7 @@ export type Order = {
   updated_at: string;
   accepted_at: string | null;
   baking_started_at: string | null;
+  ready_at: string | null;
   delivered_at: string | null;
 };
 

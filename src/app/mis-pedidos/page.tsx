@@ -17,6 +17,7 @@ const ESTADOS_LABEL: Record<string, { label: string; color: string }> = {
   pending: { label: "Esperando confirmación", color: "bg-canela/15 text-canela" },
   accepted: { label: "Aceptado", color: "bg-verde/15 text-verde" },
   baking: { label: "En el horno 🔥", color: "bg-antojo/15 text-antojo" },
+  ready: { label: "Listo para recoger ✨", color: "bg-cafe/15 text-cafe" },
   delivered: { label: "Entregado ✓", color: "bg-verde/15 text-verde" },
   declined: { label: "Lo sentimos", color: "bg-rojo/15 text-rojo" },
   cancelled: { label: "Cancelado", color: "bg-canela/15 text-canela" },

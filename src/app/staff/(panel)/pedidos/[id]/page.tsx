@@ -294,6 +294,15 @@ export default async function PedidoDetalle({
         {order.status === "baking" && (
           <ChangeStatusButton
             orderId={order.id}
+            newStatus="ready"
+            label="Sacar del horno"
+            tone="cafe"
+            icon="flame"
+          />
+        )}
+        {order.status === "ready" && (
+          <ChangeStatusButton
+            orderId={order.id}
             newStatus="delivered"
             label="Marcar entregado"
             tone="cafe"
