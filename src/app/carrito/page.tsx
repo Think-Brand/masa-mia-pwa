@@ -154,6 +154,14 @@ export default function Carrito() {
 
   // Modelo B: ya no redirigimos si no hay cliente — el carrito muestra
   // un registro inline antes de poder confirmar.
+  // Validación estricta: aceptamos cliente solo si tiene id + name + whatsapp.
+  // Si alguno falta (ej. logout legacy dejó {name:"", whatsapp:""}), tratamos
+  // como si no hubiera cliente y mostramos el registro inline.
+  const clienteValido =
+    !!cliente?.id &&
+    !!cliente?.name?.trim() &&
+    !!cliente?.whatsapp &&
+    cliente.whatsapp.length === 10;
 
   // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de la mínima
   useEffect(() => {
@@ -174,7 +182,16 @@ export default function Carrito() {
   };
 
   const confirmarPedido = async () => {
-    if (items.length === 0 || !cliente) return;
+    if (items.length === 0) return;
+    // Guardarraíl de seguridad: NUNCA enviar pedido sin cliente válido.
+    // Antes de Modelo B el guard era `!cliente`, pero un cliente con
+    // {name:"", whatsapp:""} pasaba como truthy y creaba pedidos huérfanos.
+    if (!clienteValido || !cliente?.id) {
+      alert(
+        "Falta tu nombre y WhatsApp para confirmar el pedido. Llénalos arriba."
+      );
+      return;
+    }
     setEnviando(true);
     try {
       const supabase = createClient();
@@ -326,13 +343,13 @@ export default function Carrito() {
 
         {items.length > 0 && (
           <>
-            {/* Registro inline (Modelo B): solo si aún no hay cliente */}
-            {!cliente && (
+            {/* Registro inline (Modelo B): cuando el cliente no es válido */}
+            {!clienteValido && (
               <RegistroInline />
             )}
 
             {/* Banner cumpleaños (solo si aplica hoy) */}
-            {aplicaCumple && cliente && (
+            {aplicaCumple && clienteValido && cliente && (
               <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
                 <div className="text-3xl">🎂</div>
                 <div className="flex-1">
@@ -710,7 +727,7 @@ export default function Carrito() {
                 ? canDateAcceptCart(occ, cartCounts)
                 : { ok: true, blockingCategories: [] };
               const bloqueado = !check.ok;
-              const sinCliente = !cliente;
+              const sinCliente = !clienteValido;
               return (
                 <button
                   onClick={confirmarPedido}

@@ -96,7 +96,15 @@ export default function RegistroInline() {
           .select("id")
           .single();
         if (insErr) throw insErr;
+        if (!nuevo?.id) {
+          throw new Error("La base no devolvió un id de cliente.");
+        }
         customerId = nuevo.id;
+      }
+
+      // Doble guardarraíl: jamás setear cliente sin id válido.
+      if (!customerId) {
+        throw new Error("No se pudo identificar al cliente.");
       }
 
       setCliente({

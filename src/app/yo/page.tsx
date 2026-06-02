@@ -237,7 +237,10 @@ export default function Yo() {
     }
     clear();
     localStorage.removeItem("masamia:cliente");
-    setCliente({ name: "", whatsapp: "" });
+    // Importante: null limpia el contexto bien.
+    // Antes pasábamos {name:"", whatsapp:""} y eso dejaba un cliente
+    // "fantasma" que rompía la validación del carrito (orphan orders).
+    setCliente(null);
     router.replace("/");
   };
 

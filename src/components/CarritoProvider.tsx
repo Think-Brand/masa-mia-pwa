@@ -52,7 +52,7 @@ type CarritoCtx = {
   remove: (cartLineId: string) => void;
   setQty: (cartLineId: string, qty: number) => void;
   clear: () => void;
-  setCliente: (c: Cliente) => void;
+  setCliente: (c: Cliente | null) => void;
   /** Cantidad total de un producto simple (sin composición) en el carrito */
   getProductQty: (productId: string) => number;
   /** Disminuye en 1 la cantidad de un producto simple. Si llega a 0, elimina la línea. */
