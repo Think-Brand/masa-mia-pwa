@@ -19,6 +19,7 @@ import { useCarrito } from "@/components/CarritoProvider";
 import Miga from "@/components/Miga";
 import BottomNav from "@/components/BottomNav";
 import RegistroInline from "@/components/RegistroInline";
+import EnvioPrompt from "@/components/EnvioPrompt";
 import {
   getMinPickupDate,
   formatDeliveryDate,
@@ -721,6 +722,25 @@ export default function Carrito() {
                 </span>
               </div>
             </div>
+
+            {/* Consulta de envío — solo si el carrito es generoso */}
+            <EnvioPrompt
+              total={Math.max(
+                0,
+                total -
+                  (aplicaCumple
+                    ? descuentoCumple
+                    : aplicaWelcome
+                      ? descuentoWelcome
+                      : 0)
+              )}
+              nombreCliente={cliente?.name}
+              resumenItems={items
+                .map((it) => `${it.quantity}× ${it.name}`)
+                .join(", ")}
+              fabiolaWa={settings?.contact_fabiola_wa}
+              umbral={400}
+            />
 
             {/* Botón confirmar pedido (bloqueado si la fecha no acepta el carrito) */}
             {(() => {
