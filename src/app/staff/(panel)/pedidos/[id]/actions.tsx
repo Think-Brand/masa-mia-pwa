@@ -52,6 +52,8 @@ export function ChangeStatusButton({
     const supabase = createClient();
     const update: Record<string, any> = { status: newStatus };
     if (newStatus === "accepted") update.accepted_at = new Date().toISOString();
+    if (newStatus === "baking")
+      update.baking_started_at = new Date().toISOString();
     if (newStatus === "delivered")
       update.delivered_at = new Date().toISOString();
 

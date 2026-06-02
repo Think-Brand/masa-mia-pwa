@@ -9,7 +9,8 @@ export default async function CocinaPage() {
     .from("orders")
     .select(
       `id, folio, status, total, payment_method, contact_person,
-       pickup_date, created_at, notes, is_courtesy, is_birthday_treat, is_welcome_courtesy,
+       pickup_date, created_at, accepted_at, baking_started_at,
+       notes, is_courtesy, is_birthday_treat, is_welcome_courtesy,
        customer:customers(name, whatsapp)`
     )
     .in("status", ["pending", "accepted", "baking"])

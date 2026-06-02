@@ -27,6 +27,8 @@ type OrderRow = {
   contact_person: string | null;
   pickup_date: string | null;
   created_at: string;
+  accepted_at: string | null;
+  baking_started_at: string | null;
   notes: string | null;
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
@@ -78,10 +80,63 @@ function minutesAgo(iso: string): number {
   return Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
 }
 
-function urgencyColor(mins: number, theme: Theme) {
-  if (mins < 5) return theme === "dark" ? "border-verde" : "border-verde";
-  if (mins < 15) return "border-[#F4B84D]";
+/**
+ * Formatea minutos a un string humano:
+ *  - <60min  → "45 min"
+ *  - <24h    → "2h 15min"  (omite los minutos si son 0)
+ *  - >=24h   → "3 días" / "1d 4h"
+ */
+function formatElapsed(mins: number): string {
+  if (mins < 0) return "0 min";
+  if (mins < 60) return `${mins} min`;
+  if (mins < 60 * 24) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `${h}h` : `${h}h ${m}min`;
+  }
+  const days = Math.floor(mins / (60 * 24));
+  const remH = Math.floor((mins % (60 * 24)) / 60);
+  return remH === 0 ? `${days}d` : `${days}d ${remH}h`;
+}
+
+/**
+ * Devuelve el ISO timestamp desde el cual debemos contar tiempo,
+ * según la fase actual del pedido. Cae en created_at si no hay
+ * timestamp de fase (compatibilidad con pedidos viejos).
+ */
+function phaseStartIso(o: OrderRow): string {
+  if (o.status === "baking") return o.baking_started_at ?? o.accepted_at ?? o.created_at;
+  if (o.status === "accepted") return o.accepted_at ?? o.created_at;
+  return o.created_at;
+}
+
+/**
+ * Color de urgencia con umbrales por fase:
+ *  - pending  : staff debería responder en <15min
+ *  - accepted : margen amplio (puede estar en cola)
+ *  - baking   : crítico — los roles se queman pasados ~25min
+ */
+function urgencyColor(o: OrderRow, mins: number, _theme: Theme) {
+  if (o.status === "baking") {
+    if (mins < 15) return "border-verde";
+    if (mins < 25) return "border-[#F4B84D]";
+    return "border-rojo";
+  }
+  if (o.status === "pending") {
+    if (mins < 5) return "border-verde";
+    if (mins < 15) return "border-[#F4B84D]";
+    return "border-rojo";
+  }
+  // accepted
+  if (mins < 30) return "border-verde";
+  if (mins < 90) return "border-[#F4B84D]";
   return "border-rojo";
+}
+
+function phaseTimerLabel(status: OrderRow["status"]): string {
+  if (status === "pending") return "esperando";
+  if (status === "accepted") return "en cola";
+  return "en horno";
 }
 
 function statusLabel(s: OrderRow["status"]) {
@@ -215,6 +270,8 @@ export default function KitchenDisplay({
     const update: Record<string, any> = { status: nextStatus };
     if (nextStatus === "accepted")
       update.accepted_at = new Date().toISOString();
+    if (nextStatus === "baking")
+      update.baking_started_at = new Date().toISOString();
     if (nextStatus === "delivered")
       update.delivered_at = new Date().toISOString();
     await supabase.from("orders").update(update).eq("id", orderId);
@@ -302,8 +359,8 @@ export default function KitchenDisplay({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((o) => {
-              const mins = minutesAgo(o.created_at);
-              const borderColor = urgencyColor(mins, theme);
+              const mins = minutesAgo(phaseStartIso(o));
+              const borderColor = urgencyColor(o, mins, theme);
               const isUpdating = updating === o.id;
               return (
                 <article
@@ -342,7 +399,10 @@ export default function KitchenDisplay({
                         {statusEmoji(o.status)} {statusLabel(o.status)}
                       </div>
                       <div className="text-lg font-bold mt-1">
-                        ⏱ {mins} min
+                        ⏱ {formatElapsed(mins)}
+                      </div>
+                      <div className={`text-[10px] uppercase tracking-wider ${subText}`}>
+                        {phaseTimerLabel(o.status)}
                       </div>
                     </div>
                   </div>

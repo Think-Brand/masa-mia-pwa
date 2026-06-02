@@ -96,6 +96,7 @@ export type Order = {
   created_at: string;
   updated_at: string;
   accepted_at: string | null;
+  baking_started_at: string | null;
   delivered_at: string | null;
 };
 
