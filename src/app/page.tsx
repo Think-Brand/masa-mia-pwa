@@ -40,8 +40,9 @@ const FRASES = [
  *  - Logo grande (75px, ~150% del anterior).
  *  - "Ya pedí antes · Encuéntrame" como link discreto arriba a la derecha,
  *    estilo "Iniciar sesión" de marcas modernas.
- *  - Easter egg: long press (2.5s) en Miga → /staff/login. Reemplaza el
- *    triple tap viejo, más oculto, menos accidental.
+ *  - Easter egg: 3 toques rápidos en Miga → /staff/login. Pasadizo secreto
+ *    que no compite con el menú nativo de "guardar imagen" del navegador
+ *    (lo que sí pasaba con long-press).
  *  - Sin CTA explícito de staff en pantalla.
  *  - Si ya hay cliente guardado en localStorage, salta directo al catálogo.
  */
@@ -76,22 +77,25 @@ export default function Landing() {
     }
   }, [cliente, router]);
 
-  // Easter egg: long press 2.5s en Miga → staff
-  const pressTimer = useRef<number | null>(null);
-  const [longPressActive, setLongPressActive] = useState(false);
-
-  const startLongPress = () => {
-    setLongPressActive(true);
-    pressTimer.current = window.setTimeout(() => {
-      setLongPressActive(false);
+  // Easter egg: 3 toques rápidos a Miga → /staff/login. Si pasan más de
+  // 900ms entre toques, el contador reinicia. No compite con el menú
+  // nativo de "guardar imagen" del navegador (lo que sí hacía un
+  // long-press).
+  const tapState = useRef<{ count: number; lastTap: number }>({
+    count: 0,
+    lastTap: 0,
+  });
+  const tapMiga = () => {
+    const now = Date.now();
+    if (now - tapState.current.lastTap > 900) {
+      tapState.current.count = 1;
+    } else {
+      tapState.current.count += 1;
+    }
+    tapState.current.lastTap = now;
+    if (tapState.current.count >= 3) {
+      tapState.current.count = 0;
       router.push("/staff/login");
-    }, 2500);
-  };
-  const cancelLongPress = () => {
-    setLongPressActive(false);
-    if (pressTimer.current) {
-      window.clearTimeout(pressTimer.current);
-      pressTimer.current = null;
     }
   };
 
@@ -178,26 +182,14 @@ export default function Landing() {
       {/* Hero: frase protagonista + Miga acompañando */}
       <div className="flex-1 flex flex-col items-center justify-center text-center pt-2">
         <div
-          onMouseDown={startLongPress}
-          onMouseUp={cancelLongPress}
-          onMouseLeave={cancelLongPress}
-          onTouchStart={startLongPress}
-          onTouchEnd={cancelLongPress}
-          onTouchCancel={cancelLongPress}
-          onContextMenu={(e) => e.preventDefault()}
-          role="presentation"
+          onClick={tapMiga}
+          role="button"
+          tabIndex={-1}
           aria-label="Miga"
-          className={`cursor-pointer select-none transition ${
-            longPressActive ? "scale-95 opacity-80" : "scale-100"
-          }`}
+          className="cursor-pointer select-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <Miga
-            pose="chef"
-            animation="breath"
-            size={180}
-            priority
-          />
+          <Miga pose="chef" animation="breath" size={180} priority />
         </div>
 
         <h1

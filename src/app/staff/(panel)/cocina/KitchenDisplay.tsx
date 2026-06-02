@@ -336,7 +336,7 @@ export default function KitchenDisplay({
   const surfaceBg = isDark ? "bg-[#4a3324]" : "bg-[#FFF7E8]";
 
   return (
-    <div className={`min-h-screen ${bgClass} transition-colors`}>
+    <div className={`min-h-screen ${bgClass} transition-colors overflow-x-hidden`}>
       {/* Top controls */}
       <div
         className="sticky top-[88px] z-20 backdrop-blur"
@@ -347,8 +347,8 @@ export default function KitchenDisplay({
         }}
       >
         <div className="px-3 lg:px-6 py-2 lg:py-2.5 flex items-center justify-between gap-2 flex-wrap">
-          {/* Tabs en mobile (md y abajo) — táctiles, más grandes */}
-          <div className="flex items-center gap-1.5 lg:hidden w-full sm:w-auto">
+          {/* Tabs en mobile (md y abajo) — táctiles, equitativos sin overflow */}
+          <div className="flex items-stretch gap-1 lg:hidden w-full sm:w-auto min-w-0">
             <TabChip
               active={activeTab === "pedidos"}
               onClick={() => setActiveTab("pedidos")}
@@ -787,22 +787,30 @@ function ColumnView({
 
   return (
     <section
-      className={`${flat ? "" : `${surfaceBg} rounded-2xl`} flex flex-col ${
+      className={`${flat ? "" : `${surfaceBg} rounded-2xl`} flex flex-col min-w-0 ${
         flat ? "gap-3" : "p-2"
       }`}
     >
-      {/* Header columna */}
-      <header
-        className={`${toneHeader} rounded-xl px-3 py-2 flex items-center justify-between shadow-sm`}
-      >
-        <div className="flex items-center gap-2 font-bold uppercase tracking-wider text-sm" style={{ fontFamily: "Termina" }}>
-          {icon}
-          {title}
-        </div>
-        <span className="text-2xl font-bold" style={{ fontFamily: "ReginaBlack" }}>
-          {orders.length}
-        </span>
-      </header>
+      {/* Header columna — solo en kanban (lg+). En mobile la tab ya etiqueta. */}
+      {!flat && (
+        <header
+          className={`${toneHeader} rounded-xl px-3 py-2 flex items-center justify-between shadow-sm`}
+        >
+          <div
+            className="flex items-center gap-2 font-bold uppercase tracking-wider text-sm min-w-0 truncate"
+            style={{ fontFamily: "Termina" }}
+          >
+            {icon}
+            <span className="truncate">{title}</span>
+          </div>
+          <span
+            className="text-2xl font-bold flex-shrink-0"
+            style={{ fontFamily: "ReginaBlack" }}
+          >
+            {orders.length}
+          </span>
+        </header>
+      )}
 
       {/* Cards */}
       <div className={`${flat ? "" : "mt-2"} flex flex-col gap-2.5 lg:gap-3 overflow-y-auto lg:max-h-[calc(100vh-260px)] pr-1`}>
@@ -1058,16 +1066,18 @@ function TabChip({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-        active ? activeBase + " shadow-md scale-[1.02]" : inactiveCls + " opacity-80"
+      className={`flex-1 sm:flex-initial min-w-0 px-2 sm:px-3 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 ${
+        active
+          ? activeBase + " shadow-md"
+          : inactiveCls + " opacity-80"
       }`}
       style={{ fontFamily: "Termina" }}
     >
-      {icon}
-      <span className="uppercase tracking-wider">{children}</span>
+      <span className="flex-shrink-0">{icon}</span>
+      <span className="uppercase tracking-wider truncate">{children}</span>
       {typeof count === "number" && (
         <span
-          className={`min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
+          className={`flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${
             active ? "bg-black/20" : "bg-current/15"
           }`}
         >

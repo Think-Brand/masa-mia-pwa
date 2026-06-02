@@ -73,6 +73,20 @@ body {
   border-radius: 4px;
 }
 
+/* === Anti zoom de iOS en inputs ===
+ * iOS Safari hace zoom in cuando enfocas un input/textarea/select cuyo
+ * font-size es menor a 16px, y NO hace zoom out al desenfocar — el usuario
+ * queda atrapado en la vista zoomada. Solución: forzar 16px en mobile.
+ * En desktop dejamos que Tailwind controle (text-sm, text-xs, etc.).
+ */
+@media (max-width: 1024px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* === Guía de contraste (NO cambia visual; documenta uso seguro) ===
  *
  *  Sobre fondo --crema (#F4E5CF):
