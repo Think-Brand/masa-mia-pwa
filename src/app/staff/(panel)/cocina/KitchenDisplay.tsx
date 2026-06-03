@@ -336,10 +336,13 @@ export default function KitchenDisplay({
   const surfaceBg = isDark ? "bg-[#4a3324]" : "bg-[#FFF7E8]";
 
   return (
-    <div className={`min-h-screen ${bgClass} transition-colors overflow-x-hidden`}>
-      {/* Top controls */}
+    <div className={`min-h-screen ${bgClass} transition-colors`}>
+      {/* Top controls — sticky justo debajo del StaffHeader (92px alto).
+          IMPORTANTE: el root NO tiene overflow-x-hidden — eso convertía este
+          div en scroll-container y rompía el sticky (lo posicionaba relativo
+          al div, no al viewport). Por eso quedaba flotando lejos del header. */}
       <div
-        className="sticky top-[92px] z-20 shadow-sm"
+        className="sticky top-[92px] z-20 shadow-md"
         style={{
           background: isDark ? "#3A271D" : "#FBF4E6",
         }}
@@ -810,11 +813,11 @@ function ColumnView({
         </header>
       )}
 
-      {/* Cards — sin scroll interno: deja que la página scrolle.
-          Así el surface envuelve TODOS los cards y los botones no quedan
-          pegados al borde inferior. scroll-mt protege el header del card
-          de quedar bajo la sticky bar. */}
-      <div className={`${flat ? "" : "mt-2"} flex flex-col gap-2.5 lg:gap-3 pb-2`}>
+      {/* Cards — scroll interno con min-h-0 (clave para que el flex respete
+          max-h). Así el primer card SIEMPRE queda visible debajo de la sticky
+          bar y los botones no se comen porque hay padding y scroll funciona
+          como kanban real. */}
+      <div className={`${flat ? "" : "mt-2"} flex flex-col gap-2.5 lg:gap-3 overflow-y-auto min-h-0 max-h-[calc(100vh-260px)] lg:max-h-[calc(100vh-220px)] pr-1 pb-3`}>
         {orders.length === 0 ? (
           <div className={`text-center py-10 ${subText}`}>
             <p className="text-xs italic">Nada por aquí.</p>
