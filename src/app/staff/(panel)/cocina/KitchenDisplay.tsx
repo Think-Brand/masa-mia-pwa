@@ -339,11 +339,9 @@ export default function KitchenDisplay({
     <div className={`min-h-screen ${bgClass} transition-colors overflow-x-hidden`}>
       {/* Top controls */}
       <div
-        className="sticky top-[88px] z-20 backdrop-blur"
+        className="sticky top-[92px] z-20 shadow-sm"
         style={{
-          background: isDark
-            ? "rgba(58,39,29,0.92)"
-            : "rgba(251,244,230,0.92)",
+          background: isDark ? "#3A271D" : "#FBF4E6",
         }}
       >
         <div className="px-3 lg:px-6 py-2 lg:py-2.5 flex items-center justify-between gap-2 flex-wrap">
@@ -812,8 +810,11 @@ function ColumnView({
         </header>
       )}
 
-      {/* Cards */}
-      <div className={`${flat ? "" : "mt-2"} flex flex-col gap-2.5 lg:gap-3 overflow-y-auto lg:max-h-[calc(100vh-260px)] pr-1`}>
+      {/* Cards — sin scroll interno: deja que la página scrolle.
+          Así el surface envuelve TODOS los cards y los botones no quedan
+          pegados al borde inferior. scroll-mt protege el header del card
+          de quedar bajo la sticky bar. */}
+      <div className={`${flat ? "" : "mt-2"} flex flex-col gap-2.5 lg:gap-3 pb-2`}>
         {orders.length === 0 ? (
           <div className={`text-center py-10 ${subText}`}>
             <p className="text-xs italic">Nada por aquí.</p>
@@ -864,7 +865,7 @@ function Card({
   return (
     <Link
       href={`/staff/pedidos/${o.id}`}
-      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden active:scale-[0.99] hover:shadow-lg transition cursor-pointer`}
+      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden active:scale-[0.99] hover:shadow-lg transition cursor-pointer scroll-mt-[180px] lg:scroll-mt-[160px]`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
