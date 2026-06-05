@@ -495,6 +495,73 @@ body {
     0 6px 14px rgba(198, 98, 57, 0.18);
 }
 
+/* === Antójame cards — entrada escalonada + tap glow ===
+ * Las cards entran con un scale+fade desde abajo, escalonadas por delay
+ * (lo setea cada card con animationDelay inline). Al seleccionar (.is-active)
+ * pulsa con glow expansivo antes de la transición al siguiente step. */
+@keyframes option-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.option-card {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0;
+  animation: option-card-enter 0.52s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  transition: transform 220ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 220ms ease;
+  transform: scale(1, 1);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.option-card:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+.option-card:active {
+  transform: scale(0.96);
+}
+@keyframes option-card-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1.03);
+  }
+}
+.option-card.is-active {
+  animation: option-card-pulse 0.4s cubic-bezier(0.34, 1.6, 0.64, 1) forwards;
+}
+
+/* === Antójame step transition ===
+ * Cuando cambia el step, el contenedor entra con un slide horizontal sutil. */
+@keyframes step-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* === Confetti de celebración (al confirmar pedido) ===
  * 8 partículas pequeñas que vuelan desde el botón hacia arriba/laterales
  * con rotación. Una sola ráfaga, no infinito. Naranja, amarillo, crema —
