@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconRepeat, IconX, IconCalendarEvent } from "@tabler/icons-react";
@@ -9,6 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { Order, OrderItem, Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
+import AntojameBanner from "@/components/AntojameBanner";
 import Miga from "@/components/Miga";
 import MigaLoading from "@/components/MigaLoading";
 import CancelOrderModal from "@/components/CancelOrderModal";
@@ -170,32 +170,8 @@ export default function MisPedidos() {
               </span>
             </p>
 
-            {/* Mini banner Antójame con squish */}
-            <Link
-              href="/antojame"
-              className="btn-masa btn-masa-antojame relative w-full px-4 py-3 flex items-center gap-3 overflow-hidden"
-            >
-              <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
-                <Image
-                  src="/mascota/recomendando.png"
-                  alt="Miga recomendando"
-                  fill
-                  sizes="64px"
-                  className="object-cover object-top drop-shadow"
-                />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="text-[11px] font-bold opacity-90 uppercase tracking-wider">
-                  No sé qué pedir…
-                </div>
-                <div
-                  className="text-xl leading-none"
-                  style={{ fontFamily: "ReginaBlack" }}
-                >
-                  ¡Antójame!
-                </div>
-              </div>
-            </Link>
+            {/* Banner Antójame — componente compartido, centrado */}
+            <AntojameBanner className="w-full" />
 
             <p className="text-[11px] text-canela mt-1">
               O si quieres antojarte solo:

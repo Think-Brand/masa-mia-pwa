@@ -13,6 +13,7 @@ import {
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
+import { isBox, productHref } from "@/lib/productLink";
 import { useCarrito } from "@/components/CarritoProvider";
 import Miga, { MigaPose, MigaAnim } from "@/components/Miga";
 import BottomNav from "@/components/BottomNav";
@@ -254,6 +255,8 @@ export default function Antojame() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
+  // Aviso cuando intentan agregar una caja (RollinBox/LuvinBox) sin armarla.
+  const [avisoCaja, setAvisoCaja] = useState(false);
   const [fraseResultado] = useState(
     FRASES_RESULTADO[Math.floor(Math.random() * FRASES_RESULTADO.length)]
   );
@@ -287,10 +290,18 @@ export default function Antojame() {
     setAttitude(null);
     setStep("intro");
     setAdded(false);
+    setAvisoCaja(false);
   };
 
   const onAdd = () => {
     if (!resultado?.main) return;
+    // Las cajas (RollinBox/LuvinBox) NO se agregan directo: hay que armarlas
+    // primero (elegir sabores / ingredientes). Avisamos y llevamos a armar.
+    if (isBox(resultado.main)) {
+      setAvisoCaja(true);
+      setTimeout(() => router.push(productHref(resultado.main!)), 1100);
+      return;
+    }
     add(resultado.main);
     setAdded(true);
     setTimeout(() => router.push("/carrito"), 700);
@@ -532,21 +543,54 @@ export default function Antojame() {
 
                 {/* Botones */}
                 <div className="w-full flex flex-col gap-2 mt-2">
-                  <button
-                    onClick={onAdd}
-                    disabled={added}
-                    className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
-                  >
-                    {added ? (
-                      <>
-                        <IconCheck size={16} /> ¡Agregado!
-                      </>
-                    ) : (
-                      <>
-                        Agregar al pedido <IconShoppingBag size={16} />
-                      </>
-                    )}
-                  </button>
+                  {isBox(resultado.main) ? (
+                    // Cajas: no se agregan directo. Hay que armarlas (elegir
+                    // sabores/ingredientes). Botón lleva a armar + aviso claro.
+                    (() => {
+                      const esRollin = resultado.main.category === "rollinbox";
+                      const detalle = esRollin
+                        ? "tus 4 sabores"
+                        : "los ingredientes que la componen";
+                      return (
+                        <>
+                          <button
+                            onClick={onAdd}
+                            disabled={avisoCaja}
+                            className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
+                          >
+                            Elegir y armar <IconArrowRight size={16} />
+                          </button>
+                          {avisoCaja ? (
+                            <p className="text-[12px] text-antojo font-bold leading-snug px-1 fade-up">
+                              Antes de agregarla tienes que elegir {detalle} 🤎
+                              Te llevo a armarla…
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-canela italic leading-snug px-1">
+                              Esta caja se arma a tu gusto: elige {detalle} antes
+                              de completar el pedido.
+                            </p>
+                          )}
+                        </>
+                      );
+                    })()
+                  ) : (
+                    <button
+                      onClick={onAdd}
+                      disabled={added}
+                      className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-70"
+                    >
+                      {added ? (
+                        <>
+                          <IconCheck size={16} /> ¡Agregado!
+                        </>
+                      ) : (
+                        <>
+                          Agregar al pedido <IconShoppingBag size={16} />
+                        </>
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={reset}
                     className="w-full bg-white text-cafe border border-canela/40 rounded-2xl py-2.5 text-xs font-bold flex items-center justify-center gap-2"

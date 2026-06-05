@@ -24,6 +24,8 @@ import RegistroInline from "@/components/RegistroInline";
 import EnvioPrompt from "@/components/EnvioPrompt";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import StickyCheckoutBar from "@/components/StickyCheckoutBar";
+import UbicacionPickup from "@/components/UbicacionPickup";
+import AntojameBanner from "@/components/AntojameBanner";
 import {
   getMinPickupDate,
   formatDeliveryDate,
@@ -328,32 +330,8 @@ export default function Carrito() {
               </span>
             </p>
 
-            {/* Mini banner Antójame con squish */}
-            <Link
-              href="/antojame"
-              className="btn-masa btn-masa-antojame relative w-full px-4 py-3 flex items-center gap-3 overflow-hidden"
-            >
-              <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
-                <Image
-                  src="/mascota/recomendando.png"
-                  alt="Miga recomendando"
-                  fill
-                  sizes="64px"
-                  className="object-cover object-top drop-shadow"
-                />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="text-[11px] font-bold opacity-90 uppercase tracking-wider">
-                  No sé qué pedir…
-                </div>
-                <div
-                  className="text-xl leading-none"
-                  style={{ fontFamily: "ReginaBlack" }}
-                >
-                  ¡Antójame!
-                </div>
-              </div>
-            </Link>
+            {/* Banner Antójame — componente compartido, centrado */}
+            <AntojameBanner className="w-full" />
 
             <p className="text-[11px] text-canela mt-1">
               O si quieres antojarte solo:
@@ -750,6 +728,9 @@ export default function Carrito() {
                 className="w-full bg-crema-soft border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition resize-none"
               />
             </CollapsibleSection>
+
+            {/* Ubicación fija — siempre visible: dónde recoges + sin envíos */}
+            <UbicacionPickup settings={settings} />
 
             {/* Welcome courtesy banner (automática, sin código) */}
             {aplicaWelcome && (

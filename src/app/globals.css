@@ -592,6 +592,90 @@ body {
   will-change: transform, opacity;
 }
 
+/* ──────────────────────────────────────────────
+ * DESTACADOS — Hero "Antojo del día" + carrito flotante
+ * (Features 1–4 del catálogo). Todo respeta el guard global de
+ * prefers-reduced-motion que vive más abajo.
+ * ────────────────────────────────────────────── */
+
+/* Oculta la barra de scroll (carrusel horizontal "Los más pedidos" y tabs). */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Panel glassmorphism cálido sobre la foto del Antojo del día. */
+.antojo-glass {
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(172, 123, 84, 0.25); /* caramelo */
+}
+
+/* Aura que "respira" detrás de la foto. Morph suave de border-radius +
+ * leve respiración de escala. Tonos cálidos de marca. */
+.antojo-aura {
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(242, 92, 32, 0.55),
+    rgba(172, 123, 84, 0.4) 60%,
+    rgba(172, 123, 84, 0) 75%
+  );
+  filter: blur(40px);
+  border-radius: 42% 58% 56% 44% / 48% 42% 58% 52%;
+  animation: aura-morph 9s ease-in-out infinite;
+  will-change: border-radius, transform;
+}
+@keyframes aura-morph {
+  0%,
+  100% {
+    border-radius: 42% 58% 56% 44% / 48% 42% 58% 52%;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    border-radius: 60% 40% 38% 62% / 56% 58% 42% 44%;
+    transform: scale(1.06) rotate(3deg);
+  }
+  66% {
+    border-radius: 38% 62% 60% 40% / 42% 50% 50% 58%;
+    transform: scale(0.98) rotate(-3deg);
+  }
+}
+
+/* Entrada del carrito flotante: slide-up con un pequeño rebote (spring). */
+@keyframes floating-cart-up {
+  0% {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-4%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.floating-cart-enter {
+  animation: floating-cart-up 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Clon que vuela al carrito (fly-to-cart). La trayectoria/tamaño finales se
+ * setean inline desde JS; aquí solo el look base. */
+.fly-clone {
+  position: fixed;
+  z-index: 80;
+  border-radius: 16px;
+  object-fit: cover;
+  pointer-events: none;
+  box-shadow: 0 12px 28px rgba(58, 39, 29, 0.28);
+  will-change: transform, opacity;
+}
+
 /* === Respeta usuarios que prefieren menos movimiento ===
  * Guard universal: colapsa cualquier animation/transition en el documento
  * a 0.01ms, manteniendo los final states intactos para no romper layout.

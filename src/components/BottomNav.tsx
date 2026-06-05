@@ -56,6 +56,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              id={item.badgeKey === "count" ? "nav-cart" : undefined}
               className={`relative flex flex-col items-center gap-0.5 py-1 rounded-xl transition ${
                 active ? "text-antojo" : "text-canela"
               }`}

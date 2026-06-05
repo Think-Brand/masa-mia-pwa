@@ -5,13 +5,19 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 // Nota: ya no usamos useRouter aquí porque Modelo B no redirige al
 // catálogo cuando falta cliente.
-import { IconPlus, IconMinus, IconCheck, IconSparkles } from "@tabler/icons-react";
+import { IconPlus, IconMinus, IconCheck } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { Product, Category } from "@/lib/types";
+import { Destacados } from "@/lib/destacados";
+import { flyToCart } from "@/lib/flyToCart";
 import { useCarrito } from "@/components/CarritoProvider";
 import { useToast } from "@/components/Toast";
 import HeaderCliente from "@/components/HeaderCliente";
 import BottomNav from "@/components/BottomNav";
+import FloatingCart from "@/components/FloatingCart";
+import AntojameBanner from "@/components/AntojameBanner";
+import AntojoDelDia from "@/components/AntojoDelDia";
+import MasPedidos from "@/components/MasPedidos";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
 import VacacionesPostal from "@/components/VacacionesPostal";
 
@@ -49,9 +55,11 @@ export default function Catalogo() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("todo");
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [destacados, setDestacados] = useState<Destacados | null>(null);
 
-  const handleAdd = (p: Product, isFirst: boolean) => {
+  const handleAdd = (p: Product, isFirst: boolean, el?: HTMLElement) => {
     add(p);
+    if (el) flyToCart(el, p.image_url);
     setJustAdded(p.id);
     // Toast solo en el primer agregado del producto (no en cada incremento)
     if (isFirst) {
@@ -87,6 +95,22 @@ export default function Catalogo() {
       });
   }, []);
 
+  // Destacados (Antojo del día + Los más pedidos). Best-sellers calculados en
+  // el servidor y cacheados por día MX. No es crítico para el grid, así que
+  // carga aparte y se muestra cuando llega.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/destacados")
+      .then((r) => r.json())
+      .then((d: Destacados) => {
+        if (alive) setDestacados(d);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     if (activeTab === "todo") {
       // En "Todo el antojo" respetar orden: rol → rollinbox → berlinesa → luvinbox
@@ -104,41 +128,23 @@ export default function Catalogo() {
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Banner Antójame — Miga + texto desplazados ligeramente a la
-          IZQUIERDA por compensación visual (el ✨ a la derecha jala
-          el peso óptico). Sin el offset, el conjunto se ve cargado a
-          la derecha aunque matemáticamente esté centrado. */}
-      <Link
-        href="/antojame"
-        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 pl-3 pr-12 py-3 flex items-center justify-center gap-3"
-      >
-        <div className="relative w-20 h-20 flex-shrink-0 -my-3">
-          <Image
-            src="/mascota/recomendando.png"
-            alt="Miga recomendando"
-            fill
-            sizes="80px"
-            className="object-cover object-top drop-shadow-md"
-          />
-        </div>
-        <div className="min-w-0 text-center">
-          <div
-            className="text-[11px] font-bold opacity-90 uppercase tracking-wider"
-            style={{ fontFamily: "Termina" }}
-          >
-            No sé qué pedir…
-          </div>
-          <div
-            className="text-2xl leading-none"
-            style={{ fontFamily: "ReginaBlack" }}
-          >
-            ¡Antójame!
-          </div>
-        </div>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 rounded-full p-2">
-          <IconSparkles size={18} />
-        </div>
-      </Link>
+      {/* Hero "Antojo del día" — best-seller rotado por día (Feature 1) */}
+      {destacados?.productOfDay ? (
+        <AntojoDelDia product={destacados.productOfDay} />
+      ) : (
+        !destacados && (
+          <div className="mx-3 mt-3 mb-2 rounded-3xl aspect-[16/11] bg-white/60 animate-pulse" />
+        )
+      )}
+
+      {/* Carrusel "Los más pedidos" (Feature 2) — comparte el cálculo */}
+      {destacados && destacados.topSellers.length > 0 && (
+        <MasPedidos products={destacados.topSellers} />
+      )}
+
+      {/* Banner Antójame — único componente compartido (catálogo/carrito/
+          mis-pedidos), centrado y con el mismo estilo clay. */}
+      <AntojameBanner className="mx-3 mt-3 mb-1" />
 
       {/* Tabs de categorías */}
       <nav className="px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
@@ -188,6 +194,7 @@ export default function Catalogo() {
             return (
               <article
                 key={p.id}
+                data-fly-card
                 className="bg-white rounded-xl overflow-hidden flex flex-col shadow-sm"
               >
                 <Link href={detalleHref} className="relative block">
@@ -240,8 +247,8 @@ export default function Catalogo() {
                     <ProductStepper
                       qty={getProductQty(p.id)}
                       pulse={justAdded === p.id}
-                      onAdd={() =>
-                        handleAdd(p, getProductQty(p.id) === 0)
+                      onAdd={(el) =>
+                        handleAdd(p, getProductQty(p.id) === 0, el)
                       }
                       onMinus={() => handleDecrease(p)}
                       productName={p.name}
@@ -252,6 +259,9 @@ export default function Catalogo() {
             );
           })}
       </div>
+
+      {/* Carrito flotante con Miga (Feature 3) — sobre el BottomNav */}
+      <FloatingCart />
 
       <BottomNav />
 
@@ -276,7 +286,7 @@ function ProductStepper({
 }: {
   qty: number;
   pulse: boolean;
-  onAdd: () => void;
+  onAdd: (el: HTMLElement) => void;
   onMinus: () => void;
   productName: string;
 }) {
@@ -284,7 +294,7 @@ function ProductStepper({
   if (qty === 0) {
     return (
       <button
-        onClick={onAdd}
+        onClick={(e) => onAdd(e.currentTarget)}
         aria-label={`Agregar ${productName}`}
         className={
           pulse
@@ -324,7 +334,7 @@ function ProductStepper({
         {qty}
       </span>
       <button
-        onClick={onAdd}
+        onClick={(e) => onAdd(e.currentTarget)}
         aria-label={`Agregar otro ${productName}`}
         className="w-9 h-10 flex items-center justify-center active:scale-90 transition hover:bg-black/10"
       >
