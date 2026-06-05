@@ -533,6 +533,7 @@ export default function KitchenDisplay({
               orders={columns.pedidos}
               updating={updating}
               advance={advance}
+              notifyCustomerReady={notifyCustomerReady}
               cardBg={cardBg}
               cardText={cardText}
               subText={subText}
@@ -549,6 +550,7 @@ export default function KitchenDisplay({
               orders={columns.horno}
               updating={updating}
               advance={advance}
+              notifyCustomerReady={notifyCustomerReady}
               cardBg={cardBg}
               cardText={cardText}
               subText={subText}
@@ -565,6 +567,7 @@ export default function KitchenDisplay({
               orders={columns.listos}
               updating={updating}
               advance={advance}
+              notifyCustomerReady={notifyCustomerReady}
               cardBg={cardBg}
               cardText={cardText}
               subText={subText}
