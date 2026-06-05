@@ -102,7 +102,7 @@ export default function CumpleModal({ open, onClose }: Props) {
 
         <div className="text-center">
           <Image
-            src="/mascota/miga-adorable.png"
+            src="/mascota/sorprendida.png"
             alt="Miga"
             width={110}
             height={110}

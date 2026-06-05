@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { pickMiga, type MigaEmocion } from "@/lib/migaEmotions";
 
 export type MigaPose =
+  // Set original (archivos con prefijo miga-)
   | "adorable"
   | "algo-entre-manos"
   | "chef"
@@ -13,7 +15,49 @@ export type MigaPose =
   | "malabares"
   | "senalar"
   | "sentada"
-  | "tierna";
+  | "tierna"
+  // Set nuevo (archivos sin prefijo)
+  | "agradecida"
+  | "atareada"
+  | "chill"
+  | "confundida"
+  | "culpable"
+  | "dormida"
+  | "drama"
+  | "lo-siento"
+  | "master-chef"
+  | "sorprendida"
+  | "una-idea"
+  | "vacaciones-1"
+  | "vacaciones-2";
+
+// Mapa pose → archivo real. Necesario porque algunos archivos nuevos no
+// llevan el prefijo "miga-" y "master chef.png" tiene espacio en el nombre.
+const POSE_FILE: Record<MigaPose, string> = {
+  adorable: "miga-adorable.png",
+  "algo-entre-manos": "miga-algo-entre-manos.png",
+  chef: "miga-chef.png",
+  cintura: "miga-cintura.png",
+  espalda: "miga-espalda.png",
+  lista: "miga-lista.png",
+  malabares: "miga-malabares.png",
+  senalar: "miga-senalar.png",
+  sentada: "miga-sentada.png",
+  tierna: "miga-tierna.png",
+  agradecida: "agradecida.png",
+  atareada: "atareada.png",
+  chill: "chill.png",
+  confundida: "condundida.png", // typo en archivo subido
+  culpable: "culpable.png",
+  dormida: "dormida.png",
+  drama: "drama.png",
+  "lo-siento": "lo-siento.png",
+  "master-chef": "master chef.png", // espacio en filename
+  sorprendida: "sorprendida.png",
+  "una-idea": "una-idea.png",
+  "vacaciones-1": "vacaciones-1.png",
+  "vacaciones-2": "vacaciones-2.png",
+};
 
 export type MigaAnim =
   | "bounce"
@@ -43,7 +87,12 @@ const FRASES_ALEATORIAS = [
 ];
 
 type Props = {
-  pose: MigaPose;
+  /** Pose específica (legacy + nuevas) */
+  pose?: MigaPose;
+  /** Emoción de alto nivel — usa pickMiga() y rota variantes */
+  emocion?: MigaEmocion;
+  /** Seed para que el variant sea determinístico (ej. folio del pedido) */
+  seed?: string | number;
   animation?: MigaAnim;
   size?: number;
   className?: string;
@@ -53,6 +102,8 @@ type Props = {
 
 export default function Miga({
   pose,
+  emocion,
+  seed,
   animation = "bounce",
   size = 140,
   className = "",
@@ -63,6 +114,14 @@ export default function Miga({
   const [wiggleKey, setWiggleKey] = useState(0);
 
   const animClass = animation === "none" ? "" : `anim-${animation}`;
+
+  // Fuente: si pasan emocion, usa pickMiga (con rotación de variantes).
+  // Si pasan pose, busca en POSE_FILE. Fallback: adorable.
+  const src = emocion
+    ? pickMiga(emocion, seed)
+    : pose
+      ? `/mascota/${POSE_FILE[pose] ?? "miga-adorable.png"}`
+      : "/mascota/miga-adorable.png";
 
   function handleClick() {
     if (!interactive) return;
@@ -80,8 +139,8 @@ export default function Miga({
         onClick={handleClick}
       >
         <Image
-          src={`/mascota/miga-${pose}.png`}
-          alt={`Miga — pose ${pose}`}
+          src={src}
+          alt="Miga"
           width={size}
           height={size}
           priority={priority}

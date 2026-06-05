@@ -86,8 +86,8 @@ export default function EnvioPrompt({
             <div className="flex items-start justify-between gap-2 mb-3">
               <div className="flex items-center gap-2.5">
                 <Image
-                  src="/mascota/miga-sentada.png"
-                  alt="Miga"
+                  src="/mascota/una-idea.png"
+                  alt="Miga con idea"
                   width={56}
                   height={56}
                   className="w-14 h-14 object-contain"

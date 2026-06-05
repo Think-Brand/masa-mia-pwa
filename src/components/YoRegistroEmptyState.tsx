@@ -172,8 +172,8 @@ export default function YoRegistroEmptyState() {
 
       <div className="flex-1 px-6 pt-8 flex flex-col items-center text-center gap-4">
         <Image
-          src="/mascota/miga-tierna.png"
-          alt="Miga"
+          src="/mascota/miga-senalar.png"
+          alt="Miga saludando"
           width={160}
           height={160}
           className="w-40 h-40 object-contain anim-breath"

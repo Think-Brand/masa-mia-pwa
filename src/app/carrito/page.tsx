@@ -12,7 +12,9 @@ import {
   IconBuildingBank,
   IconCopy,
   IconCheck,
-  IconCircleCheck,
+  IconCalendar,
+  IconCreditCard,
+  IconNotes,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
@@ -20,6 +22,8 @@ import Miga from "@/components/Miga";
 import BottomNav from "@/components/BottomNav";
 import RegistroInline from "@/components/RegistroInline";
 import EnvioPrompt from "@/components/EnvioPrompt";
+import CollapsibleSection from "@/components/CollapsibleSection";
+import StickyCheckoutBar from "@/components/StickyCheckoutBar";
 import {
   getMinPickupDate,
   formatDeliveryDate,
@@ -286,25 +290,36 @@ export default function Carrito() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto pb-28">
+    <div
+      className="min-h-screen flex flex-col max-w-md mx-auto"
+      style={{ paddingBottom: items.length > 0 ? "140px" : "100px" }}
+    >
       {/* Header */}
       <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur flex items-center justify-between px-4 py-3">
         <Link href="/catalogo" aria-label="Atrás" className="text-cafe">
           <IconArrowLeft size={20} />
         </Link>
-        <h1
-          className="text-2xl text-cafe"
-          style={{ fontFamily: "ReginaBlack" }}
-        >
-          Mi antojo
-        </h1>
+        <div className="flex flex-col items-center">
+          <h1
+            className="text-2xl text-cafe leading-none"
+            style={{ fontFamily: "ReginaBlack" }}
+          >
+            Mi antojo
+          </h1>
+          {items.length > 0 && (
+            <span className="text-[10px] text-canela uppercase tracking-widest mt-0.5">
+              {items.reduce((n, it) => n + it.quantity, 0)} pza
+              {items.reduce((n, it) => n + it.quantity, 0) !== 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
         <div className="w-5" />
       </header>
 
       <div className="flex-1 px-4 flex flex-col gap-3">
         {items.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-6 gap-4">
-            <Miga pose="sentada" animation="sway" size={130} />
+            <Miga emocion="confundida" animation="sway" size={130} />
             <p className="text-canela text-sm leading-relaxed">
               Tu antojo está sin nada todavía.
               <br />
@@ -452,11 +467,28 @@ export default function Carrito() {
               ))}
             </ul>
 
-            {/* Cuándo recoges */}
-            <div className="bg-white rounded-xl p-3 mt-1">
-              <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1">
-                ¿Cuándo pasas por tu antojo?
-              </div>
+            {/* Cuándo pasas — fecha + hora en una sola sección colapsable */}
+            <CollapsibleSection
+              icon={<IconCalendar size={18} />}
+              title="¿Cuándo pasas?"
+              summary={(() => {
+                const fechaSel = fechaList.find(
+                  (d) => dateToIsoDay(d) === pickupDate
+                );
+                if (!fechaSel) return "Escoge fecha y hora";
+                const fechaTxt = fechaSel.toLocaleDateString("es-MX", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                });
+                return (
+                  <span className="capitalize">
+                    {fechaTxt} · {formatPickupTimeLabel(pickupTime)}
+                  </span>
+                );
+              })()}
+              defaultOpen={false}
+            >
               <div className="text-[11px] text-canela mb-2">
                 Lo más pronto:{" "}
                 <b className="text-cafe capitalize">
@@ -609,93 +641,109 @@ export default function Carrito() {
                   .
                 </div>
               </div>
-            </div>
+            </CollapsibleSection>
 
-            {/* Notas */}
-            <textarea
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              placeholder="📝 Notas (sin nuez, alergias, hora preferida, etc.)"
-              rows={2}
-              className="w-full bg-white border border-caramelo/50 rounded-xl px-3 py-2 text-xs text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition resize-none"
-            />
-
-            {/* El selector "¿Quién te atiende?" se removió: el cliente ya no
-                ve nombres del staff. El pedido entra al panel de cocina y lo
-                toma quien esté de turno. Internamente seguimos guardando
-                contact_person="fabiola" por default (campo histórico). */}
-
-            {/* Pago */}
-            <div className="text-[11px] font-bold text-canela uppercase tracking-wider mt-1">
-              ¿Cómo pagas?
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setPago("efectivo")}
-                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
-                  pago === "efectivo"
-                    ? "bg-[#5B7A3A] text-white shadow-md"
-                    : "bg-white text-[#5B7A3A] border-2 border-[#5B7A3A]/50 opacity-70"
-                }`}
-              >
-                <IconCash size={18} />
-                Efectivo
-              </button>
-              <button
-                onClick={() => setPago("transferencia")}
-                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
-                  pago === "transferencia"
-                    ? "bg-[#004481] text-white shadow-md"
-                    : "bg-white text-[#004481] border-2 border-[#004481]/50 opacity-70"
-                }`}
-              >
-                <IconBuildingBank size={18} />
-                Transferencia
-              </button>
-            </div>
-
-            {/* Tarjeta BBVA cuando es transferencia */}
-            {pago === "transferencia" && (
-              <div className="bg-white rounded-xl p-3 border border-[#004481]/30 fade-up">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-[#004481] text-white text-[11px] font-bold px-1.5 py-0.5 rounded">
-                    BBVA
-                  </span>
-                  <span
-                    className="text-xs font-bold text-cafe"
-                    style={{ fontFamily: "Termina" }}
-                  >
-                    {BENEFICIARIO}
-                  </span>
-                </div>
-                <div className="text-[11px] text-canela mb-1.5">
-                  Número de tarjeta
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-crema rounded-lg px-3 py-2 text-sm font-bold text-cafe tracking-wider">
-                    {CUENTA_BBVA}
-                  </div>
-                  <button
-                    onClick={copiarCuenta}
-                    className="bg-[#004481] text-white px-3 py-2 rounded-lg text-[11px] font-bold flex items-center gap-1 active:scale-95 transition"
-                  >
-                    {copiado ? (
-                      <>
-                        <IconCheck size={14} /> ¡Copié!
-                      </>
-                    ) : (
-                      <>
-                        <IconCopy size={14} /> Copiar
-                      </>
-                    )}
-                  </button>
-                </div>
-                <div className="text-[11px] text-canela mt-2 leading-relaxed">
-                  Manda el comprobante por WhatsApp para confirmar tu antojo
-                  🤎
-                </div>
+            {/* Pago — método + datos BBVA colapsados */}
+            <CollapsibleSection
+              icon={<IconCreditCard size={18} />}
+              title="¿Cómo pagas?"
+              summary={
+                pago === "transferencia"
+                  ? "Transferencia BBVA"
+                  : "Efectivo al recibir"
+              }
+              defaultOpen={false}
+            >
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setPago("efectivo")}
+                  className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
+                    pago === "efectivo"
+                      ? "bg-[#5B7A3A] text-white shadow-md"
+                      : "bg-white text-[#5B7A3A] border-2 border-[#5B7A3A]/50 opacity-70"
+                  }`}
+                >
+                  <IconCash size={18} />
+                  Efectivo
+                </button>
+                <button
+                  onClick={() => setPago("transferencia")}
+                  className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
+                    pago === "transferencia"
+                      ? "bg-[#004481] text-white shadow-md"
+                      : "bg-white text-[#004481] border-2 border-[#004481]/50 opacity-70"
+                  }`}
+                >
+                  <IconBuildingBank size={18} />
+                  Transferencia
+                </button>
               </div>
-            )}
+
+              {/* Datos BBVA dentro de la misma sección cuando transferencia */}
+              {pago === "transferencia" && (
+                <div className="bg-crema-soft rounded-xl p-3 border border-[#004481]/30 fade-up mt-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-[#004481] text-white text-[11px] font-bold px-1.5 py-0.5 rounded">
+                      BBVA
+                    </span>
+                    <span
+                      className="text-xs font-bold text-cafe"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {BENEFICIARIO}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-canela mb-1.5">
+                    Número de tarjeta
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-white rounded-lg px-3 py-2 text-sm font-bold text-cafe tracking-wider">
+                      {CUENTA_BBVA}
+                    </div>
+                    <button
+                      onClick={copiarCuenta}
+                      className="bg-[#004481] text-white px-3 py-2 rounded-lg text-[11px] font-bold flex items-center gap-1 active:scale-95 transition"
+                    >
+                      {copiado ? (
+                        <>
+                          <IconCheck size={14} /> ¡Copié!
+                        </>
+                      ) : (
+                        <>
+                          <IconCopy size={14} /> Copiar
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="text-[11px] text-canela mt-2 leading-relaxed">
+                    Manda el comprobante por WhatsApp para confirmar tu antojo
+                    🤎
+                  </div>
+                </div>
+              )}
+            </CollapsibleSection>
+
+            {/* Notas — colapsadas por default. La mayoría no las usa. */}
+            <CollapsibleSection
+              icon={<IconNotes size={18} />}
+              title="Notas (opcional)"
+              summary={
+                notas.trim()
+                  ? notas.length > 40
+                    ? notas.slice(0, 40) + "…"
+                    : notas
+                  : "Sin nota"
+              }
+              defaultOpen={false}
+            >
+              <textarea
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+                placeholder="Sin nuez, alergias, instrucciones especiales…"
+                rows={3}
+                className="w-full bg-crema-soft border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition resize-none"
+              />
+            </CollapsibleSection>
 
             {/* Welcome courtesy banner (automática, sin código) */}
             {aplicaWelcome && (
@@ -725,50 +773,14 @@ export default function Carrito() {
               </div>
             )}
 
-            {/* Total */}
-            <div className="bg-cafe text-crema rounded-xl px-4 py-3 mt-2">
-              {(aplicaCumple || aplicaWelcome) && (
-                <>
-                  <div className="flex items-center justify-between text-xs opacity-80">
-                    <span>Subtotal</span>
-                    <span>${total.toFixed(0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-[#FFD2A8]">
-                    <span>
-                      {aplicaCumple
-                        ? "🎂 Rol de cumpleaños"
-                        : "🎁 Rol de bienvenida"}
-                    </span>
-                    <span>
-                      −$
-                      {(aplicaCumple
-                        ? descuentoCumple
-                        : descuentoWelcome
-                      ).toFixed(0)}
-                    </span>
-                  </div>
-                  <div className="border-t border-crema/20 my-1.5" />
-                </>
-              )}
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Total</span>
-                <span
-                  className="text-2xl"
-                  style={{ fontFamily: "ReginaBlack" }}
-                >
-                  $
-                  {Math.max(
-                    0,
-                    total -
-                      (aplicaCumple
-                        ? descuentoCumple
-                        : aplicaWelcome
-                          ? descuentoWelcome
-                          : 0)
-                  ).toFixed(0)}
-                </span>
-              </div>
-            </div>
+            {/* Link discreto a pedido especial — solo si quieren algo fuera
+                de lo normal */}
+            <Link
+              href="/pedido-especial"
+              className="text-[11px] text-canela text-center italic underline mt-1"
+            >
+              ¿Pedido especial? Hablemos por WhatsApp ✨
+            </Link>
 
             {/* Consulta de envío — solo si el carrito es generoso */}
             <EnvioPrompt
@@ -788,40 +800,58 @@ export default function Carrito() {
               fabiolaWa={settings?.contact_fabiola_wa}
               umbral={400}
             />
-
-            {/* Botón confirmar pedido (bloqueado si la fecha no acepta el carrito) */}
-            {(() => {
-              const occ = occupancyMap.get(pickupDate);
-              const check = occ
-                ? canDateAcceptCart(occ, cartCounts)
-                : { ok: true, blockingCategories: [] };
-              const bloqueado = !check.ok;
-              const sinCliente = !clienteValido;
-              return (
-                <button
-                  onClick={confirmarPedido}
-                  disabled={enviando || bloqueado || sinCliente}
-                  className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-50"
-                  style={{ letterSpacing: "0.2px" }}
-                >
-                  <IconCircleCheck size={18} />
-                  {sinCliente
-                    ? "Cuéntanos quién eres ↑"
-                    : bloqueado
-                      ? "Día lleno · cambia la fecha"
-                      : enviando
-                        ? "Anotando tu antojo..."
-                        : "Confirmar pedido"}
-                </button>
-              );
-            })()}
-            <p className="text-[11px] text-canela text-center -mt-1">
-              Te confirmamos por WhatsApp cuando esté en el horno 🔥
-            </p>
           </>
         )}
       </div>
-      <BottomNav />
+
+      {/* Sticky bottom: total + descuento inline + botón confirmar.
+          Solo cuando hay items en el carrito. */}
+      {items.length > 0 &&
+        (() => {
+          const occ = occupancyMap.get(pickupDate);
+          const check = occ
+            ? canDateAcceptCart(occ, cartCounts)
+            : { ok: true, blockingCategories: [] };
+          const bloqueado = !check.ok;
+          const sinCliente = !clienteValido;
+          const descuentoLabel = aplicaCumple
+            ? "🎂 Rol de cumpleaños"
+            : aplicaWelcome
+              ? "🎁 Rol de bienvenida"
+              : null;
+          const descuentoMonto = aplicaCumple
+            ? descuentoCumple
+            : aplicaWelcome
+              ? descuentoWelcome
+              : 0;
+          const totalFinal = Math.max(0, total - descuentoMonto);
+          const ctaLabel = sinCliente
+            ? "Cuéntanos quién eres ↑"
+            : bloqueado
+              ? "Día lleno · cambia la fecha"
+              : enviando
+                ? "Anotando tu antojo…"
+                : "Confirmar pedido";
+          return (
+            <StickyCheckoutBar
+              subtotal={total}
+              descuento={
+                descuentoLabel
+                  ? { label: descuentoLabel, monto: descuentoMonto }
+                  : null
+              }
+              total={totalFinal}
+              ctaLabel={ctaLabel}
+              disabled={bloqueado || sinCliente}
+              loading={enviando}
+              onConfirm={confirmarPedido}
+            />
+          );
+        })()}
+
+      {/* BottomNav solo cuando el carrito está vacío (el sticky checkout
+          reemplaza la nav cuando hay items para no apilar 2 barras). */}
+      {items.length === 0 && <BottomNav />}
     </div>
   );
 }

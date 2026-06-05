@@ -103,8 +103,8 @@ export default function CancelOrderModal({
 
         <div className="text-center">
           <Image
-            src="/mascota/miga-sentada.png"
-            alt="Miga"
+            src="/mascota/condundida.png"
+            alt="Miga confundida"
             width={110}
             height={110}
             className="mx-auto"

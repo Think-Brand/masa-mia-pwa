@@ -181,7 +181,7 @@ export default function Landing() {
           className="cursor-pointer select-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <Miga pose="chef" animation="breath" size={180} priority />
+          <Miga emocion="orgullosa" animation="breath" size={180} priority />
         </div>
 
         <h1

@@ -92,7 +92,7 @@ export default function NotificacionesPage() {
           </div>
         ) : notifs.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center gap-4 py-12">
-            <Miga pose="sentada" animation="sway" size={140} />
+            <Miga emocion="dormida" animation="sway" size={140} />
             <p className="text-canela text-sm leading-relaxed max-w-xs">
               Sin notificaciones todavía.
               <br />

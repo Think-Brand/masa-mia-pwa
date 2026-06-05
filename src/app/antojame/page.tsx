@@ -259,7 +259,7 @@ export default function Antojame() {
         {/* INTRO */}
         {step === "intro" && (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 fade-up">
-            <Miga pose="chef" animation="breath" size={160} priority />
+            <Miga emocion="idea" animation="breath" size={160} priority />
             <h2
               className="text-3xl text-cafe leading-none"
               style={{ fontFamily: "ReginaBlack" }}
@@ -414,7 +414,7 @@ export default function Antojame() {
         {/* RESULTADO */}
         {step === "resultado" && (
           <div className="fade-up flex flex-col items-center text-center gap-3">
-            <Miga pose="lista" animation="jump" size={120} priority />
+            <Miga emocion="celebrando" animation="jump" size={120} priority />
             <div
               className="text-xl text-cafe leading-tight max-w-xs"
               style={{ fontFamily: "ReginaBlack" }}

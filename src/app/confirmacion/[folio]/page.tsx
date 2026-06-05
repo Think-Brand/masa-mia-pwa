@@ -110,7 +110,7 @@ function Confirmacion() {
   if (!order) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <Miga pose="cintura" animation="wiggle" size={140} />
+        <Miga emocion="confundida" animation="wiggle" size={140} />
         <p className="text-canela text-sm">
           No encontramos ese pedido. <br />
           <span className="text-caramelo">A lo mejor Miga se distrajo.</span>
@@ -127,7 +127,7 @@ function Confirmacion() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-6 py-8 max-w-md mx-auto text-center">
-      <Miga pose="lista" animation="jump" size={150} priority />
+      <Miga emocion="agradecida" animation="jump" size={150} seed={order.folio} priority />
 
       <h1
         className="text-3xl text-cafe mt-4 leading-none"

@@ -213,8 +213,8 @@ export function DeclineButton({
             {/* Encabezado con Miga */}
             <div className="px-5 pt-2 text-center">
               <Image
-                src="/mascota/miga-malabares.png"
-                alt="Miga malabares"
+                src="/mascota/atareada.png"
+                alt="Miga atareada"
                 width={120}
                 height={120}
                 className="mx-auto"

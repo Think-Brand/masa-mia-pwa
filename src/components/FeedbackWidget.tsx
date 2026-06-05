@@ -127,8 +127,8 @@ export default function FeedbackPopup({ folio, page }: Props) {
 
             <div className="text-center">
               <Image
-                src="/mascota/miga-tierna.png"
-                alt="Miga tierna"
+                src="/mascota/agradecida.png"
+                alt="Miga agradecida"
                 width={120}
                 height={120}
                 className="mx-auto"

@@ -224,7 +224,7 @@ function Recuperar() {
   if (!order) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4 max-w-md mx-auto">
-        <Miga pose="sentada" animation="sway" size={130} />
+        <Miga emocion="agradecida" animation="jump" size={130} />
         <p className="text-canela text-sm">
           No encontramos ese pedido. <br />
           <span className="text-caramelo">A lo mejor Miga se distrajo.</span>
@@ -261,7 +261,7 @@ function Recuperar() {
   if (done) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center max-w-md mx-auto">
-        <Miga pose="lista" animation="jump" size={150} priority />
+        <Miga emocion="celebrando" animation="jump" size={150} priority />
         <h1
           className="text-3xl text-cafe leading-none mt-4"
           style={{ fontFamily: "ReginaBlack" }}
@@ -300,7 +300,7 @@ function Recuperar() {
       <div className="flex-1 px-4 pt-4 flex flex-col gap-3">
         {/* Header con Miga */}
         <div className="text-center">
-          <Miga pose="senalar" animation="bounce" size={110} />
+          <Miga emocion="idea" animation="bounce" size={110} />
           <p className="text-xs text-canela mt-2 italic">
             Cambia la fecha y tu antojo vuelve a vida
           </p>
