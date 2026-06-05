@@ -290,29 +290,30 @@ export default function Yo() {
       <div className="flex-1 px-4 pt-5 flex flex-col gap-3">
         {/* Bloque avatar + identidad */}
         <div className="flex flex-col items-center text-center gap-2">
-          <button
-            onClick={() => setPickerOpen(true)}
-            aria-label="Cambiar avatar"
-            className="relative active:scale-95 transition flex flex-col items-center"
-          >
-            {/* Avatar completo, sin crop circular. Imagen sale "de pie"
-                sobre el botón redondo de abajo, dando sensación de avatar
-                "saliendo" hacia arriba. */}
-            <div className="w-44 h-44 sm:w-52 sm:h-52 relative">
+          {/* Avatar circular grande con botón "+" flotante abajo a la
+              derecha. Usamos un div contenedor (no button) para que el
+              círculo no genere stacking context raro con scroll. El tap
+              se delega solo al botón + interno. */}
+          <div className="relative w-44 h-44 sm:w-52 sm:h-52">
+            <div className="w-full h-full rounded-full overflow-hidden bg-crema-soft shadow-md ring-2 ring-white">
               <Image
                 src={getAvatarSrc(currentAvatar)}
                 alt="Tu avatar"
-                fill
-                sizes="208px"
-                className="object-contain drop-shadow-lg"
+                width={256}
+                height={256}
+                className="w-full h-full object-cover"
                 priority
                 unoptimized={currentAvatar?.startsWith("data:")}
               />
             </div>
-            <span className="-mt-2 bg-antojo text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-md whitespace-nowrap">
-              cambiar avatar
-            </span>
-          </button>
+            <button
+              onClick={() => setPickerOpen(true)}
+              aria-label="Cambiar avatar"
+              className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-antojo text-white flex items-center justify-center shadow-lg ring-2 ring-white active:scale-90 transition"
+            >
+              <IconPlus size={18} stroke={3} />
+            </button>
+          </div>
 
           <div className="mt-2">
             <div

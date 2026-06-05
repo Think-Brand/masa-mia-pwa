@@ -17,8 +17,8 @@ export default function HeaderCliente() {
           <NotificationBell />
         </div>
 
-        {/* Logo masa mía sin tagline — más grande en mobile para
-            ayudar al posicionamiento de marca nueva. */}
+        {/* Logo masa mía sin tagline. Tamaño tuneado para posicionamiento
+            de marca sin invadir el header. */}
         <Link href="/catalogo" className="flex items-center">
           <Image
             src="/logos/logo-main.png"
@@ -26,7 +26,7 @@ export default function HeaderCliente() {
             width={480}
             height={144}
             priority
-            style={{ height: 92, width: "auto" }}
+            style={{ height: 64, width: "auto" }}
           />
         </Link>
 
