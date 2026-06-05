@@ -127,7 +127,7 @@ function Confirmacion() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-6 py-8 max-w-md mx-auto text-center">
-      <Miga emocion="agradecida" animation="jump" size={150} seed={order.folio} priority />
+      <Miga emocion="agradecida" animation="jump" size={190} seed={order.folio} priority />
 
       <h1
         className="text-3xl text-cafe mt-4 leading-none"

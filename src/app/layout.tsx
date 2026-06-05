@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { CarritoProvider } from "@/components/CarritoProvider";
 import { ToastProvider } from "@/components/Toast";
 import Splash from "@/components/Splash";
+import OrientationZoomReset from "@/components/OrientationZoomReset";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,10 +30,13 @@ export const viewport: Viewport = {
   themeColor: "#3A271D",
   width: "device-width",
   initialScale: 1,
-  // Sin maximumScale ni userScalable: false — permitir zoom es requisito
-  // de accesibilidad (WCAG 1.4.4) y evita bounce de usuarios con dificultad
-  // visual.
+  // Sin userScalable: false — permitir zoom es requisito de accesibilidad
+  // (WCAG 1.4.4). maximumScale: 5 permite que el usuario haga zoom pero
+  // limita el "zoom involuntario" típico de iOS al rotar la pantalla.
   maximumScale: 5,
+  // viewportFit cover respeta safe-areas en iPhones con notch y mejora
+  // el comportamiento del recálculo al rotar (iOS bug histórico).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -47,6 +51,7 @@ export default function RootLayout({
           <ToastProvider>{children}</ToastProvider>
         </CarritoProvider>
         <Splash />
+        <OrientationZoomReset />
       </body>
     </html>
   );

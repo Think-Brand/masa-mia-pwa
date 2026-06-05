@@ -224,7 +224,7 @@ function Recuperar() {
   if (!order) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4 max-w-md mx-auto">
-        <Miga emocion="agradecida" animation="jump" size={130} />
+        <Miga emocion="agradecida" animation="jump" size={180} />
         <p className="text-canela text-sm">
           No encontramos ese pedido. <br />
           <span className="text-caramelo">A lo mejor Miga se distrajo.</span>

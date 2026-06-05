@@ -319,7 +319,7 @@ export default function Carrito() {
       <div className="flex-1 px-4 flex flex-col gap-3">
         {items.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-6 gap-4">
-            <Miga emocion="confundida" animation="sway" size={130} />
+            <Miga emocion="confundida" animation="sway" size={200} />
             <p className="text-canela text-sm leading-relaxed">
               Tu antojo está sin nada todavía.
               <br />

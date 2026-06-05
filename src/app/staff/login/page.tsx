@@ -58,30 +58,29 @@ export default function StaffLogin() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-6 pt-6 pb-10 max-w-md mx-auto bg-cafe">
-      {/* Logo de marca — coherencia con landing del cliente */}
-      <div className="w-full flex justify-center">
+      {/* Logo de marca — el doble del tamaño anterior. Miga chef se monta
+          encima a propósito; refuerza la unidad visual y se ve bien. */}
+      <div className="relative w-full flex flex-col items-center">
         <Image
           src="/logos/logo-02.png"
           alt="Masa Mía"
-          width={72}
-          height={72}
+          width={320}
+          height={320}
           priority
           style={{
-            width: 72,
+            width: 200,
             height: "auto",
             display: "block",
           }}
         />
-      </div>
-
-      <div className="w-full flex flex-col items-center gap-3 mt-2">
         <Image
           src="/mascota/miga-chef.png"
           alt="Miga Chef"
-          width={210}
-          height={210}
+          width={260}
+          height={260}
           priority
-          className="anim-breath"
+          className="anim-breath -mt-12"
+          style={{ width: 220, height: "auto" }}
         />
         <h1
           className="text-3xl text-crema text-center leading-none mt-1"

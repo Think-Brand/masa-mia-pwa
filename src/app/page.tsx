@@ -18,19 +18,22 @@ import Miga from "@/components/Miga";
  * Una se selecciona al azar en cada montaje. Mantiene la marca fresca y
  * evita que la home se sienta clichada.
  */
-const FRASES = [
-  "Pide primero. Haz dieta después. ¿O era al revés?",
-  "El que te mandó aquí, sí te quiere.",
-  "Hola. Sí, también sentimos ese vacío. Se llama falta de rol.",
-  "Llegaste al lugar correcto. Tu fuerza de voluntad no.",
-  "Bienvenido. Tenemos roles pequeños para problemas grandes. Emocionalmente sí.",
-  "Un rol no cambia tu vida. Pero prueba con 4: podría funcionar.",
-  "Bienvenido al club de “solo iba a ver”.",
-  "Haz tu pedido. Yo distraigo a la culpa.",
-  "Pide ahora. Luego vemos cómo justificamos esto.",
-  "Dale. Nadie llegó hasta aquí para pedir ensalada.",
-  "Tu antojo y yo hablamos. Quiere verte.",
-  "Hoy se antoja algo. Y ese algo no es responsabilidad fiscal.",
+// Cada frase viene con la emoción de Miga que matchea con su tono.
+// Esto asegura congruencia: nunca verás un "lo sentimos" con Miga riéndose.
+import type { MigaEmocion } from "@/lib/migaEmotions";
+const FRASES: Array<{ texto: string; emocion: MigaEmocion }> = [
+  { texto: "Pide primero. Haz dieta después. ¿O era al revés?", emocion: "idea" },
+  { texto: "El que te mandó aquí, sí te quiere.", emocion: "agradecida" },
+  { texto: "Hola. Sí, también sentimos ese vacío. Se llama falta de rol.", emocion: "dramatica" },
+  { texto: "Llegaste al lugar correcto. Tu fuerza de voluntad no.", emocion: "culpable" },
+  { texto: "Bienvenido. Tenemos roles pequeños para problemas grandes. Emocionalmente sí.", emocion: "feliz" },
+  { texto: "Un rol no cambia tu vida. Pero prueba con 4: podría funcionar.", emocion: "idea" },
+  { texto: "Bienvenido al club de “solo iba a ver”.", emocion: "sorprendida" },
+  { texto: "Haz tu pedido. Yo distraigo a la culpa.", emocion: "culpable" },
+  { texto: "Pide ahora. Luego vemos cómo justificamos esto.", emocion: "idea" },
+  { texto: "Dale. Nadie llegó hasta aquí para pedir ensalada.", emocion: "dramatica" },
+  { texto: "Tu antojo y yo hablamos. Quiere verte.", emocion: "antojada" },
+  { texto: "Hoy se antoja algo. Y ese algo no es responsabilidad fiscal.", emocion: "dramatica" },
 ];
 
 /**
@@ -62,11 +65,13 @@ export default function Landing() {
   const [lookupError, setLookupError] = useState<string | null>(null);
   const lookupTimer = useRef<number | null>(null);
 
-  // Frase aleatoria al montar — protagonista del hero
-  const fraseProtagonista = useMemo(
+  // Frase + emoción Miga aleatorias al montar — protagonistas del hero.
+  // Miga es congruente con el tono de la frase (drama, idea, culpable, etc).
+  const fraseHero = useMemo(
     () => FRASES[Math.floor(Math.random() * FRASES.length)],
     []
   );
+  const fraseProtagonista = fraseHero.texto;
 
   // Si ya hay cliente válido, salto al catálogo
   useEffect(() => {
@@ -159,19 +164,22 @@ export default function Landing() {
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-between px-6 pt-5 pb-10 max-w-md mx-auto">
-      {/* Logo arriba — el CTA "Ya soy fan" vive abajo, junto a "Ver el menú" */}
-      <div className="w-full flex items-center justify-center">
+      {/* Logo arriba — el doble del tamaño anterior. La marca pesa más
+          que el "Ya soy fan" en pantalla de bienvenida. */}
+      <div className="w-full flex items-center justify-center -mb-4">
         <Image
           src="/logos/logo-02.png"
           alt="Masa Mía"
-          width={110}
-          height={110}
+          width={240}
+          height={240}
           priority
-          style={{ width: 110, height: "auto", display: "block" }}
+          style={{ width: 220, height: "auto", display: "block" }}
         />
       </div>
 
-      {/* Hero: frase protagonista + Miga acompañando */}
+      {/* Hero: frase protagonista + Miga con la emoción que matchea la frase.
+          Se permite que Miga "se monte" sobre el logo si el viewport es corto;
+          mejor sensación de continuidad de marca. */}
       <div className="flex-1 flex flex-col items-center justify-center text-center pt-2">
         <div
           onClick={tapMiga}
@@ -181,7 +189,12 @@ export default function Landing() {
           className="cursor-pointer select-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <Miga emocion="orgullosa" animation="breath" size={180} priority />
+          <Miga
+            emocion={fraseHero.emocion}
+            animation="breath"
+            size={210}
+            priority
+          />
         </div>
 
         <h1

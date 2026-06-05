@@ -162,7 +162,7 @@ export default function MisPedidos() {
 
         {!loading && orders.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center gap-4 py-6">
-            <Miga emocion="dormida" animation="sway" size={130} />
+            <Miga emocion="dormida" animation="sway" size={200} />
             <p className="text-canela text-sm leading-relaxed">
               Aún no tienes pedidos.
               <br />

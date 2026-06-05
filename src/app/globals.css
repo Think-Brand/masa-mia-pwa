@@ -327,7 +327,11 @@ body {
   overflow: hidden;
 }
 
-/* La huella: pseudo-elemento con radial-gradient anclado al pointer */
+/* La huella: dos capas — radial-gradient localizado (oscuro al centro
+ * del tap, transición corta para sentirse PUNTUAL no degradado plano)
+ * + un highlight invertido que aparece en el borde opuesto para simular
+ * que la presión empuja la luz hacia afuera (mix-blend-mode hace que
+ * se sienta como deformación de la masa, no como pintura encima). */
 .btn-masa::before {
   content: "";
   position: absolute;
@@ -335,21 +339,49 @@ body {
   pointer-events: none;
   border-radius: inherit;
   background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
+    circle 90px at var(--mx, 50%) var(--my, 50%),
     rgba(60, 15, 2, 0) 0%,
     rgba(60, 15, 2, 0) 100%
   );
-  transition: background 220ms ease-out;
+  mix-blend-mode: multiply;
+  transition: background 220ms ease-out, opacity 220ms ease-out;
+  opacity: 0;
+  z-index: 1;
+}
+.btn-masa::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 60px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 220, 180, 0) 0%,
+    rgba(255, 220, 180, 0) 100%
+  );
+  mix-blend-mode: screen;
+  transition: opacity 220ms ease-out;
+  opacity: 0;
   z-index: 1;
 }
 .btn-masa.is-pressed::before {
   background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
-    rgba(60, 15, 2, 0.45) 0%,
-    rgba(60, 15, 2, 0.25) 28%,
-    rgba(60, 15, 2, 0) 60%
+    circle 90px at var(--mx, 50%) var(--my, 50%),
+    rgba(60, 15, 2, 0.7) 0%,
+    rgba(60, 15, 2, 0.35) 22%,
+    rgba(60, 15, 2, 0) 45%
   );
-  transition: background 90ms ease-out;
+  opacity: 1;
+  transition: background 80ms ease-out, opacity 80ms ease-out;
+}
+.btn-masa.is-pressed::after {
+  background: radial-gradient(
+    circle 60px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 220, 180, 0) 60%,
+    rgba(255, 220, 180, 0.32) 100%
+  );
+  opacity: 1;
+  transition: opacity 100ms ease-out;
 }
 .btn-masa > * {
   position: relative;
@@ -403,13 +435,14 @@ body {
   transition: transform 100ms ease-out, box-shadow 100ms ease;
 }
 
-/* + agregar · circular 48px */
+/* + agregar · circular 40px (era 48px, 20% más chico, mantiene tap
+ * target razonable para mobile sin invadir el card del producto) */
 .btn-masa-plus {
   color: white;
   background: linear-gradient(180deg, #FF8244 0%, #F25C20 100%);
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -418,13 +451,13 @@ body {
   box-shadow:
     inset 0 2px 0 rgba(255, 220, 180, 0.5),
     inset 0 -2px 0 rgba(110, 30, 5, 0.22),
-    0 10px 24px rgba(110, 30, 5, 0.25),
-    0 2px 6px rgba(110, 30, 5, 0.12);
+    0 8px 18px rgba(110, 30, 5, 0.22),
+    0 2px 5px rgba(110, 30, 5, 0.1);
 }
 .btn-masa-plus.is-pressed {
   transform: scale(0.88);
   background: linear-gradient(180deg, #E04A18, #C84015);
-  box-shadow: 0 2px 6px rgba(110, 30, 5, 0.18);
+  box-shadow: 0 2px 5px rgba(110, 30, 5, 0.16);
 }
 
 /* −/+ mini · 32px */

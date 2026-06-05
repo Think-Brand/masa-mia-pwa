@@ -172,20 +172,10 @@ export default function Antojame() {
   );
 
   useEffect(() => {
-    // Esperar a que CarritoProvider termine de leer localStorage
-    // (evita redirect falso al primer render).
-    if (!ready) return;
-    // Detección de cliente fantasma (logout legacy con name vacío).
-    const valido =
-      !!cliente &&
-      !!cliente.id &&
-      !!cliente.name?.trim() &&
-      !!cliente.whatsapp &&
-      cliente.whatsapp.length === 10;
-    if (!valido) {
-      router.replace("/");
-      return;
-    }
+    // Antójame es PÚBLICO — no requiere cliente logueado. Solo cuando el
+    // cliente decide agregar al carrito se pide registro (Modelo B). Antes
+    // redirigíamos a "/" si no había cliente válido, lo que rompía el flow
+    // de un usuario nuevo que toca el banner "¡Antójame!" en la home.
     const supabase = createClient();
     supabase
       .from("products")
@@ -197,7 +187,7 @@ export default function Antojame() {
         setProducts(data ?? []);
         setLoading(false);
       });
-  }, [cliente, router, ready]);
+  }, []);
 
   const resultado =
     step === "resultado" && occasion && flavor && attitude
@@ -219,7 +209,8 @@ export default function Antojame() {
     setTimeout(() => router.push("/carrito"), 700);
   };
 
-  if (!cliente) return null;
+  // Antójame es PÚBLICO — renderiza sin requerir cliente. El registro se
+  // pide cuando intentan agregar al carrito (en la propia página /carrito).
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
