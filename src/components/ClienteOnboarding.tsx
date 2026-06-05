@@ -22,7 +22,7 @@ const CLIENTE_STEPS: TourStep[] = [
   {
     image: "miga-lista.png",
     title: "Confirma y te avisamos",
-    body: "Mandas tu pedido por WhatsApp. Fabi o Alex te confirman cuando entre al horno.\n\nPasas por tu antojo y… ¡buen provecho!",
+    body: "Confirmas tu pedido y nuestros cocineros lo reciben al instante.\n\nTe avisamos por WhatsApp en cuanto esté recién horneado y listo para recoger 🥐",
   },
 ];
 

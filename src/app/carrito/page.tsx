@@ -97,7 +97,9 @@ export default function Carrito() {
   const minDate = getMinPickupDate(maxPrepDays);
   const fechaList = listAvailableDates(minDate, 14);
   const [pickupDate, setPickupDate] = useState<string>(dateToIsoDay(minDate));
-  const [contactPerson, setContactPerson] = useState<"alex" | "fabiola">("fabiola");
+  // contact_person ya no lo elige el cliente; se queda como default
+  // para mantener compatibilidad con el flujo histórico del staff.
+  const contactPerson: "alex" | "fabiola" = "fabiola";
   const [settings, setSettings] = useState<Settings | null>(null);
   const [occupancyMap, setOccupancyMap] = useState<Map<string, DayOccupancy>>(
     new Map()
@@ -455,6 +457,17 @@ export default function Carrito() {
                   {formatDeliveryDate(minDate)}
                 </b>
               </div>
+              {settings?.vacation_active === "on" && (
+                <div className="bg-antojo/10 border border-antojo/30 rounded-lg px-2.5 py-1.5 mb-2 text-[11px] text-cafe leading-snug">
+                  <b>🥐 {settings.vacation_message}</b>
+                  <div className="text-canela mt-0.5">
+                    Las fechas del{" "}
+                    <b className="text-cafe">{settings.vacation_from}</b> al{" "}
+                    <b className="text-cafe">{settings.vacation_to}</b> no
+                    están disponibles.
+                  </div>
+                </div>
+              )}
               <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
                 {fechaList.map((d) => {
                   const iso = dateToIsoDay(d);
@@ -463,7 +476,14 @@ export default function Carrito() {
                   const check = occ
                     ? canDateAcceptCart(occ, cartCounts)
                     : { ok: true, blockingCategories: [] };
-                  const blocked = !check.ok;
+                  // Bloqueo por modo vacaciones (settings)
+                  const enVacaciones =
+                    settings?.vacation_active === "on" &&
+                    settings.vacation_from &&
+                    settings.vacation_to &&
+                    iso >= settings.vacation_from &&
+                    iso <= settings.vacation_to;
+                  const blocked = !check.ok || !!enVacaciones;
                   const tight =
                     occ &&
                     !blocked &&
@@ -475,11 +495,14 @@ export default function Carrito() {
                       onClick={() => !blocked && setPickupDate(iso)}
                       disabled={blocked}
                       title={
-                        blocked
-                          ? `Fecha llena para: ${check.blockingCategories.join(", ")}`
-                          : tight
-                            ? "Pocos cupos"
-                            : undefined
+                        enVacaciones
+                          ? settings?.vacation_message ||
+                            "Estamos en vacaciones"
+                          : blocked
+                            ? `Fecha llena para: ${check.blockingCategories.join(", ")}`
+                            : tight
+                              ? "Pocos cupos"
+                              : undefined
                       }
                       className={`relative flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition ${
                         blocked
@@ -546,37 +569,10 @@ export default function Carrito() {
               className="w-full bg-white border border-caramelo/50 rounded-xl px-3 py-2 text-xs text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition resize-none"
             />
 
-            {/* Punto de contacto */}
-            <div className="text-[11px] font-bold text-canela uppercase tracking-wider mt-1">
-              ¿Quién te atiende?
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setContactPerson("fabiola")}
-                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
-                  contactPerson === "fabiola"
-                    ? "bg-cafe text-crema shadow-md"
-                    : "bg-white text-cafe border-2 border-canela/30 opacity-70"
-                }`}
-              >
-                <span className="text-base">👩‍🍳</span>
-                Fabiola
-              </button>
-              <button
-                onClick={() => setContactPerson("alex")}
-                className={`p-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition ${
-                  contactPerson === "alex"
-                    ? "bg-cafe text-crema shadow-md"
-                    : "bg-white text-cafe border-2 border-canela/30 opacity-70"
-                }`}
-              >
-                <span className="text-base">👨‍🍳</span>
-                Alex
-              </button>
-            </div>
-            <p className="text-[11px] text-canela italic -mt-1">
-              Tu pedido lo recibe quien tú elijas.
-            </p>
+            {/* El selector "¿Quién te atiende?" se removió: el cliente ya no
+                ve nombres del staff. El pedido entra al panel de cocina y lo
+                toma quien esté de turno. Internamente seguimos guardando
+                contact_person="fabiola" por default (campo histórico). */}
 
             {/* Pago */}
             <div className="text-[11px] font-bold text-canela uppercase tracking-wider mt-1">

@@ -237,7 +237,8 @@ export default function CumpleModal({ open, onClose }: Props) {
             </div>
 
             <p className="text-[11px] text-canela text-center mt-3 max-w-xs mx-auto leading-relaxed">
-              Solo Fabi y Alex pueden verlo, y solo para mandarte el cariño.
+              Solo nuestros cocineros pueden verlo, y solo para mandarte el
+              cariño.
             </p>
           </>
         )}

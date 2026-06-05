@@ -180,10 +180,8 @@ export default function DeclineNotice() {
 
   const motivoFinal =
     pending.decline_message || pending.decline_reason || "No fue posible esta vez.";
-  const contactName =
-    pending.contact_person === "alex" ? "Alex" : "Faby";
   const waMessage = encodeURIComponent(
-    `Hola ${contactName}, soy ${cliente.name}. Vi que mi pedido ${pending.folio} no se pudo concretar. ¿Podemos verlo?`
+    `Hola, soy ${cliente.name}. Vi que mi pedido ${pending.folio} no se pudo concretar. ¿Podemos verlo?`
   );
 
   // WhatsApp: marca como visto + abre WhatsApp
@@ -222,7 +220,7 @@ export default function DeclineNotice() {
         {/* Motivo */}
         <div className="mt-4 bg-white/80 rounded-2xl p-4 border border-caramelo/30">
           <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
-            {contactName} te explica
+            Nuestros cocineros te explican
           </div>
           <p className="text-sm text-cafe mt-1 leading-relaxed">
             {motivoFinal}
@@ -245,7 +243,7 @@ export default function DeclineNotice() {
             className="w-full bg-[#25D366] text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow disabled:opacity-60"
           >
             <IconBrandWhatsapp size={18} />
-            Hablar con {contactName}
+            Hablar con Masa Mía
           </button>
           <button
             onClick={() => acknowledge(true)}

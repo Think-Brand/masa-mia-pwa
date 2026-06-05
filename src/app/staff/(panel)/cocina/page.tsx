@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 const ORDER_FIELDS = `id, folio, status, total, payment_method, contact_person,
        pickup_date, created_at, accepted_at, baking_started_at, ready_at,
-       delivered_at, notes, decline_reason, cancel_reason, cancelled_by,
+       delivered_at, customer_notified_at,
+       notes, decline_reason, cancel_reason, cancelled_by,
        is_courtesy, is_birthday_treat, is_welcome_courtesy,
        customer:customers(name, whatsapp)`;
 

@@ -19,6 +19,7 @@ import {
   IconChevronRight,
   IconX,
   IconHistory,
+  IconBrandWhatsapp,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 
@@ -38,6 +39,7 @@ type OrderRow = {
   baking_started_at: string | null;
   ready_at: string | null;
   delivered_at?: string | null;
+  customer_notified_at?: string | null;
   notes: string | null;
   decline_reason?: string | null;
   cancel_reason?: string | null;
@@ -317,6 +319,45 @@ export default function KitchenDisplay({
     router.refresh();
   };
 
+  /**
+   * Avisar al cliente que su pedido está listo:
+   *  1. Abre WhatsApp con mensaje pre-armado en tono Miga
+   *  2. Marca customer_notified_at para que la UI sepa que ya se avisó
+   *
+   * El número viene del cliente del pedido. Si no hay número, no hace nada.
+   */
+  const notifyCustomerReady = async (o: OrderRow) => {
+    if (!o.customer?.whatsapp) return;
+    setUpdating(o.id);
+
+    // Construye el número con código país MX si no lo tiene.
+    const raw = o.customer.whatsapp.replace(/\D/g, "");
+    const wa = raw.startsWith("52") ? raw : `52${raw}`;
+
+    const nombre = o.customer.name?.split(" ")[0] ?? "";
+    const saludo = nombre ? `¡Hola ${nombre}! ` : "";
+    const mensaje =
+      `${saludo}Tu pedido ${o.folio} ya está recién horneado y listo para ` +
+      `recoger 🥐\n\nPasa cuando puedas. ¡Buen provecho!\n— Masa Mía`;
+
+    // Abrimos WhatsApp ANTES del await para que el gesto del usuario
+    // todavía esté activo (iOS bloquea window.open en otros casos).
+    window.open(
+      `https://wa.me/${wa}?text=${encodeURIComponent(mensaje)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    // Después marcamos en DB.
+    const supabase = createClient();
+    await supabase
+      .from("orders")
+      .update({ customer_notified_at: new Date().toISOString() })
+      .eq("id", o.id);
+    setUpdating(null);
+    router.refresh();
+  };
+
   // Agrupar por columna
   const columns = useMemo(() => {
     return {
@@ -445,6 +486,7 @@ export default function KitchenDisplay({
             orders={columns.pedidos}
             updating={updating}
             advance={advance}
+            notifyCustomerReady={notifyCustomerReady}
             cardBg={cardBg}
             cardText={cardText}
             subText={subText}
@@ -458,6 +500,7 @@ export default function KitchenDisplay({
             orders={columns.horno}
             updating={updating}
             advance={advance}
+            notifyCustomerReady={notifyCustomerReady}
             cardBg={cardBg}
             cardText={cardText}
             subText={subText}
@@ -471,6 +514,7 @@ export default function KitchenDisplay({
             orders={columns.listos}
             updating={updating}
             advance={advance}
+            notifyCustomerReady={notifyCustomerReady}
             cardBg={cardBg}
             cardText={cardText}
             subText={subText}
@@ -761,6 +805,7 @@ function ColumnView({
   orders,
   updating,
   advance,
+  notifyCustomerReady,
   cardBg,
   cardText,
   subText,
@@ -774,6 +819,7 @@ function ColumnView({
   orders: OrderRow[];
   updating: string | null;
   advance: (id: string, next: "accepted" | "baking" | "ready" | "delivered") => void;
+  notifyCustomerReady: (o: OrderRow) => void;
   cardBg: string;
   cardText: string;
   subText: string;
@@ -830,6 +876,7 @@ function ColumnView({
               theme={theme}
               updating={updating === o.id}
               advance={advance}
+              notifyCustomerReady={notifyCustomerReady}
               cardBg={cardBg}
               cardText={cardText}
               subText={subText}
@@ -849,6 +896,7 @@ function Card({
   theme,
   updating,
   advance,
+  notifyCustomerReady,
   cardBg,
   cardText,
   subText,
@@ -857,6 +905,7 @@ function Card({
   theme: Theme;
   updating: boolean;
   advance: (id: string, next: "accepted" | "baking" | "ready" | "delivered") => void;
+  notifyCustomerReady: (o: OrderRow) => void;
   cardBg: string;
   cardText: string;
   subText: string;
@@ -958,7 +1007,12 @@ function Card({
           e.stopPropagation();
         }}
       >
-        <ActionButton o={o} updating={updating} advance={advance} />
+        <ActionButton
+          o={o}
+          updating={updating}
+          advance={advance}
+          notifyCustomerReady={notifyCustomerReady}
+        />
       </div>
     </Link>
   );
@@ -968,10 +1022,12 @@ function ActionButton({
   o,
   updating,
   advance,
+  notifyCustomerReady,
 }: {
   o: OrderRow;
   updating: boolean;
   advance: (id: string, next: "accepted" | "baking" | "ready" | "delivered") => void;
+  notifyCustomerReady: (o: OrderRow) => void;
 }) {
   const base =
     "w-full rounded-lg py-2.5 lg:py-3 text-sm lg:text-base font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60 shadow-sm mt-1";
@@ -1022,19 +1078,47 @@ function ActionButton({
       </button>
     );
   }
-  // ready
+  // ready: dos botones apilados. Primero avisar (WA), luego marcar entregado.
+  const yaAvisado = !!o.customer_notified_at;
+  const minsAvisado = yaAvisado ? minutesAgo(o.customer_notified_at!) : 0;
+  const tieneWa = !!o.customer?.whatsapp;
+
   return (
-    <button
-      onClick={() => advance(o.id, "delivered")}
-      disabled={updating}
-      className={`${base} bg-[#3A271D] text-crema`}
-    >
-      {updating ? spinner : (
-        <>
-          <IconPackage size={16} /> Marcar entregado
-        </>
+    <div className="flex flex-col gap-2 mt-1">
+      {yaAvisado ? (
+        <div className="w-full rounded-lg py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 bg-verde/15 text-verde">
+          <IconCheck size={14} />
+          Cliente avisado hace {formatElapsed(minsAvisado)}
+        </div>
+      ) : tieneWa ? (
+        <button
+          onClick={() => notifyCustomerReady(o)}
+          disabled={updating}
+          className={`${base.replace("mt-1", "")} bg-[#25D366] text-white`}
+        >
+          {updating ? spinner : (
+            <>
+              <IconBrandWhatsapp size={16} /> Avisar al cliente
+            </>
+          )}
+        </button>
+      ) : (
+        <div className="w-full rounded-lg py-1.5 text-[11px] italic flex items-center justify-center bg-canela/15 text-canela">
+          Sin WhatsApp — avisar manualmente
+        </div>
       )}
-    </button>
+      <button
+        onClick={() => advance(o.id, "delivered")}
+        disabled={updating}
+        className={`${base.replace("mt-1", "")} bg-[#3A271D] text-crema`}
+      >
+        {updating ? spinner : (
+          <>
+            <IconPackage size={16} /> Marcar entregado
+          </>
+        )}
+      </button>
+    </div>
   );
 }
 

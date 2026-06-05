@@ -1556,6 +1556,10 @@ function NegocioPanel() {
   // inserten al guardar (vía upsert).
   const SETTING_DEFAULTS: Record<string, string> = {
     monthly_sales_goal_mxn: "8000",
+    vacation_active: "off",
+    vacation_from: "",
+    vacation_to: "",
+    vacation_message: "Estamos descansando un ratito 🥐 Volvemos pronto.",
   };
 
   const [settings, setSettings] = useState<Record<string, string>>(SETTING_DEFAULTS);
@@ -1602,8 +1606,80 @@ function NegocioPanel() {
     );
   }
 
+  const vacationActive = settings.vacation_active === "on";
+
   return (
     <div className="space-y-4">
+      {/* Modo vacaciones */}
+      <Section title="🏖️ Modo vacaciones">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <div className="text-sm font-bold text-cafe">Pausar pedidos</div>
+            <div className="text-[11px] text-canela leading-snug mt-0.5">
+              Bloquea fechas en el calendario del cliente con tu mensaje. Se
+              apaga sola cuando termina el rango.
+            </div>
+          </div>
+          <button
+            onClick={() =>
+              update("vacation_active", vacationActive ? "off" : "on")
+            }
+            className={`relative w-12 h-7 rounded-full transition flex-shrink-0 ${
+              vacationActive ? "bg-antojo" : "bg-canela/40"
+            }`}
+            aria-label="Activar modo vacaciones"
+          >
+            <span
+              className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-sm transition-all ${
+                vacationActive ? "left-[26px]" : "left-0.5"
+              }`}
+            />
+          </button>
+        </div>
+
+        {vacationActive && (
+          <div className="mt-3 space-y-3 bg-crema-soft rounded-xl p-3 border border-caramelo/30">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[11px] font-bold text-canela uppercase tracking-wider block mb-1">
+                  Desde
+                </label>
+                <input
+                  type="date"
+                  value={settings.vacation_from || ""}
+                  onChange={(e) => update("vacation_from", e.target.value)}
+                  className="w-full bg-white border border-caramelo/40 rounded-lg px-2 py-2 text-xs text-cafe focus:outline-none focus:border-cafe"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-bold text-canela uppercase tracking-wider block mb-1">
+                  Hasta
+                </label>
+                <input
+                  type="date"
+                  value={settings.vacation_to || ""}
+                  onChange={(e) => update("vacation_to", e.target.value)}
+                  className="w-full bg-white border border-caramelo/40 rounded-lg px-2 py-2 text-xs text-cafe focus:outline-none focus:border-cafe"
+                />
+              </div>
+            </div>
+            <Field
+              label="Mensaje para el cliente"
+              value={
+                settings.vacation_message ||
+                "Estamos descansando un ratito 🥐 Volvemos pronto."
+              }
+              onChange={(v) => update("vacation_message", v)}
+              textarea
+            />
+            <p className="text-[11px] text-canela italic leading-relaxed">
+              Tip: cuando termine la fecha de fin, el modo se apaga solo y los
+              clientes vuelven a poder pedir normal.
+            </p>
+          </div>
+        )}
+      </Section>
+
       <Section title="📍 Dirección de recogida">
         <Field
           label="Calle y número"

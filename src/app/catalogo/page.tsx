@@ -13,6 +13,7 @@ import { useToast } from "@/components/Toast";
 import HeaderCliente from "@/components/HeaderCliente";
 import BottomNav from "@/components/BottomNav";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
+import WelcomeBack from "@/components/WelcomeBack";
 
 type Tab = "todo" | Category;
 
@@ -253,6 +254,10 @@ export default function Catalogo() {
 
       {/* Tour de Miga al primer ingreso (solo si pilot_mode = on) */}
       <ClienteOnboarding />
+
+      {/* Banner "¡Hola de nuevo!" — solo cliente con pedidos previos,
+          una vez por sesión, se cierra solo al primer scroll */}
+      <WelcomeBack />
     </div>
   );
 }

@@ -270,10 +270,8 @@ function Recuperar() {
         </h1>
         <p className="text-canela text-sm mt-3 max-w-xs">
           Tu antojo se movió. Ya le avisamos a{" "}
-          <b className="text-cafe">
-            {order.contact_person === "alex" ? "Alex" : "Faby"}
-          </b>{" "}
-          para que lo confirme 🤎
+          <b className="text-cafe">nuestros cocineros</b> para que lo confirmen
+          🤎
         </p>
       </main>
     );
@@ -283,7 +281,6 @@ function Recuperar() {
     order.decline_message ||
     order.decline_reason ||
     "No fue posible esta vez.";
-  const contactName = order.contact_person === "alex" ? "Alex" : "Faby";
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-10">
@@ -336,7 +333,7 @@ function Recuperar() {
           </ul>
           <div className="mt-3 pt-3 border-t border-caramelo/20">
             <div className="text-[11px] font-bold text-canela uppercase tracking-wider">
-              {contactName} te explicó
+              Nuestros cocineros te explicaron
             </div>
             <p className="text-xs text-cafe mt-1 italic">"{motivoFinal}"</p>
           </div>

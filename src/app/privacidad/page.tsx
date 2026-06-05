@@ -66,7 +66,7 @@ export default function PrivacidadPage() {
               Tu <b>cumpleaños</b> (solo mes y día, sin año), si decides
               compartirlo. El día de tu cumple te acreditamos{" "}
               <b>1 rol gratis</b> en tu próximo pedido — pasas a recogerlo
-              tú o lo acuerdas por WhatsApp con Fabi o Alex. No hacemos
+              tú o lo acuerdas por WhatsApp con nuestro equipo. No hacemos
               envíos.
             </li>
             <li>
@@ -154,7 +154,7 @@ export default function PrivacidadPage() {
               rel="noreferrer"
               className="text-antojo font-bold"
             >
-              Fabiola (Masa Mía)
+              Masa Mía
             </a>{" "}
             o al correo{" "}
             <a

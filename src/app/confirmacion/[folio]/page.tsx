@@ -136,18 +136,12 @@ function Confirmacion() {
         ¡Pedido recibido!
       </h1>
       <p className="text-canela text-sm mt-3 max-w-xs leading-relaxed">
-        Tu antojo quedó anotado.{" "}
-        {order.contact_person && (
-          <>
-            <b className="text-cafe capitalize">
-              {order.contact_person === "alex" ? "Alex" : "Fabiola"}
-            </b>{" "}
-            lo tiene en la mira.
-            <br />
-          </>
-        )}
+        Tu antojo quedó anotado. <b className="text-cafe">Nuestros cocineros</b>{" "}
+        ya lo tienen en la mira.
+        <br />
         <span className="text-caramelo italic">
-          En breve te confirmamos por WhatsApp cuando entre al horno.
+          Te avisamos por WhatsApp en cuanto esté recién horneado y listo para
+          recoger 🥐
         </span>
       </p>
 
@@ -212,15 +206,6 @@ function Confirmacion() {
             </span>
           </div>
         )}
-        {order.contact_person && (
-          <div className="text-[11px] text-canela mt-1 flex items-center gap-1">
-            <IconCheck size={11} />
-            Te atiende:{" "}
-            <span className="capitalize">
-              {order.contact_person === "alex" ? "Alex" : "Fabiola"}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Captura opcional de cumpleaños (Modelo B) — solo si no lo ha dado */}
@@ -281,8 +266,9 @@ function Confirmacion() {
         const reasonLabel = order.decline_reason
           ? REASON_LABELS[order.decline_reason] ?? "Tuvimos un imprevisto."
           : null;
-        const contactName =
-          order.contact_person === "alex" ? "Alex" : "Faby";
+        // Internamente seguimos guardando contact_person para enrutar
+        // el WhatsApp al WA correcto, pero al cliente lo presentamos como
+        // "Masa Mía" (sin exponer el nombre real del staff).
         const destinoWa = settings
           ? order.contact_person === "alex"
             ? settings.contact_alex_wa
@@ -290,7 +276,7 @@ function Confirmacion() {
           : null;
         const waMessage = cliente
           ? encodeURIComponent(
-              `Hola ${contactName}, soy ${cliente.name}. Mi pedido ${order.folio} no se pudo concretar. ¿Podemos verlo?`
+              `Hola, soy ${cliente.name}. Mi pedido ${order.folio} no se pudo concretar. ¿Podemos verlo?`
             )
           : "";
         return (
@@ -315,11 +301,11 @@ function Confirmacion() {
               </p>
             )}
 
-            {/* Mensaje del staff (Faby/Alex) */}
+            {/* Mensaje del staff (sin exponer nombre) */}
             {order.decline_message && (
               <div className="mt-3 bg-white/80 rounded-xl p-3 border border-rojo/20">
                 <div className="text-[11px] font-bold text-rojo uppercase tracking-wider">
-                  {contactName} te explica
+                  Nuestros cocineros te explican
                 </div>
                 <p className="text-sm text-cafe mt-1 italic leading-relaxed">
                   “{order.decline_message}”
@@ -350,7 +336,7 @@ function Confirmacion() {
                   className="w-full bg-[#25D366] text-white rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition shadow"
                 >
                   <IconBrandWhatsapp size={16} />
-                  Hablar con {contactName}
+                  Hablar con Masa Mía
                 </a>
               )}
             </div>
@@ -397,7 +383,7 @@ function Confirmacion() {
       </div>
 
       <p className="text-[11px] text-canela mt-5 max-w-xs">
-        Guarda este folio. Fabi o Alex lo van a ver en su panel.
+        Guarda este folio. Nuestros cocineros lo verán en su panel.
       </p>
 
       {/* Popup de feedback (solo si pilot_mode está activo) */}

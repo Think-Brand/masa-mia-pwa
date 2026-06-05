@@ -16,6 +16,12 @@ export type Settings = {
    *  Mario la edita desde /staff/ajustes → Negocio. Default 8000 para
    *  emprendimientos arrancando — bajo a propósito, motiva sin desanimar. */
   monthly_sales_goal_mxn: string;
+  /** Modo vacaciones: bloquea fechas en un rango con mensaje custom.
+   *  Se apaga solo cuando vacation_to ya pasó (lógica en RPC is_vacation_day). */
+  vacation_active: "on" | "off";
+  vacation_from: string; // YYYY-MM-DD o ""
+  vacation_to: string;   // YYYY-MM-DD o ""
+  vacation_message: string;
 };
 
 const DEFAULTS: Settings = {
@@ -31,6 +37,10 @@ const DEFAULTS: Settings = {
   contact_fabiola_name: "Fabiola",
   contact_fabiola_wa: "",
   monthly_sales_goal_mxn: "8000",
+  vacation_active: "off",
+  vacation_from: "",
+  vacation_to: "",
+  vacation_message: "Estamos descansando un ratito 🥐 Volvemos pronto.",
 };
 
 /** Helper: lee la meta del mes como número, con fallback al default. */
