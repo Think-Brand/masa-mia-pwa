@@ -21,6 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import StaffOnboarding from "@/components/StaffOnboarding";
+import PushNotificationsCard from "@/components/PushNotificationsCard";
 import { resetTour, STAFF_TOUR_ID } from "@/lib/onboarding";
 import {
   CATEGORIES,
@@ -390,6 +391,11 @@ function PilotoPanel() {
 
   return (
     <div className="space-y-4">
+      {/* Notificaciones push (por dispositivo) */}
+      <Section title="🔔 Notificaciones de pedidos">
+        <PushNotificationsCard />
+      </Section>
+
       {/* Toggle modo piloto */}
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
