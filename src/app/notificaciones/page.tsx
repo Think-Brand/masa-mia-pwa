@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
 import Miga from "@/components/Miga";
+import MigaLoading from "@/components/MigaLoading";
 import {
   formatRelativeTime,
   groupByDay,
@@ -61,8 +62,8 @@ export default function NotificacionesPage() {
 
   if (!ready || !cliente) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
-        Cargando…
+      <div className="min-h-screen flex items-center justify-center">
+        <MigaLoading frase="Revisando avisos…" size={180} />
       </div>
     );
   }

@@ -19,7 +19,7 @@ import BottomNav from "@/components/BottomNav";
 
 type Occasion = "para_mi" | "compartir" | "regalo" | "probadita";
 type Flavor = "chocolatoso" | "frutal" | "frutos_secos" | "cremoso";
-type Attitude = "seguro" | "sorpresa" | "tu_dime";
+type Attitude = "seguro" | "sorpresa" | "probar_suerte";
 type Step = "intro" | 1 | 2 | 3 | "resultado";
 
 // Mapeo de sabores a nombres de productos
@@ -30,58 +30,77 @@ const FLAVOR_PRODUCTS: Record<Flavor, string[]> = {
   cremoso: ["Lotusho", "Original"],
 };
 
+// Las imágenes de Miga viven en /public/mascota/antojame y cuentan visualmente
+// la decisión que está tomando el cliente. Reemplazan emojis y dan identidad
+// a cada opción.
 const OPTIONS_OCCASION = [
   {
     key: "para_mi" as Occasion,
-    emoji: "😋",
+    image: "/mascota/antojame/para-mi.png",
     label: "Para mí",
     sub: "Ya traigo hambre",
   },
   {
     key: "compartir" as Occasion,
-    emoji: "🥂",
+    image: "/mascota/antojame/para-compartir.png",
     label: "Para compartir",
     sub: "Botanear con alguien",
   },
   {
     key: "regalo" as Occasion,
-    emoji: "🎁",
+    image: "/mascota/antojame/un-regalo.png",
     label: "Es un regalo",
     sub: "Detalle especial",
   },
   {
     key: "probadita" as Occasion,
-    emoji: "👀",
+    image: "/mascota/antojame/una-probadita.png",
     label: "Una probadita",
     sub: "Solo un antojo chico",
   },
 ];
 
 const OPTIONS_FLAVOR = [
-  { key: "chocolatoso" as Flavor, emoji: "🍫", label: "Chocolatoso" },
-  { key: "frutal" as Flavor, emoji: "🍓", label: "Frutal y fresco" },
-  { key: "frutos_secos" as Flavor, emoji: "🥜", label: "Con frutos secos" },
-  { key: "cremoso" as Flavor, emoji: "🍮", label: "Cremoso y clásico" },
+  {
+    key: "chocolatoso" as Flavor,
+    image: "/mascota/antojame/Chocolatoso.png",
+    label: "Chocolatoso",
+  },
+  {
+    key: "frutal" as Flavor,
+    image: "/mascota/antojame/Frutal.png",
+    label: "Frutal y fresco",
+  },
+  {
+    key: "frutos_secos" as Flavor,
+    image: "/mascota/antojame/Secos.png",
+    label: "Con frutos secos",
+  },
+  {
+    key: "cremoso" as Flavor,
+    image: "/mascota/antojame/Cremoso.png",
+    label: "Cremoso y clásico",
+  },
 ];
 
 const OPTIONS_ATTITUDE = [
   {
     key: "seguro" as Attitude,
-    emoji: "🛡️",
+    image: "/mascota/antojame/A-la-segura.png",
     label: "A lo seguro",
     sub: "Dame el favorito",
   },
   {
     key: "sorpresa" as Attitude,
-    emoji: "🎢",
+    image: "/mascota/antojame/Sorpr%C3%A9ndeme.png",
     label: "Sorpréndeme",
     sub: "Algo distinto",
   },
   {
-    key: "tu_dime" as Attitude,
-    emoji: "🤷",
-    label: "Tú dime, Miga",
-    sub: "Confío en ti",
+    key: "probar_suerte" as Attitude,
+    image: "/mascota/antojame/Probar-suerte.png",
+    label: "Probar suerte",
+    sub: "Lo que la masa decida",
   },
 ];
 
@@ -282,7 +301,7 @@ export default function Antojame() {
             >
               ¿Para qué es<br />este antojo?
             </h2>
-            <div className="mt-5 grid grid-cols-2 gap-2.5">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {OPTIONS_OCCASION.map((opt) => {
                 const active = occasion === opt.key;
                 return (
@@ -292,18 +311,26 @@ export default function Antojame() {
                       setOccasion(opt.key);
                       setTimeout(() => setStep(2), 250);
                     }}
-                    className={`p-4 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1.5 ${
+                    className={`relative p-2 pb-3 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1 overflow-hidden active:scale-[0.97] ${
                       active ? "ring-2 ring-antojo shadow-md" : ""
                     }`}
                   >
-                    <span className="text-3xl">{opt.emoji}</span>
+                    <div className="w-full aspect-square relative">
+                      <Image
+                        src={opt.image}
+                        alt={opt.label}
+                        fill
+                        sizes="160px"
+                        className="object-contain"
+                      />
+                    </div>
                     <div
-                      className="text-xs font-bold"
+                      className="text-sm font-bold mt-1"
                       style={{ fontFamily: "Termina" }}
                     >
                       {opt.label}
                     </div>
-                    <div className="text-[11px] text-canela leading-tight">
+                    <div className="text-[11px] text-canela leading-tight px-2">
                       {opt.sub}
                     </div>
                   </button>
@@ -322,7 +349,7 @@ export default function Antojame() {
             >
               ¿Qué te late<br />hoy?
             </h2>
-            <div className="mt-5 grid grid-cols-2 gap-2.5">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {OPTIONS_FLAVOR.map((opt) => {
                 const active = flavor === opt.key;
                 return (
@@ -332,13 +359,21 @@ export default function Antojame() {
                       setFlavor(opt.key);
                       setTimeout(() => setStep(3), 250);
                     }}
-                    className={`p-4 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1.5 ${
+                    className={`relative p-2 pb-3 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1 overflow-hidden active:scale-[0.97] ${
                       active ? "ring-2 ring-antojo shadow-md" : ""
                     }`}
                   >
-                    <span className="text-3xl">{opt.emoji}</span>
+                    <div className="w-full aspect-square relative">
+                      <Image
+                        src={opt.image}
+                        alt={opt.label}
+                        fill
+                        sizes="160px"
+                        className="object-contain"
+                      />
+                    </div>
                     <div
-                      className="text-xs font-bold"
+                      className="text-sm font-bold mt-1"
                       style={{ fontFamily: "Termina" }}
                     >
                       {opt.label}
@@ -365,7 +400,7 @@ export default function Antojame() {
             >
               ¿Vamos a lo seguro<br />o nos arriesgamos?
             </h2>
-            <div className="mt-5 flex flex-col gap-2.5">
+            <div className="mt-5 flex flex-col gap-3">
               {OPTIONS_ATTITUDE.map((opt) => {
                 const active = attitude === opt.key;
                 return (
@@ -375,19 +410,27 @@ export default function Antojame() {
                       setAttitude(opt.key);
                       setTimeout(() => setStep("resultado"), 300);
                     }}
-                    className={`p-4 rounded-2xl bg-white text-cafe transition shadow-sm flex items-center text-left gap-3 ${
+                    className={`relative p-3 rounded-2xl bg-white text-cafe transition shadow-sm flex items-center text-left gap-3 overflow-hidden active:scale-[0.98] ${
                       active ? "ring-2 ring-antojo shadow-md" : ""
                     }`}
                   >
-                    <span className="text-3xl">{opt.emoji}</span>
+                    <div className="w-20 h-20 relative flex-shrink-0">
+                      <Image
+                        src={opt.image}
+                        alt={opt.label}
+                        fill
+                        sizes="80px"
+                        className="object-contain"
+                      />
+                    </div>
                     <div className="flex-1">
                       <div
-                        className="text-sm font-bold"
+                        className="text-base font-bold"
                         style={{ fontFamily: "Termina" }}
                       >
                         {opt.label}
                       </div>
-                      <div className="text-[11px] text-canela">{opt.sub}</div>
+                      <div className="text-xs text-canela mt-0.5">{opt.sub}</div>
                     </div>
                   </button>
                 );

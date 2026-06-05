@@ -73,13 +73,27 @@ export default function CollapsibleSection({
         {!alwaysOpen && (
           <IconChevronDown
             size={18}
-            className={`flex-shrink-0 text-canela transition-transform ${
+            className={`flex-shrink-0 text-canela transition-transform duration-200 ${
               open ? "rotate-180" : ""
             }`}
           />
         )}
       </button>
-      {open && <div className="px-3 pb-3 pt-1 fade-up">{children}</div>}
+      {/* Truco moderno: grid-template-rows 0fr → 1fr con transition.
+          Permite altura "auto" animable sin medir el contenido con JS,
+          y sin overflow visual mientras transiciona. */}
+      <div
+        className="grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          opacity: open ? 1 : 0,
+        }}
+        aria-hidden={!open}
+      >
+        <div className="overflow-hidden min-h-0">
+          <div className="px-3 pb-3 pt-1">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }

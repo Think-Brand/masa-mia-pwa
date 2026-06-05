@@ -19,6 +19,7 @@ import BottomNav from "@/components/BottomNav";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
 import CumpleModal from "@/components/CumpleModal";
 import YoRegistroEmptyState from "@/components/YoRegistroEmptyState";
+import MigaLoading from "@/components/MigaLoading";
 import { resetTour, CLIENTE_TOUR_ID } from "@/lib/onboarding";
 import { formatBirthday, isBirthdayToday } from "@/lib/birthday";
 
@@ -275,8 +276,8 @@ export default function Yo() {
   // mostrar un flash del registro cuando el cliente sí está logueado.
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
-        Cargando…
+      <div className="min-h-screen flex items-center justify-center">
+        <MigaLoading frase="Preparando tu perfil…" size={180} />
       </div>
     );
   }

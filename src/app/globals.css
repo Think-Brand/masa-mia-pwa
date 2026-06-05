@@ -327,120 +327,82 @@ body {
   overflow: hidden;
 }
 
-/* La huella: dos capas — radial-gradient localizado (oscuro al centro
- * del tap, transición corta para sentirse PUNTUAL no degradado plano)
- * + un highlight invertido que aparece en el borde opuesto para simular
- * que la presión empuja la luz hacia afuera (mix-blend-mode hace que
- * se sienta como deformación de la masa, no como pintura encima). */
-.btn-masa::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle 90px at var(--mx, 50%) var(--my, 50%),
-    rgba(60, 15, 2, 0) 0%,
-    rgba(60, 15, 2, 0) 100%
-  );
-  mix-blend-mode: multiply;
-  transition: background 220ms ease-out, opacity 220ms ease-out;
-  opacity: 0;
-  z-index: 1;
-}
-.btn-masa::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle 60px at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 220, 180, 0) 0%,
-    rgba(255, 220, 180, 0) 100%
-  );
-  mix-blend-mode: screen;
-  transition: opacity 220ms ease-out;
-  opacity: 0;
-  z-index: 1;
-}
-.btn-masa.is-pressed::before {
-  background: radial-gradient(
-    circle 90px at var(--mx, 50%) var(--my, 50%),
-    rgba(60, 15, 2, 0.7) 0%,
-    rgba(60, 15, 2, 0.35) 22%,
-    rgba(60, 15, 2, 0) 45%
-  );
-  opacity: 1;
-  transition: background 80ms ease-out, opacity 80ms ease-out;
-}
-.btn-masa.is-pressed::after {
-  background: radial-gradient(
-    circle 60px at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 220, 180, 0) 60%,
-    rgba(255, 220, 180, 0.32) 100%
-  );
-  opacity: 1;
-  transition: opacity 100ms ease-out;
-}
-.btn-masa > * {
-  position: relative;
-  z-index: 2;
-}
+/* v8 — sin pseudo-elementos. El bulto se logra 100% con inset shadows:
+ * highlight cálido arriba (luz del horno) + sombra cálida abajo (peso de
+ * la masa). Press: todas las sombras se invierten hacia adentro, el
+ * background se oscurece y la masa "se hunde uniformemente". No hay
+ * huella que sigue al dedo — se sintió raro. */
 
-/* PRIMARY · pill naranja con bulto modesto y huella local */
+/* PRIMARY · squircle naranja medio, bulto bombón */
 .btn-masa-primary {
-  color: white;
-  background: linear-gradient(180deg, #FF8244 0%, #F25C20 100%);
-  border-radius: 999px;
+  color: #F4E5CF;
+  background: #DE7547;
+  border-radius: 26px;
   box-shadow:
-    inset 0 2px 0 rgba(255, 220, 180, 0.5),
-    inset 0 -2px 0 rgba(110, 30, 5, 0.22),
-    0 16px 40px rgba(110, 30, 5, 0.22),
-    0 4px 10px rgba(110, 30, 5, 0.12);
+    inset 0 4px 10px rgba(255, 220, 180, 0.55),
+    inset 0 -6px 14px rgba(140, 50, 18, 0.42),
+    inset 6px 4px 8px rgba(255, 220, 180, 0.18),
+    inset -4px -4px 8px rgba(140, 50, 18, 0.18),
+    0 16px 30px rgba(110, 30, 5, 0.28),
+    0 6px 12px rgba(110, 30, 5, 0.14);
 }
-.btn-masa-primary.is-pressed {
-  transform: scale(0.985, 0.95);
-  background: linear-gradient(180deg, #E04A18 0%, #C84015 100%);
+.btn-masa-primary:hover {
+  transform: scale(1.015, 1.02);
+}
+.btn-masa-primary.is-pressed,
+.btn-masa-primary:active {
+  transform: scale(0.96, 0.93);
+  background: #C2603A;
   box-shadow:
-    inset 0 -1px 0 rgba(255, 220, 180, 0.18),
-    0 4px 10px rgba(110, 30, 5, 0.14);
-  transition: transform 100ms ease-out, background 100ms ease, box-shadow 100ms ease;
+    inset 0 -2px 6px rgba(255, 220, 180, 0.2),
+    inset 0 5px 12px rgba(80, 25, 5, 0.48),
+    0 4px 10px rgba(110, 30, 5, 0.16);
+  transition: all 100ms ease-out;
 }
 .btn-masa-primary:disabled {
-  background: linear-gradient(180deg, #d0a78c 0%, #b48970 100%);
+  background: #BFA593;
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow:
-    inset 0 2px 0 rgba(255, 220, 180, 0.3),
-    0 4px 10px rgba(110, 30, 5, 0.1);
+    inset 0 4px 10px rgba(255, 235, 215, 0.4),
+    inset 0 -4px 10px rgba(120, 95, 75, 0.3),
+    0 4px 10px rgba(110, 73, 51, 0.1);
+  transform: none;
 }
 
-/* ANTÓJAME · banner horizontal */
+/* ANTÓJAME · banner horizontal — sigue siendo NARANJA BRILLANTE para
+ * que llame la atención. No pasa al medio cálido como el resto. */
 .btn-masa-antojame {
   color: white;
   background: linear-gradient(135deg, #FF7A40 0%, #E04A18 100%);
-  border-radius: 999px;
+  border-radius: 28px;
   box-shadow:
-    inset 0 2px 0 rgba(255, 220, 180, 0.5),
-    inset 0 -2px 0 rgba(110, 30, 5, 0.22),
-    0 18px 40px rgba(110, 30, 5, 0.2),
-    0 4px 10px rgba(110, 30, 5, 0.12);
+    inset 0 4px 10px rgba(255, 220, 180, 0.5),
+    inset 0 -6px 14px rgba(110, 30, 5, 0.4),
+    inset 6px 4px 8px rgba(255, 220, 180, 0.2),
+    inset -4px -4px 8px rgba(110, 30, 5, 0.18),
+    0 18px 36px rgba(242, 92, 32, 0.32),
+    0 6px 14px rgba(242, 92, 32, 0.18);
 }
-.btn-masa-antojame.is-pressed {
-  transform: scale(0.985, 0.95);
+.btn-masa-antojame:hover {
+  transform: scale(1.015, 1.02);
+}
+.btn-masa-antojame.is-pressed,
+.btn-masa-antojame:active {
+  transform: scale(0.97, 0.94);
+  background: linear-gradient(135deg, #E0521C 0%, #B83E12 100%);
   box-shadow:
-    inset 0 -1px 0 rgba(255, 220, 180, 0.18),
-    0 4px 10px rgba(110, 30, 5, 0.14);
-  transition: transform 100ms ease-out, box-shadow 100ms ease;
+    inset 0 -2px 6px rgba(255, 220, 180, 0.18),
+    inset 0 5px 14px rgba(80, 25, 5, 0.5),
+    0 4px 10px rgba(242, 92, 32, 0.18);
+  transition: all 100ms ease-out;
 }
 
-/* + agregar · circular 40px (era 48px, 20% más chico, mantiene tap
- * target razonable para mobile sin invadir el card del producto) */
+/* + agregar · squircle 40px (squircle, no círculo, para coherencia v8) */
 .btn-masa-plus {
-  color: white;
-  background: linear-gradient(180deg, #FF8244 0%, #F25C20 100%);
-  border-radius: 50%;
+  color: #F4E5CF;
+  background: #DE7547;
+  border-radius: 14px;
   width: 40px;
   height: 40px;
   flex-shrink: 0;
@@ -449,22 +411,30 @@ body {
   justify-content: center;
   padding: 0;
   box-shadow:
-    inset 0 2px 0 rgba(255, 220, 180, 0.5),
-    inset 0 -2px 0 rgba(110, 30, 5, 0.22),
-    0 8px 18px rgba(110, 30, 5, 0.22),
+    inset 0 3px 7px rgba(255, 220, 180, 0.55),
+    inset 0 -4px 8px rgba(140, 50, 18, 0.4),
+    0 8px 16px rgba(110, 30, 5, 0.22),
     0 2px 5px rgba(110, 30, 5, 0.1);
 }
-.btn-masa-plus.is-pressed {
+.btn-masa-plus:hover {
+  transform: scale(1.04);
+}
+.btn-masa-plus.is-pressed,
+.btn-masa-plus:active {
   transform: scale(0.88);
-  background: linear-gradient(180deg, #E04A18, #C84015);
-  box-shadow: 0 2px 5px rgba(110, 30, 5, 0.16);
+  background: #C2603A;
+  box-shadow:
+    inset 0 -1px 4px rgba(255, 220, 180, 0.2),
+    inset 0 4px 10px rgba(80, 25, 5, 0.5),
+    0 2px 5px rgba(110, 30, 5, 0.16);
+  transition: all 80ms ease-out;
 }
 
-/* −/+ mini · 32px */
+/* −/+ mini · 32px squircle más chico */
 .btn-masa-mini {
-  color: white;
-  background: linear-gradient(180deg, #FF8244 0%, #F25C20 100%);
-  border-radius: 50%;
+  color: #F4E5CF;
+  background: #DE7547;
+  border-radius: 11px;
   width: 32px;
   height: 32px;
   flex-shrink: 0;
@@ -473,63 +443,84 @@ body {
   justify-content: center;
   padding: 0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 220, 180, 0.5),
-    inset 0 -1px 0 rgba(110, 30, 5, 0.2),
-    0 4px 10px rgba(110, 30, 5, 0.25);
+    inset 0 2px 5px rgba(255, 220, 180, 0.5),
+    inset 0 -3px 6px rgba(140, 50, 18, 0.38),
+    0 4px 10px rgba(110, 30, 5, 0.22);
 }
-.btn-masa-mini.is-pressed {
+.btn-masa-mini.is-pressed,
+.btn-masa-mini:active {
   transform: scale(0.82);
-  background: linear-gradient(180deg, #E04A18, #C84015);
-  box-shadow: 0 1px 3px rgba(110, 30, 5, 0.15);
+  background: #C2603A;
+  box-shadow:
+    inset 0 -1px 3px rgba(255, 220, 180, 0.2),
+    inset 0 3px 8px rgba(80, 25, 5, 0.5),
+    0 1px 3px rgba(110, 30, 5, 0.15);
+  transition: all 80ms ease-out;
 }
 
-/* SECONDARY · masa crema para alternativas (Pedir lo mismo, Cancelar suave) */
+/* SECONDARY · masa crema para alternativas */
 .btn-masa-secondary {
   background: var(--crema);
   color: var(--cafe);
-  border-radius: 999px;
+  border-radius: 22px;
   box-shadow:
-    inset 0 2px 0 rgba(255, 250, 230, 0.7),
-    inset 0 -2px 0 rgba(110, 73, 51, 0.12),
-    0 12px 28px rgba(110, 73, 51, 0.14),
+    inset 0 3px 8px rgba(255, 250, 230, 0.7),
+    inset 0 -4px 10px rgba(110, 73, 51, 0.18),
+    0 12px 24px rgba(110, 73, 51, 0.14),
     0 3px 8px rgba(110, 73, 51, 0.08);
 }
-.btn-masa-secondary.is-pressed {
-  transform: scale(0.985, 0.95);
+.btn-masa-secondary.is-pressed,
+.btn-masa-secondary:active {
+  transform: scale(0.97, 0.94);
   background: #ECDABE;
   box-shadow:
-    inset 0 -1px 0 rgba(255, 250, 230, 0.5),
-    0 3px 8px rgba(110, 73, 51, 0.1);
-  transition: transform 100ms ease-out, background 100ms ease;
-}
-.btn-masa-secondary::before {
-  background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
-    rgba(110, 73, 51, 0) 0%,
-    rgba(110, 73, 51, 0) 100%
-  );
-}
-.btn-masa-secondary.is-pressed::before {
-  background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
-    rgba(110, 73, 51, 0.25) 0%,
-    rgba(110, 73, 51, 0.12) 28%,
-    rgba(110, 73, 51, 0) 60%
-  );
+    inset 0 -1px 4px rgba(255, 250, 230, 0.5),
+    inset 0 4px 10px rgba(110, 73, 51, 0.25),
+    0 2px 6px rgba(110, 73, 51, 0.08);
+  transition: all 100ms ease-out;
 }
 .btn-masa-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* "Zona antojo" — wrapper opcional para sticky checkout. Suaviza el bulto
- * cuando el botón vive sobre una superficie naranja en lugar de crema. */
+/* Zona oscura para el sticky checkout — naranja tostado en lugar del
+ * crema actual. Hace que el botón emerja con el contraste tipo bombón. */
 .zona-antojo {
-  background: #F25C20;
-  border-radius: 34px;
+  background: #C66239;
+  border-radius: 32px;
   box-shadow:
-    0 24px 48px rgba(242, 92, 32, 0.18),
-    0 4px 12px rgba(242, 92, 32, 0.12);
+    0 24px 50px rgba(198, 98, 57, 0.32),
+    0 6px 14px rgba(198, 98, 57, 0.18);
+}
+
+/* === Confetti de celebración (al confirmar pedido) ===
+ * 8 partículas pequeñas que vuelan desde el botón hacia arriba/laterales
+ * con rotación. Una sola ráfaga, no infinito. Naranja, amarillo, crema —
+ * paleta Masa Mía. */
+@keyframes confetti-pop {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+    transform: translate(var(--cx), var(--cy)) rotate(180deg) scale(1);
+  }
+  100% {
+    transform:
+      translate(calc(var(--cx) * 1.3), calc(var(--cy) * 1.3 + 40px))
+      rotate(540deg) scale(0.4);
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 2px;
+  animation: confetti-pop 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
 /* === Respeta usuarios que prefieren menos movimiento ===

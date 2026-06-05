@@ -10,6 +10,7 @@ import { Order, OrderItem, Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import BottomNav from "@/components/BottomNav";
 import Miga from "@/components/Miga";
+import MigaLoading from "@/components/MigaLoading";
 import CancelOrderModal from "@/components/CancelOrderModal";
 import { checkCancelEligibility } from "@/lib/cancellation";
 
@@ -138,8 +139,8 @@ export default function MisPedidos() {
   // placeholder en lugar de un null vacío (evita flash).
   if (!ready || !cliente) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
-        Cargando…
+      <div className="min-h-screen flex items-center justify-center">
+        <MigaLoading frase="Abriendo tu cuenta…" size={180} />
       </div>
     );
   }
@@ -156,9 +157,7 @@ export default function MisPedidos() {
       </header>
 
       <div className="flex-1 px-4 py-4">
-        {loading && (
-          <div className="text-center text-canela text-sm">Cargando…</div>
-        )}
+        {loading && <MigaLoading frase="Buscando tus antojos…" size={150} />}
 
         {!loading && orders.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center gap-4 py-6">

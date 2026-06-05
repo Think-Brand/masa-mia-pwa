@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { IconCircleCheck, IconLoader2 } from "@tabler/icons-react";
+import Confetti from "./Confetti";
 
 /**
  * Barra inferior fija con total + botón confirmar. Siempre visible mientras
@@ -32,6 +34,13 @@ export default function StickyCheckoutBar({
   onConfirm,
 }: Props) {
   const tieneDescuento = !!descuento && descuento.monto > 0;
+  const [confettiTrigger, setConfettiTrigger] = useState(0);
+
+  const handleConfirm = () => {
+    if (disabled || loading) return;
+    setConfettiTrigger(Date.now());
+    onConfirm();
+  };
 
   return (
     <div
@@ -53,9 +62,12 @@ export default function StickyCheckoutBar({
           </div>
         )}
 
-        {/* CTA + total — pill naranja con pressure-aware huella */}
+        {/* CTA + total — pill naranja con pressure-aware huella.
+            Wrapper relative para anclar el confetti que sale del centro. */}
+        <div className="relative">
+          <Confetti trigger={confettiTrigger} />
         <button
-          onClick={onConfirm}
+          onClick={handleConfirm}
           disabled={disabled || loading}
           className="btn-masa btn-masa-primary w-full py-4 flex items-center justify-between gap-3 px-5"
           style={{ fontFamily: "Termina" }}
