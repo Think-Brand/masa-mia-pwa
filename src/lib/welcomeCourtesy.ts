@@ -91,30 +91,39 @@ export async function checkWelcomeEligibility(args: {
 /**
  * Al confirmar pedido con welcome courtesy:
  * - Marca al cliente como recibido
- * - Incrementa el contador atómicamente con un upsert/update condicional
+ * - Incrementa el contador atómicamente
  *
- * Llamar SOLO después de validar otra vez al confirmar (concurrencia simple).
+ * Usa RPC `apply_welcome_courtesy` (SECURITY DEFINER + FOR UPDATE) que:
+ * - Salta el RLS de settings (anon no podía updatearlo → el contador
+ *   se quedaba en 0 aunque los clientes sí se marcaran).
+ * - Bloquea la fila durante la transacción → sin race conditions
+ *   aunque caigan pedidos simultáneos.
+ * - Re-valida el cupo dentro del lock → nunca se regalan más del tope.
+ * - Es idempotente: si el cliente ya recibió, devuelve success=false
+ *   sin incrementar de nuevo.
+ *
+ * Retorna { success, count, max, reason? }
  */
-export async function applyWelcomeCourtesy(customerId: string): Promise<void> {
+export async function applyWelcomeCourtesy(customerId: string): Promise<{
+  success: boolean;
+  count: number;
+  max?: number;
+  reason?: "already_received" | "no_cupos";
+}> {
   const supabase = createClient();
+  const { data, error } = await supabase.rpc("apply_welcome_courtesy", {
+    p_customer_id: customerId,
+  });
 
-  // Re-validar count antes de incrementar (mejor que nada en concurrencia simple)
-  const { data: countSetting } = await supabase
-    .from("settings")
-    .select("value")
-    .eq("key", "pilot_welcome_count")
-    .maybeSingle();
+  if (error) {
+    console.error("apply_welcome_courtesy RPC failed:", error);
+    return { success: false, count: 0, reason: "no_cupos" };
+  }
 
-  const current = parseInt(countSetting?.value || "0", 10);
-
-  await Promise.all([
-    supabase
-      .from("customers")
-      .update({ received_welcome_courtesy: true })
-      .eq("id", customerId),
-    supabase
-      .from("settings")
-      .update({ value: String(current + 1) })
-      .eq("key", "pilot_welcome_count"),
-  ]);
+  return data as {
+    success: boolean;
+    count: number;
+    max?: number;
+    reason?: "already_received" | "no_cupos";
+  };
 }

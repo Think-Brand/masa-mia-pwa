@@ -48,7 +48,7 @@ En cuanto el push termine, escríbeme:
 > ya está en GitHub: github.com/MARIO/masa-mia-pwa
 
 **Yo me encargo del resto desde aquí:**
-- Conectar el repo a Netlify (que ya está creado en `masa-mia.netlify.app`)
+- Conectar el repo a Vercel (hosting actual: masamia.mx)
 - Disparar el primer build
 - Verificar que cargue conectado a Supabase
 - Mandarte la URL viva
@@ -58,7 +58,7 @@ En cuanto el push termine, escríbeme:
 ## Lo que ya está hecho (no tienes que tocar)
 
 - ✅ **Supabase** — proyecto `masa-mia` creado, 8 tablas con Row Level Security, 12 productos cargados
-- ✅ **Netlify** — sitio `masa-mia` creado, variables de entorno configuradas
+- ✅ **Vercel** — proyecto `masa-mia` conectado a masamia.mx, variables de entorno configuradas
 - ✅ **Código Next.js 14** — paleta, tipografías, mascota Miga, cliente Supabase, manifest PWA
 - ✅ **Assets optimizados** — fotos de productos y mascota (de 65MB a 20MB)
 
