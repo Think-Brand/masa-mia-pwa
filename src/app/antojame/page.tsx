@@ -31,32 +31,42 @@ const FLAVOR_PRODUCTS: Record<Flavor, string[]> = {
 };
 
 // Las imágenes de Miga viven en /public/mascota/antojame y cuentan visualmente
-// la decisión que está tomando el cliente. Reemplazan emojis y dan identidad
-// a cada opción.
+// la decisión que está tomando el cliente. Cada opción tiene su color de
+// fondo + borde para que cada decisión tenga personalidad propia y rompa
+// la monotonía del card blanco. La Miga DESBORDA el card hacia arriba —
+// esa técnica "rompe el marco" para que el diseño se sienta dinámico.
 const OPTIONS_OCCASION = [
   {
     key: "para_mi" as Occasion,
     image: "/mascota/antojame/para-mi.png",
     label: "Para mí",
     sub: "Ya traigo hambre",
+    bg: "#FFE5D6",
+    accent: "#F25C20",
   },
   {
     key: "compartir" as Occasion,
     image: "/mascota/antojame/para-compartir.png",
     label: "Para compartir",
     sub: "Botanear con alguien",
+    bg: "#FCE8A0",
+    accent: "#B57A00",
   },
   {
     key: "regalo" as Occasion,
     image: "/mascota/antojame/un-regalo.png",
     label: "Es un regalo",
     sub: "Detalle especial",
+    bg: "#F5C8D4",
+    accent: "#C03070",
   },
   {
     key: "probadita" as Occasion,
     image: "/mascota/antojame/una-probadita.png",
     label: "Una probadita",
     sub: "Solo un antojo chico",
+    bg: "#CDE8C5",
+    accent: "#3B7A28",
   },
 ];
 
@@ -65,21 +75,29 @@ const OPTIONS_FLAVOR = [
     key: "chocolatoso" as Flavor,
     image: "/mascota/antojame/Chocolatoso.png",
     label: "Chocolatoso",
+    bg: "#E0BFA8",
+    accent: "#5C3A1D",
   },
   {
     key: "frutal" as Flavor,
     image: "/mascota/antojame/Frutal.png",
     label: "Frutal y fresco",
+    bg: "#FFCCD6",
+    accent: "#B8264C",
   },
   {
     key: "frutos_secos" as Flavor,
     image: "/mascota/antojame/Secos.png",
     label: "Con frutos secos",
+    bg: "#E5C892",
+    accent: "#7A4F0F",
   },
   {
     key: "cremoso" as Flavor,
     image: "/mascota/antojame/Cremoso.png",
     label: "Cremoso y clásico",
+    bg: "#FBF0D9",
+    accent: "#A6772A",
   },
 ];
 
@@ -89,18 +107,24 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/A-la-segura.png",
     label: "A lo seguro",
     sub: "Dame el favorito",
+    bg: "#C8E0F4",
+    accent: "#1F5C9B",
   },
   {
     key: "sorpresa" as Attitude,
     image: "/mascota/antojame/Sorpr%C3%A9ndeme.png",
     label: "Sorpréndeme",
     sub: "Algo distinto",
+    bg: "#F5C0D1",
+    accent: "#A02559",
   },
   {
     key: "probar_suerte" as Attitude,
     image: "/mascota/antojame/Probar-suerte.png",
     label: "Probar suerte",
     sub: "Lo que la masa decida",
+    bg: "#FCE8A0",
+    accent: "#B57A00",
   },
 ];
 
@@ -266,10 +290,10 @@ export default function Antojame() {
       )}
 
       <div className="flex-1 px-5 pt-6 flex flex-col gap-5">
-        {/* INTRO */}
+        {/* INTRO — Miga grande protagonista */}
         {step === "intro" && (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 fade-up">
-            <Miga emocion="idea" animation="breath" size={160} priority />
+            <Miga emocion="idea" animation="breath" size={260} priority />
             <h2
               className="text-3xl text-cafe leading-none"
               style={{ fontFamily: "ReginaBlack" }}
@@ -285,14 +309,15 @@ export default function Antojame() {
             </p>
             <button
               onClick={() => setStep(1)}
-              className="mt-4 bg-antojo text-white rounded-2xl px-8 py-3 text-sm font-bold flex items-center gap-2 active:scale-95 transition shadow-lg"
+              className="btn-masa btn-masa-primary mt-4 px-8 py-3 text-sm flex items-center gap-2 font-bold"
+              style={{ fontFamily: "Termina" }}
             >
               Empezar <IconArrowRight size={16} />
             </button>
           </div>
         )}
 
-        {/* PREGUNTA 1 — OCASIÓN */}
+        {/* PREGUNTA 1 — OCASIÓN — cards color + Miga desbordando arriba */}
         {step === 1 && (
           <div className="fade-up">
             <h2
@@ -301,46 +326,30 @@ export default function Antojame() {
             >
               ¿Para qué es<br />este antojo?
             </h2>
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-16 grid grid-cols-2 gap-x-3 gap-y-14">
               {OPTIONS_OCCASION.map((opt) => {
                 const active = occasion === opt.key;
                 return (
-                  <button
+                  <OptionCard
                     key={opt.key}
+                    active={active}
+                    bg={opt.bg}
+                    accent={opt.accent}
+                    label={opt.label}
+                    sub={opt.sub}
+                    image={opt.image}
                     onClick={() => {
                       setOccasion(opt.key);
-                      setTimeout(() => setStep(2), 250);
+                      setTimeout(() => setStep(2), 280);
                     }}
-                    className={`relative p-2 pb-3 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1 overflow-hidden active:scale-[0.97] ${
-                      active ? "ring-2 ring-antojo shadow-md" : ""
-                    }`}
-                  >
-                    <div className="w-full aspect-square relative">
-                      <Image
-                        src={opt.image}
-                        alt={opt.label}
-                        fill
-                        sizes="160px"
-                        className="object-contain"
-                      />
-                    </div>
-                    <div
-                      className="text-sm font-bold mt-1"
-                      style={{ fontFamily: "Termina" }}
-                    >
-                      {opt.label}
-                    </div>
-                    <div className="text-[11px] text-canela leading-tight px-2">
-                      {opt.sub}
-                    </div>
-                  </button>
+                  />
                 );
               })}
             </div>
           </div>
         )}
 
-        {/* PREGUNTA 2 — SABOR */}
+        {/* PREGUNTA 2 — SABOR — mismo sistema visual */}
         {step === 2 && (
           <div className="fade-up">
             <h2
@@ -349,36 +358,22 @@ export default function Antojame() {
             >
               ¿Qué te late<br />hoy?
             </h2>
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-16 grid grid-cols-2 gap-x-3 gap-y-14">
               {OPTIONS_FLAVOR.map((opt) => {
                 const active = flavor === opt.key;
                 return (
-                  <button
+                  <OptionCard
                     key={opt.key}
+                    active={active}
+                    bg={opt.bg}
+                    accent={opt.accent}
+                    label={opt.label}
+                    image={opt.image}
                     onClick={() => {
                       setFlavor(opt.key);
-                      setTimeout(() => setStep(3), 250);
+                      setTimeout(() => setStep(3), 280);
                     }}
-                    className={`relative p-2 pb-3 rounded-2xl bg-white text-cafe transition shadow-sm flex flex-col items-center text-center gap-1 overflow-hidden active:scale-[0.97] ${
-                      active ? "ring-2 ring-antojo shadow-md" : ""
-                    }`}
-                  >
-                    <div className="w-full aspect-square relative">
-                      <Image
-                        src={opt.image}
-                        alt={opt.label}
-                        fill
-                        sizes="160px"
-                        className="object-contain"
-                      />
-                    </div>
-                    <div
-                      className="text-sm font-bold mt-1"
-                      style={{ fontFamily: "Termina" }}
-                    >
-                      {opt.label}
-                    </div>
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -391,7 +386,7 @@ export default function Antojame() {
           </div>
         )}
 
-        {/* PREGUNTA 3 — ACTITUD */}
+        {/* PREGUNTA 3 — ACTITUD — formato vertical, Miga sale por la derecha */}
         {step === 3 && (
           <div className="fade-up">
             <h2
@@ -400,39 +395,23 @@ export default function Antojame() {
             >
               ¿Vamos a lo seguro<br />o nos arriesgamos?
             </h2>
-            <div className="mt-5 flex flex-col gap-3">
+            <div className="mt-6 flex flex-col gap-4">
               {OPTIONS_ATTITUDE.map((opt) => {
                 const active = attitude === opt.key;
                 return (
-                  <button
+                  <AttitudeCard
                     key={opt.key}
+                    active={active}
+                    bg={opt.bg}
+                    accent={opt.accent}
+                    label={opt.label}
+                    sub={opt.sub}
+                    image={opt.image}
                     onClick={() => {
                       setAttitude(opt.key);
-                      setTimeout(() => setStep("resultado"), 300);
+                      setTimeout(() => setStep("resultado"), 280);
                     }}
-                    className={`relative p-3 rounded-2xl bg-white text-cafe transition shadow-sm flex items-center text-left gap-3 overflow-hidden active:scale-[0.98] ${
-                      active ? "ring-2 ring-antojo shadow-md" : ""
-                    }`}
-                  >
-                    <div className="w-20 h-20 relative flex-shrink-0">
-                      <Image
-                        src={opt.image}
-                        alt={opt.label}
-                        fill
-                        sizes="80px"
-                        className="object-contain"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div
-                        className="text-base font-bold"
-                        style={{ fontFamily: "Termina" }}
-                      >
-                        {opt.label}
-                      </div>
-                      <div className="text-xs text-canela mt-0.5">{opt.sub}</div>
-                    </div>
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -590,4 +569,141 @@ export default function Antojame() {
       <BottomNav />
     </div>
   );
+}
+
+/**
+ * Card de opción para Step 1 y 2 (Ocasión y Sabor).
+ * Card de COLOR (no blanco). La imagen de Miga sobresale del top del card
+ * con margin-top negativo — rompe el marco para diseño dinámico tipo
+ * referencia que mostró Mario (no "cuadro dentro de cuadro").
+ */
+function OptionCard({
+  active,
+  bg,
+  accent,
+  label,
+  sub,
+  image,
+  onClick,
+}: {
+  active: boolean;
+  bg: string;
+  accent: string;
+  label: string;
+  sub?: string;
+  image: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative pt-12 px-3 pb-4 rounded-3xl text-center transition active:scale-[0.97] flex flex-col items-center"
+      style={{
+        background: bg,
+        boxShadow: active
+          ? `0 14px 28px ${hexA(accent, 0.32)}, 0 0 0 3px ${accent}`
+          : `0 10px 22px ${hexA(accent, 0.18)}, inset 0 -3px 8px ${hexA(accent, 0.12)}`,
+      }}
+    >
+      {/* Miga DESBORDA hacia arriba del card */}
+      <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-32">
+        <Image
+          src={image}
+          alt={label}
+          fill
+          sizes="128px"
+          className="object-contain drop-shadow-lg"
+        />
+      </div>
+
+      <div
+        className="text-sm font-bold leading-tight"
+        style={{ fontFamily: "Termina", color: accent }}
+      >
+        {label}
+      </div>
+      {sub && (
+        <div
+          className="text-[11px] leading-tight mt-0.5 px-1"
+          style={{ color: hexA(accent, 0.75) }}
+        >
+          {sub}
+        </div>
+      )}
+    </button>
+  );
+}
+
+/**
+ * Card de actitud para Step 3.
+ * Layout horizontal: Miga sale por la izquierda y arriba (no contenida).
+ * Color de fondo distinto a las opciones de antes para que se sienta
+ * "última decisión, más íntima".
+ */
+function AttitudeCard({
+  active,
+  bg,
+  accent,
+  label,
+  sub,
+  image,
+  onClick,
+}: {
+  active: boolean;
+  bg: string;
+  accent: string;
+  label: string;
+  sub: string;
+  image: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative rounded-3xl text-left transition active:scale-[0.98] flex items-center gap-3 pl-28 pr-4 py-4"
+      style={{
+        background: bg,
+        minHeight: 100,
+        boxShadow: active
+          ? `0 14px 28px ${hexA(accent, 0.32)}, 0 0 0 3px ${accent}`
+          : `0 10px 22px ${hexA(accent, 0.18)}, inset 0 -3px 8px ${hexA(accent, 0.12)}`,
+      }}
+    >
+      {/* Miga sale por izquierda + un poco arriba — desborda */}
+      <div className="absolute -left-3 -top-6 w-32 h-32">
+        <Image
+          src={image}
+          alt={label}
+          fill
+          sizes="128px"
+          className="object-contain drop-shadow-lg"
+        />
+      </div>
+
+      <div className="flex-1">
+        <div
+          className="text-lg font-bold leading-tight"
+          style={{ fontFamily: "Termina", color: accent }}
+        >
+          {label}
+        </div>
+        <div
+          className="text-xs mt-0.5"
+          style={{ color: hexA(accent, 0.75) }}
+        >
+          {sub}
+        </div>
+      </div>
+      <IconArrowRight size={20} style={{ color: accent, opacity: 0.6 }} />
+    </button>
+  );
+}
+
+/** Convierte hex a rgba con alpha — para sombras tinted de cada opción. */
+function hexA(hex: string, alpha: number): string {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
