@@ -62,31 +62,32 @@ export default function StickyCheckoutBar({
           </div>
         )}
 
-        {/* CTA + total — pill naranja con pressure-aware huella.
+        {/* CTA + total — squircle naranja v8 con confetti al confirmar.
             Wrapper relative para anclar el confetti que sale del centro. */}
         <div className="relative">
           <Confetti trigger={confettiTrigger} />
-        <button
-          onClick={handleConfirm}
-          disabled={disabled || loading}
-          className="btn-masa btn-masa-primary w-full py-4 flex items-center justify-between gap-3 px-5"
-          style={{ fontFamily: "Termina" }}
-        >
-          <span className="flex items-center gap-2 text-sm font-bold">
-            {loading ? (
-              <IconLoader2 size={18} className="animate-spin" />
-            ) : (
-              <IconCircleCheck size={18} />
-            )}
-            {ctaLabel}
-          </span>
-          <span
-            className="text-xl"
-            style={{ fontFamily: "ReginaBlack" }}
+          <button
+            onClick={handleConfirm}
+            disabled={disabled || loading}
+            className="btn-masa btn-masa-primary w-full py-4 flex items-center justify-between gap-3 px-5"
+            style={{ fontFamily: "Termina" }}
           >
-            ${total.toFixed(0)}
-          </span>
-        </button>
+            <span className="flex items-center gap-2 text-sm font-bold">
+              {loading ? (
+                <IconLoader2 size={18} className="animate-spin" />
+              ) : (
+                <IconCircleCheck size={18} />
+              )}
+              {ctaLabel}
+            </span>
+            <span
+              className="text-xl"
+              style={{ fontFamily: "ReginaBlack" }}
+            >
+              ${total.toFixed(0)}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
