@@ -7,11 +7,13 @@ import {
   IconBox,
   IconHeart,
 } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildProductionTally,
+  type CategoryByName,
   type ItemLite,
 } from "@/lib/productionPlan";
+import { createClient } from "@/lib/supabase";
 
 type OrderLite = {
   id: string;
@@ -54,6 +56,33 @@ export default function ProductionPlanDrawer({
   surfaceBg: string;
 }) {
   const [filtro, setFiltro] = useState<Filtro>("hoy");
+  const [categoryByName, setCategoryByName] = useState<CategoryByName>(
+    new Map()
+  );
+
+  // Cargar la categoría real de cada producto desde la BD UNA VEZ.
+  // Necesario para clasificar correctamente: las berlinesas se llaman
+  // "Nutella", "Original" — sin prefijo, indistinguibles de roles por nombre.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("products")
+        .select("name, category");
+      if (cancelled || !data) return;
+      const map: CategoryByName = new Map();
+      for (const p of data) {
+        if (p.name && p.category) {
+          map.set(p.name.toLowerCase().trim(), p.category);
+        }
+      }
+      setCategoryByName(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     const today = startOfDay(new Date());
@@ -86,8 +115,8 @@ export default function ProductionPlanDrawer({
   const tally = useMemo(() => {
     const allItems: ItemLite[] = [];
     for (const o of filtered) allItems.push(...o.items);
-    return buildProductionTally(allItems);
-  }, [filtered]);
+    return buildProductionTally(allItems, categoryByName);
+  }, [filtered, categoryByName]);
 
   const filtroLabel = {
     hoy: "Hoy",
