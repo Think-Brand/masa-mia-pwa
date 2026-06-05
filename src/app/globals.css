@@ -370,19 +370,22 @@ body {
   transform: none;
 }
 
-/* ANTÓJAME · banner horizontal — sigue siendo NARANJA BRILLANTE para
- * que llame la atención. No pasa al medio cálido como el resto. */
+/* ANTÓJAME · banner horizontal. Naranja UNIFICADO con el resto de
+ * botones primarios (#DE7547 → variantes oscura al press, igual que
+ * btn-masa-primary). Highlights internos AMARILLOS cálidos en lugar
+ * de blancos/crema — eso evitaba el "halo blanco" que se notaba
+ * sobre la Miga. */
 .btn-masa-antojame {
   color: white;
-  background: linear-gradient(135deg, #FF7A40 0%, #E04A18 100%);
+  background: #DE7547;
   border-radius: 28px;
   box-shadow:
-    inset 0 4px 10px rgba(255, 220, 180, 0.5),
+    inset 0 4px 10px rgba(255, 200, 90, 0.45),
     inset 0 -6px 14px rgba(110, 30, 5, 0.4),
-    inset 6px 4px 8px rgba(255, 220, 180, 0.2),
+    inset 6px 4px 8px rgba(255, 200, 90, 0.22),
     inset -4px -4px 8px rgba(110, 30, 5, 0.18),
-    0 18px 36px rgba(242, 92, 32, 0.32),
-    0 6px 14px rgba(242, 92, 32, 0.18);
+    0 18px 36px rgba(110, 30, 5, 0.28),
+    0 6px 14px rgba(110, 30, 5, 0.14);
 }
 .btn-masa-antojame:hover {
   transform: scale(1.015, 1.02);
@@ -390,11 +393,11 @@ body {
 .btn-masa-antojame.is-pressed,
 .btn-masa-antojame:active {
   transform: scale(0.97, 0.94);
-  background: linear-gradient(135deg, #E0521C 0%, #B83E12 100%);
+  background: #C2603A;
   box-shadow:
-    inset 0 -2px 6px rgba(255, 220, 180, 0.18),
+    inset 0 -2px 6px rgba(255, 200, 90, 0.18),
     inset 0 5px 14px rgba(80, 25, 5, 0.5),
-    0 4px 10px rgba(242, 92, 32, 0.18);
+    0 4px 10px rgba(110, 30, 5, 0.16);
   transition: all 100ms ease-out;
 }
 

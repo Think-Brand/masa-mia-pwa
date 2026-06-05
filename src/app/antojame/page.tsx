@@ -231,12 +231,22 @@ export default function Antojame() {
   const { cliente, add, ready } = useCarrito();
   const [step, setStep] = useState<Step>("intro");
 
-  // Scroll a top cada vez que cambia el step. Sin esto, al hacer "Volver"
-  // el browser mantiene la posición y parece que la primera opción
-  // desaparece (en realidad está arriba scrolleada).
+  // Scroll a top INSTANT (no smooth) cada vez que cambia el step.
+  // El smooth daba la sensación de "la opción desapareció" — instant
+  // hace que el step nuevo aparezca limpio desde top sin animación.
+  // Hacemos múltiples llamadas para cubrir todos los navegadores y
+  // contenedores scrolleables que iOS Safari maneja distinto.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reset = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    reset();
+    // Volver a forzar después de un tick para cuando el step recién
+    // renderizado mide su altura
+    requestAnimationFrame(reset);
   }, [step]);
   const [occasion, setOccasion] = useState<Occasion | null>(null);
   const [flavor, setFlavor] = useState<Flavor | null>(null);
@@ -712,7 +722,7 @@ function AttitudeCard({
   return (
     <button
       onClick={onClick}
-      className={`option-card relative rounded-3xl flex items-center gap-3 px-3 py-3 ${
+      className={`option-card relative rounded-3xl flex items-center gap-3 px-4 py-5 ${
         active ? "is-active" : ""
       }`}
       style={{
@@ -723,35 +733,28 @@ function AttitudeCard({
           : `0 12px 26px ${shadowDeep}, inset 0 -3px 12px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.18)`,
       }}
     >
-      {/* La imagen para Step 3 tiene fondo blanco. La metemos en un
-          círculo crema con overflow:hidden para que el blanco quede
-          INTENCIONAL como avatar/sello sobre el card oscuro. */}
-      <div
-        className="w-20 h-20 relative flex-shrink-0 rounded-full overflow-hidden"
-        style={{
-          background: "#FBF4E6",
-          boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.2)",
-        }}
-      >
+      {/* Imagen directa, sin círculo. Las PNG ya están recortadas
+          transparentes; van limpias sobre el card oscuro. Más grande
+          aprovechando que el card creció en altura. */}
+      <div className="w-32 h-32 relative flex-shrink-0">
         <Image
           src={image}
           alt={label}
           fill
-          sizes="80px"
-          className="object-cover"
-          style={{ objectPosition: "center 20%" }}
+          sizes="128px"
+          className="object-contain drop-shadow-2xl"
         />
       </div>
 
       <div className="flex-1 text-left">
         <div
-          className="text-lg font-bold leading-tight"
+          className="text-xl font-bold leading-tight"
           style={{ fontFamily: "Termina", color: accent }}
         >
           {label}
         </div>
         <div
-          className="text-xs mt-0.5"
+          className="text-sm mt-1"
           style={{ color: subColor }}
         >
           {sub}
