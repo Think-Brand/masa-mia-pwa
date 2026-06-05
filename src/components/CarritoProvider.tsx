@@ -47,6 +47,10 @@ type CarritoCtx = {
   cliente: Cliente | null;
   total: number;
   count: number;
+  /** true cuando ya se leyó localStorage. Antes de eso `cliente` puede estar
+   *  en null aunque el cliente sí esté logueado. CRÍTICO para evitar
+   *  redirects falsos en páginas auth-protected como /mis-pedidos. */
+  ready: boolean;
   add: (p: Product, qty?: number) => void;
   addBox: (p: Product, composition: CompositionLine[], finalPrice: number) => void;
   remove: (cartLineId: string) => void;
@@ -184,6 +188,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
         cliente,
         total,
         count,
+        ready,
         add,
         addBox,
         remove,

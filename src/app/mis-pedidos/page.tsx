@@ -25,7 +25,7 @@ const ESTADOS_LABEL: Record<string, { label: string; color: string }> = {
 
 export default function MisPedidos() {
   const router = useRouter();
-  const { cliente, add } = useCarrito();
+  const { cliente, add, ready } = useCarrito();
   const [orders, setOrders] = useState<(Order & { items: OrderItem[] })[]>([]);
   const [loading, setLoading] = useState(true);
   const [repitiendo, setRepitiendo] = useState<string | null>(null);
@@ -87,6 +87,11 @@ export default function MisPedidos() {
   };
 
   useEffect(() => {
+    // IMPORTANTE: esperar a que CarritoProvider haya leído localStorage.
+    // Si no esperamos, en el primer render `cliente` es null aunque sí esté
+    // logueado, y disparamos un redirect falso a "/".
+    if (!ready) return;
+
     // Detección de cliente fantasma (logout legacy con name vacío).
     const valido =
       !!cliente &&
@@ -127,9 +132,17 @@ export default function MisPedidos() {
       setOrders(withItems);
       setLoading(false);
     })();
-  }, [cliente, router, reloadKey]);
+  }, [cliente, router, reloadKey, ready]);
 
-  if (!cliente) return null;
+  // Mientras CarritoProvider termina de leer localStorage, mostrar
+  // placeholder en lugar de un null vacío (evita flash).
+  if (!ready || !cliente) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
+        Cargando…
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">

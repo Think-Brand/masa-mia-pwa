@@ -20,8 +20,10 @@ import {
   IconX,
   IconHistory,
   IconBrandWhatsapp,
+  IconListNumbers,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
+import ProductionPlanDrawer from "./ProductionPlanDrawer";
 
 type ActiveStatus = "pending" | "accepted" | "baking" | "ready";
 type AllStatus = ActiveStatus | "delivered" | "declined" | "cancelled";
@@ -187,6 +189,7 @@ export default function KitchenDisplay({
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ColumnKey>("pedidos");
   const [showDelivered, setShowDelivered] = useState(false);
+  const [showProductionPlan, setShowProductionPlan] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>("entregados");
   const wakeLockRef = useRef<any>(null);
 
@@ -444,6 +447,13 @@ export default function KitchenDisplay({
 
           <div className="flex items-center gap-1">
             <IconButton
+              onClick={() => setShowProductionPlan(true)}
+              theme={theme}
+              title="Plan de producción del día"
+            >
+              <IconListNumbers size={18} />
+            </IconButton>
+            <IconButton
               onClick={() => setShowDelivered(true)}
               theme={theme}
               title="Ver entregados de hoy"
@@ -596,6 +606,18 @@ export default function KitchenDisplay({
           cancelled={cancelled}
           history={history}
           onClose={() => setShowDelivered(false)}
+          cardBg={cardBg}
+          cardText={cardText}
+          subText={subText}
+          surfaceBg={surfaceBg}
+        />
+      )}
+
+      {/* Drawer plan de producción */}
+      {showProductionPlan && (
+        <ProductionPlanDrawer
+          orders={orders}
+          onClose={() => setShowProductionPlan(false)}
           cardBg={cardBg}
           cardText={cardText}
           subText={subText}

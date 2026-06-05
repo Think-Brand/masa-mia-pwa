@@ -573,19 +573,20 @@ export default function Carrito() {
                 .
               </div>
 
-              {/* Selector de hora de recogida */}
+              {/* Selector de hora de recogida — grid 4 cols sin scroll
+                  horizontal, todos los slots visibles de un vistazo. */}
               <div className="mt-3 pt-3 border-t border-caramelo/20">
-                <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1">
+                <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1.5">
                   ¿A qué hora pasas?
                 </div>
-                <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                <div className="grid grid-cols-4 gap-1.5">
                   {TIME_SLOTS.map((slot) => {
                     const active = slot === pickupTime;
                     return (
                       <button
                         key={slot}
                         onClick={() => setPickupTime(slot)}
-                        className={`flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition whitespace-nowrap ${
+                        className={`px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition whitespace-nowrap ${
                           active
                             ? "bg-antojo text-white shadow"
                             : "bg-crema text-cafe"

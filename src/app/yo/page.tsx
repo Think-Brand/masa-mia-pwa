@@ -55,7 +55,7 @@ type Stats = {
 
 export default function Yo() {
   const router = useRouter();
-  const { cliente, clear, setCliente, items } = useCarrito();
+  const { cliente, clear, setCliente, items, ready } = useCarrito();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -265,6 +265,16 @@ export default function Yo() {
     setCliente(null);
     router.replace("/");
   };
+
+  // Esperar a que CarritoProvider termine de leer localStorage para no
+  // mostrar un flash del registro cuando el cliente sí está logueado.
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
+        Cargando…
+      </div>
+    );
+  }
 
   // Empty state cuando no hay cliente válido (Modelo B).
   // En lugar de redirigir al inicio, ofrecemos el registro AQUÍ mismo

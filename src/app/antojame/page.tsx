@@ -159,7 +159,7 @@ function pickProduct(
 
 export default function Antojame() {
   const router = useRouter();
-  const { cliente, add } = useCarrito();
+  const { cliente, add, ready } = useCarrito();
   const [step, setStep] = useState<Step>("intro");
   const [occasion, setOccasion] = useState<Occasion | null>(null);
   const [flavor, setFlavor] = useState<Flavor | null>(null);
@@ -172,6 +172,9 @@ export default function Antojame() {
   );
 
   useEffect(() => {
+    // Esperar a que CarritoProvider termine de leer localStorage
+    // (evita redirect falso al primer render).
+    if (!ready) return;
     // Detección de cliente fantasma (logout legacy con name vacío).
     const valido =
       !!cliente &&
@@ -194,7 +197,7 @@ export default function Antojame() {
         setProducts(data ?? []);
         setLoading(false);
       });
-  }, [cliente, router]);
+  }, [cliente, router, ready]);
 
   const resultado =
     step === "resultado" && occasion && flavor && attitude

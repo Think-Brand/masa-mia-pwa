@@ -16,11 +16,14 @@ import {
 
 export default function NotificacionesPage() {
   const router = useRouter();
-  const { cliente } = useCarrito();
+  const { cliente, ready } = useCarrito();
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Esperar a que CarritoProvider termine de leer localStorage
+    // (evita redirect falso al primer render).
+    if (!ready) return;
     // Detección de cliente fantasma (logout legacy con name vacío).
     const valido =
       !!cliente &&
@@ -54,9 +57,15 @@ export default function NotificacionesPage() {
           .in("id", unreadIds);
       }
     })();
-  }, [cliente, router]);
+  }, [cliente, router, ready]);
 
-  if (!cliente) return null;
+  if (!ready || !cliente) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-canela text-sm">
+        Cargando…
+      </div>
+    );
+  }
 
   const grouped = groupByDay(notifs);
 
