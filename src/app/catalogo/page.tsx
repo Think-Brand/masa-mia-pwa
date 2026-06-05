@@ -104,12 +104,13 @@ export default function Catalogo() {
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Banner Antójame — Miga + texto agrupados al CENTRO. ✨ flota
-          absolute a la derecha como decoración para que no jale el
-          contenido principal. */}
+      {/* Banner Antójame — Miga + texto desplazados ligeramente a la
+          IZQUIERDA por compensación visual (el ✨ a la derecha jala
+          el peso óptico). Sin el offset, el conjunto se ve cargado a
+          la derecha aunque matemáticamente esté centrado. */}
       <Link
         href="/antojame"
-        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 px-4 py-3 flex items-center justify-center gap-3"
+        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 pl-3 pr-12 py-3 flex items-center justify-center gap-3"
       >
         <div className="relative w-20 h-20 flex-shrink-0 -my-3">
           <Image
