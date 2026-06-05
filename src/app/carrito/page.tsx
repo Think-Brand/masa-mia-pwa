@@ -328,10 +328,10 @@ export default function Carrito() {
               </span>
             </p>
 
-            {/* Mini banner Antójame */}
+            {/* Mini banner Antójame con squish */}
             <Link
               href="/antojame"
-              className="relative w-full bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
+              className="btn-masa btn-masa-antojame relative w-full px-4 py-3 flex items-center gap-3 overflow-hidden"
             >
               <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
                 <Image
@@ -431,23 +431,29 @@ export default function Carrito() {
                         {(it.quantity * it.price).toFixed(0)}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 bg-crema rounded-xl px-1 py-0.5">
+                    <div
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-full"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgba(242,92,32,0.06), rgba(242,92,32,0.16))",
+                      }}
+                    >
                       <button
                         onClick={() => setQty(it.cartLineId, it.quantity - 1)}
                         aria-label="Quitar uno"
-                        className="text-cafe active:scale-90 transition w-9 h-9 flex items-center justify-center rounded-lg"
+                        className="btn-masa btn-masa-mini"
                       >
-                        <IconMinus size={18} />
+                        <IconMinus size={16} />
                       </button>
-                      <span className="text-sm font-bold w-6 text-center text-cafe">
+                      <span className="text-sm font-bold w-5 text-center text-cafe">
                         {it.quantity}
                       </span>
                       <button
                         onClick={() => setQty(it.cartLineId, it.quantity + 1)}
                         aria-label="Agregar uno"
-                        className="text-cafe active:scale-90 transition w-9 h-9 flex items-center justify-center rounded-lg"
+                        className="btn-masa btn-masa-mini"
                       >
-                        <IconPlus size={18} />
+                        <IconPlus size={16} />
                       </button>
                     </div>
                   </div>

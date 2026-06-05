@@ -10,6 +10,9 @@ const DeclineNotice = dynamic(() => import("./DeclineNotice"), {
 const StaffViewBanner = dynamic(() => import("./StaffViewBanner"), {
   ssr: false,
 });
+const MasaPointerTracker = dynamic(() => import("./MasaPointerTracker"), {
+  ssr: false,
+});
 
 export type CompositionLine = {
   componentName: string;
@@ -202,6 +205,7 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
       {children}
       <DeclineNoticeMount />
       <StaffViewBanner />
+      <MasaPointerTracker />
     </Ctx.Provider>
   );
 }

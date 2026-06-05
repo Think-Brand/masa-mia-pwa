@@ -171,10 +171,10 @@ export default function MisPedidos() {
               </span>
             </p>
 
-            {/* Mini banner Antójame */}
+            {/* Mini banner Antójame con squish */}
             <Link
               href="/antojame"
-              className="relative w-full bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
+              className="btn-masa btn-masa-antojame relative w-full px-4 py-3 flex items-center gap-3 overflow-hidden"
             >
               <div className="relative w-16 h-16 flex-shrink-0 -my-2 -ml-1">
                 <Image
@@ -291,7 +291,7 @@ export default function MisPedidos() {
                     <button
                       onClick={() => repetirPedido(o)}
                       disabled={repitiendo === o.id}
-                      className="btn-masa btn-masa-secondary flex-1 rounded-2xl py-2.5 text-[11px] flex items-center justify-center gap-1.5"
+                      className="btn-masa btn-masa-secondary flex-1 py-2.5 text-[11px] flex items-center justify-center gap-1.5"
                       style={{ fontFamily: "Termina" }}
                     >
                       <IconRepeat size={13} />

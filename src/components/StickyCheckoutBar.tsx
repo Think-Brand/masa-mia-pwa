@@ -53,23 +53,23 @@ export default function StickyCheckoutBar({
           </div>
         )}
 
-        {/* CTA + total — botón "bulto de masa" con halo glaseado naranja */}
+        {/* CTA + total — pill naranja con pressure-aware huella */}
         <button
           onClick={onConfirm}
           disabled={disabled || loading}
-          className="btn-masa btn-masa-primary w-full rounded-[28px] py-4 flex items-center justify-between gap-3 px-5"
+          className="btn-masa btn-masa-primary w-full py-4 flex items-center justify-between gap-3 px-5"
           style={{ fontFamily: "Termina" }}
         >
           <span className="flex items-center gap-2 text-sm font-bold">
             {loading ? (
-              <IconLoader2 size={18} className="animate-spin text-antojo" />
+              <IconLoader2 size={18} className="animate-spin" />
             ) : (
-              <IconCircleCheck size={18} className="text-antojo" />
+              <IconCircleCheck size={18} />
             )}
             {ctaLabel}
           </span>
           <span
-            className="text-xl text-cafe"
+            className="text-xl"
             style={{ fontFamily: "ReginaBlack" }}
           >
             ${total.toFixed(0)}

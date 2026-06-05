@@ -104,10 +104,10 @@ export default function Catalogo() {
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Banner Antójame con Miga recomendando cortada (overflow) */}
+      {/* Banner Antójame con squish + huella local */}
       <Link
         href="/antojame"
-        className="relative mx-3 mt-3 mb-1 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition shadow-md overflow-hidden"
+        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 px-4 py-3 flex items-center gap-3"
       >
         <div className="relative w-20 h-20 flex-shrink-0 -my-3 -ml-2">
           <Image
@@ -229,7 +229,7 @@ export default function Catalogo() {
                     <Link
                       href={detalleHref}
                       aria-label={`Armar ${p.name}`}
-                      className="w-10 h-10 rounded-full bg-antojo text-white flex items-center justify-center shadow-md active:scale-90 transition flex-shrink-0"
+                      className="btn-masa btn-masa-plus"
                     >
                       <IconPlus size={20} stroke={2.5} />
                     </Link>
@@ -277,17 +277,17 @@ function ProductStepper({
   onMinus: () => void;
   productName: string;
 }) {
-  // Estado vacío: solo botón +
+  // Estado vacío: solo botón + con squish
   if (qty === 0) {
     return (
       <button
         onClick={onAdd}
         aria-label={`Agregar ${productName}`}
-        className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all flex-shrink-0 ${
+        className={
           pulse
-            ? "bg-verde text-white scale-110"
-            : "bg-antojo text-white active:scale-90"
-        }`}
+            ? "w-12 h-12 rounded-full bg-verde text-white flex items-center justify-center shadow-md scale-110 transition-all flex-shrink-0"
+            : "btn-masa btn-masa-plus"
+        }
       >
         {pulse ? (
           <IconCheck size={22} stroke={3} />
