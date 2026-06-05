@@ -35,14 +35,18 @@ const FLAVOR_PRODUCTS: Record<Flavor, string[]> = {
 // normalizar el tamaño visual entre composiciones con 1 o 2 figuras
 // (ej. para-compartir tiene 2 Migas → necesita scale 1.18 para empatar
 // con un Miga solo).
+// Paleta coherente con Masa Mía: avellana-soft #F5E8CE es el fondo de los
+// rolls. Todos los colores de antojame son variantes SUTILES dentro de la
+// familia cálida (crema, durazno, dorado, canela). Cada opción tiene un
+// tinte distinto pero ninguno rompe la armonía visual del resto de la app.
 const OPTIONS_OCCASION = [
   {
     key: "para_mi" as Occasion,
     image: "/mascota/antojame/para-mi.png",
     label: "Para mí",
     sub: "Ya traigo hambre",
-    bg: "#FFC58A",
-    accent: "#C2440B",
+    bg: "#FFD2A8",       // durazno crema cálido
+    accent: "#A14A12",
     scale: 1.0,
   },
   {
@@ -50,8 +54,8 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/para-compartir.png",
     label: "Para compartir",
     sub: "Botanear con alguien",
-    bg: "#FCC256",
-    accent: "#8C5400",
+    bg: "#F5E8CE",       // avellana-soft (el de los rolls)
+    accent: "#7A5510",
     scale: 1.18,
   },
   {
@@ -59,8 +63,8 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/un-regalo.png",
     label: "Es un regalo",
     sub: "Detalle especial",
-    bg: "#F285A4",
-    accent: "#8A0E3E",
+    bg: "#FAD0BF",       // rosa-durazno suave
+    accent: "#9B3315",
     scale: 1.08,
   },
   {
@@ -68,8 +72,8 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/una-probadita.png",
     label: "Una probadita",
     sub: "Solo un antojo chico",
-    bg: "#B6DA8B",
-    accent: "#2D5A14",
+    bg: "#F2D89E",       // dorado avena
+    accent: "#6F4B0C",
     scale: 1.04,
   },
 ];
@@ -79,31 +83,31 @@ const OPTIONS_FLAVOR = [
     key: "chocolatoso" as Flavor,
     image: "/mascota/antojame/Chocolatoso.png",
     label: "Chocolatoso",
-    bg: "#B9805C",
-    accent: "#3D1F0A",
+    bg: "#DCBC9C",       // canela suave
+    accent: "#4A2C12",
     scale: 1.0,
   },
   {
     key: "frutal" as Flavor,
     image: "/mascota/antojame/Frutal.png",
     label: "Frutal y fresco",
-    bg: "#FF9DB3",
-    accent: "#8A0E3E",
+    bg: "#F5C5B5",       // coral pálido
+    accent: "#9B3315",
     scale: 1.0,
   },
   {
     key: "frutos_secos" as Flavor,
     image: "/mascota/antojame/Secos.png",
     label: "Con frutos secos",
-    bg: "#D8AA62",
-    accent: "#5A3508",
+    bg: "#E8D2A8",       // avellana
+    accent: "#5C3F12",
     scale: 1.0,
   },
   {
     key: "cremoso" as Flavor,
     image: "/mascota/antojame/Cremoso.png",
     label: "Cremoso y clásico",
-    bg: "#F0CB87",
+    bg: "#FAEBCA",       // vainilla
     accent: "#7A5510",
     scale: 1.0,
   },
@@ -115,8 +119,8 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/A-la-segura.png",
     label: "A lo seguro",
     sub: "Dame el favorito",
-    bg: "#92BCE3",
-    accent: "#0F3E70",
+    bg: "#EFD6B5",       // crema tostado
+    accent: "#6F4B0C",
     scale: 1.0,
   },
   {
@@ -124,8 +128,8 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/Sorprendeme.png",
     label: "Sorpréndeme",
     sub: "Algo distinto",
-    bg: "#ED99B5",
-    accent: "#7D113F",
+    bg: "#FFC8A1",       // antojo suave (un poco más vivo para destacar)
+    accent: "#A14A12",
     scale: 1.0,
   },
   {
@@ -133,7 +137,7 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/Probar-suerte.png",
     label: "Probar suerte",
     sub: "Lo que la masa decida",
-    bg: "#F9D14A",
+    bg: "#F4D78B",       // dorado lúdico
     accent: "#7A5510",
     scale: 1.0,
   },
