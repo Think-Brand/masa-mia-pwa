@@ -13,22 +13,10 @@ import ClienteEditor from "./ClienteEditor";
 
 export const dynamic = "force-dynamic";
 
-const POSES: Record<string, string> = {
-  adorable: "/mascota/miga-adorable.png",
-  tierna: "/mascota/miga-tierna.png",
-  lista: "/mascota/miga-lista.png",
-  senalar: "/mascota/miga-senalar.png",
-  chef: "/mascota/miga-chef.png",
-  sentada: "/mascota/miga-sentada.png",
-  cintura: "/mascota/miga-cintura.png",
-  espalda: "/mascota/miga-espalda.png",
-  malabares: "/mascota/miga-malabares.png",
-  algo_entre_manos: "/mascota/miga-algo-entre-manos.png",
-};
+import { getAvatarSrc } from "@/lib/avatar";
 
 function avatarFor(pose: string | null): string {
-  const p = (pose || "adorable").toLowerCase();
-  return POSES[p] ?? POSES.adorable;
+  return getAvatarSrc(pose);
 }
 
 function formatBirthday(bMD: string | null): string {

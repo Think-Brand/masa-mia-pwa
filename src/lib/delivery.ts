@@ -65,13 +65,14 @@ export function listAvailableDates(min: Date, count = 14): Date[] {
   return out;
 }
 
-// Slots de hora de recogida: cada 30 min entre 08:00 y 20:00.
-// Devuelve ["08:00", "08:30", ..., "19:30", "20:00"].
+// Slots de hora de recogida: cada 2 horas entre 8 am y 8 pm.
+// Devuelve ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"].
+// Separar pickups en bloques de 2h ayuda a no amontonar gente en la puerta.
+// Si el cliente necesita otra hora exacta, el flujo es /pedido-especial.
 export function listPickupTimeSlots(): string[] {
   const out: string[] = [];
-  for (let h = 8; h <= 20; h++) {
+  for (let h = 8; h <= 20; h += 2) {
     out.push(`${String(h).padStart(2, "0")}:00`);
-    if (h < 20) out.push(`${String(h).padStart(2, "0")}:30`);
   }
   return out;
 }

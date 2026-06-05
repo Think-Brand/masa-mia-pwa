@@ -93,6 +93,16 @@ export function DeclineButton({
       setSaving(false);
       return;
     }
+
+    // Auto-open WhatsApp con el mensaje + link de recuperar.
+    // Es una de las 2 únicas notificaciones automatizadas (la otra es
+    // "Avisar listo"). Abre ANTES de los setStates para que el gesto del
+    // usuario siga activo en iOS (window.open con popup blocker).
+    const url = buildWaUrl();
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
     setSaving(false);
     setDone(true);
     router.refresh();
@@ -140,8 +150,8 @@ export function DeclineButton({
             {done ? (
               <div className="px-5 pt-2 pb-4 text-center">
                 <Image
-                  src="/mascota/miga-sentada.png"
-                  alt="Miga"
+                  src="/mascota/lo-siento.png"
+                  alt="Miga apenada"
                   width={120}
                   height={120}
                   className="mx-auto"
@@ -153,9 +163,18 @@ export function DeclineButton({
                   Pedido declinado
                 </h2>
                 <p className="text-xs text-canela mt-2 max-w-xs mx-auto leading-relaxed">
-                  Ya quedó marcado. Avísale a{" "}
-                  <b className="text-cafe">{customerName}</b> con cariño — el
-                  link de "cambiar fecha" ya va incluido.
+                  {waUrl ? (
+                    <>
+                      Acabamos de abrirte el WhatsApp con el mensaje listo para{" "}
+                      <b className="text-cafe">{customerName}</b>.
+                      El link de "cambiar fecha" ya va incluido.
+                    </>
+                  ) : (
+                    <>
+                      Ya quedó marcado. Avísale a{" "}
+                      <b className="text-cafe">{customerName}</b> con cariño.
+                    </>
+                  )}
                 </p>
 
                 <div className="flex flex-col gap-2 mt-5 px-4">
@@ -168,7 +187,7 @@ export function DeclineButton({
                       className="w-full bg-[#25D366] text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
                     >
                       <IconBrandWhatsapp size={18} />
-                      Avisar por WhatsApp
+                      Volver a abrir WhatsApp
                     </a>
                   ) : (
                     <p className="text-[11px] text-canela italic">

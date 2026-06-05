@@ -22,15 +22,8 @@ import YoRegistroEmptyState from "@/components/YoRegistroEmptyState";
 import { resetTour, CLIENTE_TOUR_ID } from "@/lib/onboarding";
 import { formatBirthday, isBirthdayToday } from "@/lib/birthday";
 
-// 10 avatares + opción de foto propia (data URL guardada en avatar_pose)
-const AVATAR_IDS = Array.from({ length: 10 }, (_, i) => `avatar-${i + 1}`);
-
-function getAvatarSrc(pose: string | undefined): string {
-  if (!pose) return "/avatares/avatar-1.png";
-  if (pose.startsWith("data:")) return pose;
-  if (pose.startsWith("avatar-")) return `/avatares/${pose}.png`;
-  return "/avatares/avatar-1.png";
-}
+// Avatares + opción de foto propia (data URL). Source of truth en lib/avatar.
+import { AVATAR_IDS, getAvatarSrc } from "@/lib/avatar";
 
 type FavoriteInfo = {
   name: string;
@@ -300,21 +293,24 @@ export default function Yo() {
           <button
             onClick={() => setPickerOpen(true)}
             aria-label="Cambiar avatar"
-            className="relative active:scale-95 transition"
+            className="relative active:scale-95 transition flex flex-col items-center"
           >
-            <div className="w-28 h-28 rounded-full overflow-hidden bg-crema-soft shadow-md ring-2 ring-white">
+            {/* Avatar completo, sin crop circular. Imagen sale "de pie"
+                sobre el botón redondo de abajo, dando sensación de avatar
+                "saliendo" hacia arriba. */}
+            <div className="w-44 h-44 sm:w-52 sm:h-52 relative">
               <Image
                 src={getAvatarSrc(currentAvatar)}
                 alt="Tu avatar"
-                width={256}
-                height={256}
-                className="w-full h-full object-cover"
+                fill
+                sizes="208px"
+                className="object-contain drop-shadow-lg"
                 priority
                 unoptimized={currentAvatar?.startsWith("data:")}
               />
             </div>
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-antojo text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow whitespace-nowrap">
-              cambiar
+            <span className="-mt-2 bg-antojo text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-md whitespace-nowrap">
+              cambiar avatar
             </span>
           </button>
 

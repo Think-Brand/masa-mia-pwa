@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { pickMiga } from "@/lib/migaEmotions";
 import {
   IconCalendarEvent,
   IconBrandWhatsapp,
@@ -199,11 +200,11 @@ export default function DeclineNotice() {
 
         <div className="text-center">
           <Image
-            src="/mascota/miga-sentada.png"
-            alt="Miga"
-            width={130}
-            height={130}
-            className="mx-auto"
+            src={pickMiga("apenada", pending.id)}
+            alt="Miga apenada"
+            width={140}
+            height={140}
+            className="mx-auto drop-shadow-md"
             priority
           />
           <h2

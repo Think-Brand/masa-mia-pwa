@@ -11,20 +11,22 @@ export default function HeaderCliente() {
 
   return (
     <header className="sticky top-0 z-30 bg-crema/95 backdrop-blur border-b border-caramelo/20">
-      <div className="max-w-md mx-auto flex items-center justify-between px-4 py-3">
+      <div className="max-w-md mx-auto flex items-center justify-between px-4 py-2.5">
         {/* Campanita izquierda */}
         <div className="w-10 flex items-center justify-center">
           <NotificationBell />
         </div>
 
+        {/* Logo masa mía sin tagline — más grande en mobile para
+            ayudar al posicionamiento de marca nueva. */}
         <Link href="/catalogo" className="flex items-center">
           <Image
-            src="/logos/logo-06.png"
+            src="/logos/logo-main.png"
             alt="Masa Mía"
-            width={360}
-            height={108}
+            width={480}
+            height={144}
             priority
-            style={{ height: 56, width: "auto" }}
+            style={{ height: 92, width: "auto" }}
           />
         </Link>
 
