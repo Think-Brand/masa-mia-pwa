@@ -645,6 +645,22 @@ body {
   }
 }
 
+/* Flotar suave de la foto del Antojo del día — sube/baja ~4px en bucle
+ * lento. Da vida sin distraer; el guard de reduced-motion la congela. */
+@keyframes antojo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.antojo-float {
+  animation: antojo-float 3.5s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Entrada del carrito flotante: slide-up con un pequeño rebote (spring). */
 @keyframes floating-cart-up {
   0% {

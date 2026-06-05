@@ -17,7 +17,6 @@ import BottomNav from "@/components/BottomNav";
 import FloatingCart from "@/components/FloatingCart";
 import AntojameBanner from "@/components/AntojameBanner";
 import AntojoDelDia from "@/components/AntojoDelDia";
-import MasPedidos from "@/components/MasPedidos";
 import ClienteOnboarding from "@/components/ClienteOnboarding";
 import VacacionesPostal from "@/components/VacacionesPostal";
 
@@ -128,23 +127,18 @@ export default function Catalogo() {
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Hero "Antojo del día" — best-seller rotado por día (Feature 1) */}
+      {/* 1) Botón ¡Antójame! — el destacado principal, primero */}
+      <AntojameBanner className="mx-3 mt-3 mb-1" />
+
+      {/* 2) Antojo del día (compacto) — best-seller rotado por día. Va debajo
+          del botón y no se roba media pantalla. */}
       {destacados?.productOfDay ? (
         <AntojoDelDia product={destacados.productOfDay} />
       ) : (
         !destacados && (
-          <div className="mx-3 mt-3 mb-2 rounded-3xl aspect-[16/11] bg-white/60 animate-pulse" />
+          <div className="mx-3 mt-1 mb-2 h-[92px] rounded-2xl bg-white/60 animate-pulse" />
         )
       )}
-
-      {/* Carrusel "Los más pedidos" (Feature 2) — comparte el cálculo */}
-      {destacados && destacados.topSellers.length > 0 && (
-        <MasPedidos products={destacados.topSellers} />
-      )}
-
-      {/* Banner Antójame — único componente compartido (catálogo/carrito/
-          mis-pedidos), centrado y con el mismo estilo clay. */}
-      <AntojameBanner className="mx-3 mt-3 mb-1" />
 
       {/* Tabs de categorías */}
       <nav className="px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
