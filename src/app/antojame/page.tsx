@@ -219,6 +219,14 @@ export default function Antojame() {
   const router = useRouter();
   const { cliente, add, ready } = useCarrito();
   const [step, setStep] = useState<Step>("intro");
+
+  // Scroll a top cada vez que cambia el step. Sin esto, al hacer "Volver"
+  // el browser mantiene la posición y parece que la primera opción
+  // desaparece (en realidad está arriba scrolleada).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
   const [occasion, setOccasion] = useState<Occasion | null>(null);
   const [flavor, setFlavor] = useState<Flavor | null>(null);
   const [attitude, setAttitude] = useState<Attitude | null>(null);
@@ -341,7 +349,7 @@ export default function Antojame() {
             >
               ¿Para qué es<br />este antojo?
             </h2>
-            <div className="mt-20 grid grid-cols-2 gap-x-3 gap-y-16">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {OPTIONS_OCCASION.map((opt, i) => {
                 const active = occasion === opt.key;
                 return (
@@ -354,7 +362,6 @@ export default function Antojame() {
                     label={opt.label}
                     sub={opt.sub}
                     image={opt.image}
-                    scale={opt.scale}
                     onClick={() => {
                       setOccasion(opt.key);
                       setTimeout(() => setStep(2), 320);
@@ -375,7 +382,7 @@ export default function Antojame() {
             >
               ¿Qué te late<br />hoy?
             </h2>
-            <div className="mt-20 grid grid-cols-2 gap-x-3 gap-y-16">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {OPTIONS_FLAVOR.map((opt, i) => {
                 const active = flavor === opt.key;
                 return (
@@ -387,7 +394,6 @@ export default function Antojame() {
                     accent={opt.accent}
                     label={opt.label}
                     image={opt.image}
-                    scale={opt.scale}
                     onClick={() => {
                       setFlavor(opt.key);
                       setTimeout(() => setStep(3), 320);
@@ -414,7 +420,7 @@ export default function Antojame() {
             >
               ¿Vamos a lo seguro<br />o nos arriesgamos?
             </h2>
-            <div className="mt-24 flex flex-col gap-20">
+            <div className="mt-5 flex flex-col gap-3">
               {OPTIONS_ATTITUDE.map((opt, i) => {
                 const active = attitude === opt.key;
                 return (
@@ -592,12 +598,9 @@ export default function Antojame() {
 }
 
 /**
- * Card de opción para Step 1 y 2 (Ocasión y Sabor).
- * Miga DESBORDA hacia arriba del card. `scale` normaliza el tamaño visual
- * cuando la composición del PNG tiene 1 o 2 figuras.
- *
- * Animaciones: entry con scale-in + fade. Hover: lift + tilt sutil.
- * Tap: pulse de selección con glow expansivo antes de transición.
+ * Card de opción simple. La imagen vive DENTRO del card, no desbordando.
+ * Padding generoso, layout flex column, imagen arriba — texto abajo.
+ * Sin trucos de posición absoluta ni scales raros.
  */
 function OptionCard({
   active,
@@ -606,7 +609,6 @@ function OptionCard({
   label,
   sub,
   image,
-  scale = 1,
   index,
   onClick,
 }: {
@@ -616,58 +618,46 @@ function OptionCard({
   label: string;
   sub?: string;
   image: string;
-  scale?: number;
   index: number;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`option-card relative pt-20 px-3 pb-4 rounded-3xl text-center flex flex-col items-center ${
+      className={`option-card relative px-3 pt-3 pb-3 rounded-3xl flex flex-col items-center text-center gap-1 ${
         active ? "is-active" : ""
       }`}
       style={{
         background: bg,
-        animationDelay: `${index * 80}ms`,
+        animationDelay: `${index * 70}ms`,
         boxShadow: active
-          ? `0 18px 36px ${hexA(accent, 0.38)}, 0 0 0 3px ${accent}, inset 0 -3px 10px ${hexA(accent, 0.18)}`
-          : `0 12px 24px ${hexA(accent, 0.22)}, inset 0 -3px 10px ${hexA(accent, 0.14)}, inset 0 2px 0 rgba(255,255,255,0.3)`,
+          ? `0 14px 28px ${hexA(accent, 0.3)}, 0 0 0 3px ${accent}, inset 0 -3px 10px ${hexA(accent, 0.14)}`
+          : `0 8px 18px ${hexA(accent, 0.18)}, inset 0 -3px 10px ${hexA(accent, 0.1)}, inset 0 2px 0 rgba(255,255,255,0.25)`,
       }}
     >
-      {/* Miga DESBORDA — scale por opción para normalizar. Posicionada
-          arriba lo suficiente para que NUNCA tape el título. */}
-      <div
-        className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 transition-transform duration-300"
-        style={{ transform: `translate(-50%, 0) scale(${scale})` }}
-      >
+      {/* Imagen dentro del card, normal, sin desbordamientos.
+          aspect-square + object-contain → todas se ven proporcionales
+          aunque la composición del PNG varíe. */}
+      <div className="w-full aspect-square relative">
         <Image
           src={image}
           alt={label}
           fill
-          sizes="144px"
-          className="object-contain drop-shadow-xl"
+          sizes="160px"
+          className="object-contain"
+          style={{ mixBlendMode: "multiply" }}
         />
       </div>
 
-      {/* Sparkle decorativo cuando activo */}
-      {active && (
-        <span
-          className="absolute top-2 right-2 text-xl animate-pulse"
-          aria-hidden="true"
-        >
-          ✨
-        </span>
-      )}
-
       <div
-        className="text-base font-bold leading-tight"
+        className="text-sm font-bold leading-tight px-1"
         style={{ fontFamily: "Termina", color: accent }}
       >
         {label}
       </div>
       {sub && (
         <div
-          className="text-[11px] leading-tight mt-1 px-1"
+          className="text-[11px] leading-tight px-1"
           style={{ color: hexA(accent, 0.78) }}
         >
           {sub}
@@ -679,9 +669,9 @@ function OptionCard({
 
 /**
  * Card de actitud para Step 3.
- * Miga ARRIBA cortada a la cintura (overflow-hidden container) emerge del
- * top del card como un sello. El texto queda LIBRE debajo sin obstrucción.
- * Forma de "sobre" con esquinas más pronunciadas.
+ * Layout horizontal limpio: imagen pequeña a la izquierda, texto a la
+ * derecha. Sin Miga "desbordando", sin formas raras, sin aire vacío.
+ * El card tiene altura compacta — solo lo necesario.
  */
 function AttitudeCard({
   active,
@@ -705,61 +695,47 @@ function AttitudeCard({
   return (
     <button
       onClick={onClick}
-      className={`option-card relative rounded-[28px] text-center overflow-visible flex flex-col items-center pt-24 pb-5 px-4 ${
+      className={`option-card relative rounded-3xl flex items-center gap-3 px-3 py-3 ${
         active ? "is-active" : ""
       }`}
       style={{
         background: bg,
-        animationDelay: `${index * 80}ms`,
+        animationDelay: `${index * 70}ms`,
         boxShadow: active
-          ? `0 20px 40px ${hexA(accent, 0.4)}, 0 0 0 3px ${accent}, inset 0 -4px 12px ${hexA(accent, 0.18)}`
-          : `0 14px 28px ${hexA(accent, 0.24)}, inset 0 -4px 12px ${hexA(accent, 0.14)}, inset 0 2px 0 rgba(255,255,255,0.3)`,
+          ? `0 14px 28px ${hexA(accent, 0.3)}, 0 0 0 3px ${accent}, inset 0 -3px 10px ${hexA(accent, 0.14)}`
+          : `0 8px 18px ${hexA(accent, 0.18)}, inset 0 -3px 10px ${hexA(accent, 0.1)}, inset 0 2px 0 rgba(255,255,255,0.25)`,
       }}
     >
-      {/* Miga emerge por arriba. Como estas imágenes tienen fondo blanco
-          (no son PNG transparentes como las de Step 1), aplicamos
-          mix-blend-mode: multiply para que el blanco se DISUELVA contra
-          el color del card. La Miga queda flotando "dentro" del color
-          naturalmente. */}
-      <div
-        className="absolute -top-14 left-1/2 -translate-x-1/2 w-36 h-36"
-        style={{ mixBlendMode: "multiply" }}
-      >
+      <div className="w-20 h-20 relative flex-shrink-0">
         <Image
           src={image}
           alt={label}
           fill
-          sizes="144px"
-          className="object-contain object-top"
+          sizes="80px"
+          className="object-contain"
+          style={{ mixBlendMode: "multiply" }}
         />
       </div>
 
-      {active && (
-        <span
-          className="absolute top-2 right-3 text-xl animate-pulse"
-          aria-hidden="true"
+      <div className="flex-1 text-left">
+        <div
+          className="text-lg font-bold leading-tight"
+          style={{ fontFamily: "Termina", color: accent }}
         >
-          ✨
-        </span>
-      )}
-
-      <div
-        className="text-xl font-bold leading-tight"
-        style={{ fontFamily: "Termina", color: accent }}
-      >
-        {label}
-      </div>
-      <div
-        className="text-xs mt-1"
-        style={{ color: hexA(accent, 0.78) }}
-      >
-        {sub}
+          {label}
+        </div>
+        <div
+          className="text-xs mt-0.5"
+          style={{ color: hexA(accent, 0.78) }}
+        >
+          {sub}
+        </div>
       </div>
 
       <IconArrowRight
         size={20}
         style={{ color: accent, opacity: 0.55 }}
-        className="absolute right-4 bottom-4"
+        className="flex-shrink-0"
       />
     </button>
   );
