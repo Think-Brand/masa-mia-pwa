@@ -155,10 +155,11 @@ export default function PedidoEspecial() {
         <button
           onClick={enviar}
           disabled={!canSubmit}
-          className="w-full bg-[#25D366] text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md disabled:opacity-50"
+          className="btn-masa btn-masa-primary w-full rounded-[28px] py-4 text-sm flex items-center justify-center gap-2"
+          style={{ fontFamily: "Termina" }}
         >
-          <IconBrandWhatsapp size={18} />
-          Mandar por WhatsApp
+          <IconBrandWhatsapp size={18} className="text-[#25D366]" />
+          <span className="text-cafe font-bold">Mandar por WhatsApp</span>
         </button>
 
         <p className="text-[11px] text-canela italic text-center px-4 leading-relaxed">

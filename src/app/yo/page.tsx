@@ -71,6 +71,18 @@ export default function Yo() {
   const currentAvatar = cliente?.avatar_pose;
   const cumpleHoy = isBirthdayToday(cliente?.birthday);
 
+  // Bloquea el scroll del body cuando hay modal abierto. Sin esto, en mobile
+  // tocar el overlay scrollea la página de atrás (bug que rebotaba la UI).
+  useEffect(() => {
+    const anyOpen = pickerOpen || cumpleOpen || showTour;
+    if (typeof document === "undefined") return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = anyOpen ? "hidden" : prev || "";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [pickerOpen, cumpleOpen, showTour]);
+
   const verTourDeNuevo = () => {
     resetTour(CLIENTE_TOUR_ID);
     setShowTour(true);
@@ -290,11 +302,15 @@ export default function Yo() {
       <div className="flex-1 px-4 pt-5 flex flex-col gap-3">
         {/* Bloque avatar + identidad */}
         <div className="flex flex-col items-center text-center gap-2">
-          {/* Avatar circular grande con botón "+" flotante abajo a la
-              derecha. Usamos un div contenedor (no button) para que el
-              círculo no genere stacking context raro con scroll. El tap
-              se delega solo al botón + interno. */}
-          <div className="relative w-44 h-44 sm:w-52 sm:h-52">
+          {/* Avatar circular grande. La FOTO ENTERA es tapeable para
+              abrir el picker (más intuitivo que el + chiquito), pero
+              también dejamos el + visible como pista visual de que es
+              editable. */}
+          <button
+            onClick={() => setPickerOpen(true)}
+            aria-label="Cambiar avatar"
+            className="relative w-44 h-44 sm:w-52 sm:h-52 active:scale-[0.97] transition"
+          >
             <div className="w-full h-full rounded-full overflow-hidden bg-crema-soft shadow-md ring-2 ring-white">
               <Image
                 src={getAvatarSrc(currentAvatar)}
@@ -306,14 +322,10 @@ export default function Yo() {
                 unoptimized={currentAvatar?.startsWith("data:")}
               />
             </div>
-            <button
-              onClick={() => setPickerOpen(true)}
-              aria-label="Cambiar avatar"
-              className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-antojo text-white flex items-center justify-center shadow-lg ring-2 ring-white active:scale-90 transition"
-            >
+            <span className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-antojo text-white flex items-center justify-center shadow-lg ring-2 ring-white pointer-events-none">
               <IconPlus size={18} stroke={3} />
-            </button>
-          </div>
+            </span>
+          </button>
 
           <div className="mt-2">
             <div

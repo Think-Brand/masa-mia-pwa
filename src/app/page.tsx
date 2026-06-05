@@ -200,9 +200,10 @@ export default function Landing() {
       <div className="w-full flex flex-col gap-2 fade-up">
         <Link
           href="/catalogo"
-          className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md"
+          className="btn-masa btn-masa-primary w-full rounded-[28px] py-4 text-sm flex items-center justify-center gap-2 text-cafe font-bold"
+          style={{ fontFamily: "Termina" }}
         >
-          Ver el menú <IconArrowRight size={16} />
+          Ver el menú <IconArrowRight size={16} className="text-antojo" />
         </Link>
 
         <button

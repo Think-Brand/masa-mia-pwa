@@ -291,10 +291,13 @@ export default function MisPedidos() {
                     <button
                       onClick={() => repetirPedido(o)}
                       disabled={repitiendo === o.id}
-                      className="flex-1 bg-crema text-cafe rounded-xl py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition disabled:opacity-50"
+                      className="btn-masa btn-masa-secondary flex-1 rounded-2xl py-2.5 text-[11px] flex items-center justify-center gap-1.5"
+                      style={{ fontFamily: "Termina" }}
                     >
                       <IconRepeat size={13} />
-                      {repitiendo === o.id ? "Cargando..." : "Pedir lo mismo"}
+                      <span className="font-bold">
+                        {repitiendo === o.id ? "Cargando..." : "Pedir lo mismo"}
+                      </span>
                     </button>
                     {checkCancelEligibility({
                       status: o.status,
