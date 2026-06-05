@@ -35,18 +35,19 @@ const FLAVOR_PRODUCTS: Record<Flavor, string[]> = {
 // normalizar el tamaño visual entre composiciones con 1 o 2 figuras
 // (ej. para-compartir tiene 2 Migas → necesita scale 1.18 para empatar
 // con un Miga solo).
-// Paleta coherente con Masa Mía: avellana-soft #F5E8CE es el fondo de los
-// rolls. Todos los colores de antojame son variantes SUTILES dentro de la
-// familia cálida (crema, durazno, dorado, canela). Cada opción tiene un
-// tinte distinto pero ninguno rompe la armonía visual del resto de la app.
+// Paleta OSCURA: tomamos los colores PROFUNDOS de los textos de los rolls
+// del catálogo. La Miga (naranja-café cálido) destaca con máximo contraste
+// sobre estos fondos saturados oscuros. Texto en crema/blanco para
+// legibilidad sobre fondos oscuros.
 const OPTIONS_OCCASION = [
   {
     key: "para_mi" as Occasion,
     image: "/mascota/antojame/para-mi.png",
     label: "Para mí",
     sub: "Ya traigo hambre",
-    bg: "#FFD2A8",       // durazno crema cálido
-    accent: "#A14A12",
+    bg: "#C2440B",       // naranja antojo oscuro
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.0,
   },
   {
@@ -54,8 +55,9 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/para-compartir.png",
     label: "Para compartir",
     sub: "Botanear con alguien",
-    bg: "#F5E8CE",       // avellana-soft (el de los rolls)
-    accent: "#7A5510",
+    bg: "#0E4A4B",       // turquesa profundo Mangoco
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.18,
   },
   {
@@ -63,8 +65,9 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/un-regalo.png",
     label: "Es un regalo",
     sub: "Detalle especial",
-    bg: "#FAD0BF",       // rosa-durazno suave
-    accent: "#9B3315",
+    bg: "#8A0E3E",       // magenta vino Frutella
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.08,
   },
   {
@@ -72,8 +75,9 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/una-probadita.png",
     label: "Una probadita",
     sub: "Solo un antojo chico",
-    bg: "#F2D89E",       // dorado avena
-    accent: "#6F4B0C",
+    bg: "#3B6D11",       // verde bosque Pistachito
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.04,
   },
 ];
@@ -83,32 +87,36 @@ const OPTIONS_FLAVOR = [
     key: "chocolatoso" as Flavor,
     image: "/mascota/antojame/Chocolatoso.png",
     label: "Chocolatoso",
-    bg: "#DCBC9C",       // canela suave
-    accent: "#4A2C12",
+    bg: "#3D1F0A",       // chocolate oscuro Mil Besos
+    accent: "#FFEAA0",
+    subColor: "rgba(255,234,160,0.7)",
     scale: 1.0,
   },
   {
     key: "frutal" as Flavor,
     image: "/mascota/antojame/Frutal.png",
     label: "Frutal y fresco",
-    bg: "#F5C5B5",       // coral pálido
-    accent: "#9B3315",
+    bg: "#A0143E",       // rojo vino Frutella
+    accent: "#FFE0E8",
+    subColor: "rgba(255,224,232,0.75)",
     scale: 1.0,
   },
   {
     key: "frutos_secos" as Flavor,
     image: "/mascota/antojame/Secos.png",
     label: "Con frutos secos",
-    bg: "#E8D2A8",       // avellana
-    accent: "#5C3F12",
+    bg: "#5A3508",       // tostado oscuro RollSnicker
+    accent: "#FFF5DA",
+    subColor: "rgba(255,245,218,0.7)",
     scale: 1.0,
   },
   {
     key: "cremoso" as Flavor,
     image: "/mascota/antojame/Cremoso.png",
     label: "Cremoso y clásico",
-    bg: "#FAEBCA",       // vainilla
-    accent: "#7A5510",
+    bg: "#7A5510",       // caramelo oscuro Mil Besos
+    accent: "#FFF5DA",
+    subColor: "rgba(255,245,218,0.75)",
     scale: 1.0,
   },
 ];
@@ -119,8 +127,9 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/A-la-segura.png",
     label: "A lo seguro",
     sub: "Dame el favorito",
-    bg: "#EFD6B5",       // crema tostado
-    accent: "#6F4B0C",
+    bg: "#0F3E70",       // azul confianza profundo
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.0,
   },
   {
@@ -128,8 +137,9 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/Sorprendeme.png",
     label: "Sorpréndeme",
     sub: "Algo distinto",
-    bg: "#FFC8A1",       // antojo suave (un poco más vivo para destacar)
-    accent: "#A14A12",
+    bg: "#7D113F",       // magenta vino
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.0,
   },
   {
@@ -137,8 +147,9 @@ const OPTIONS_ATTITUDE = [
     image: "/mascota/antojame/Probar-suerte.png",
     label: "Probar suerte",
     sub: "Lo que la masa decida",
-    bg: "#F4D78B",       // dorado lúdico
-    accent: "#7A5510",
+    bg: "#7A5510",       // ámbar oscuro
+    accent: "#FFFFFF",
+    subColor: "rgba(255,255,255,0.75)",
     scale: 1.0,
   },
 ];
@@ -359,6 +370,7 @@ export default function Antojame() {
                     active={active}
                     bg={opt.bg}
                     accent={opt.accent}
+                    subColor={opt.subColor}
                     label={opt.label}
                     sub={opt.sub}
                     image={opt.image}
@@ -392,6 +404,7 @@ export default function Antojame() {
                     active={active}
                     bg={opt.bg}
                     accent={opt.accent}
+                    subColor={opt.subColor}
                     label={opt.label}
                     image={opt.image}
                     onClick={() => {
@@ -430,6 +443,7 @@ export default function Antojame() {
                     active={active}
                     bg={opt.bg}
                     accent={opt.accent}
+                    subColor={opt.subColor}
                     label={opt.label}
                     sub={opt.sub}
                     image={opt.image}
@@ -606,6 +620,7 @@ function OptionCard({
   active,
   bg,
   accent,
+  subColor,
   label,
   sub,
   image,
@@ -615,12 +630,15 @@ function OptionCard({
   active: boolean;
   bg: string;
   accent: string;
+  subColor: string;
   label: string;
   sub?: string;
   image: string;
   index: number;
   onClick: () => void;
 }) {
+  // Sombras profundas para que el card oscuro se sienta elevado.
+  const shadowDeep = "rgba(0,0,0,0.35)";
   return (
     <button
       onClick={onClick}
@@ -631,26 +649,22 @@ function OptionCard({
         background: bg,
         animationDelay: `${index * 70}ms`,
         boxShadow: active
-          ? `0 14px 28px ${hexA(accent, 0.3)}, 0 0 0 3px ${accent}, inset 0 -3px 10px ${hexA(accent, 0.14)}`
-          : `0 8px 18px ${hexA(accent, 0.18)}, inset 0 -3px 10px ${hexA(accent, 0.1)}, inset 0 2px 0 rgba(255,255,255,0.25)`,
+          ? `0 18px 36px ${shadowDeep}, 0 0 0 3px ${accent}, inset 0 -3px 12px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.18)`
+          : `0 12px 26px ${shadowDeep}, inset 0 -3px 12px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.18)`,
       }}
     >
-      {/* Imagen dentro del card, normal, sin desbordamientos.
-          aspect-square + object-contain → todas se ven proporcionales
-          aunque la composición del PNG varíe. */}
       <div className="w-full aspect-square relative">
         <Image
           src={image}
           alt={label}
           fill
           sizes="160px"
-          className="object-contain"
-          style={{ mixBlendMode: "multiply" }}
+          className="object-contain drop-shadow-2xl"
         />
       </div>
 
       <div
-        className="text-sm font-bold leading-tight px-1"
+        className="text-base font-bold leading-tight px-1"
         style={{ fontFamily: "Termina", color: accent }}
       >
         {label}
@@ -658,7 +672,7 @@ function OptionCard({
       {sub && (
         <div
           className="text-[11px] leading-tight px-1"
-          style={{ color: hexA(accent, 0.78) }}
+          style={{ color: subColor }}
         >
           {sub}
         </div>
@@ -677,6 +691,7 @@ function AttitudeCard({
   active,
   bg,
   accent,
+  subColor,
   label,
   sub,
   image,
@@ -686,12 +701,14 @@ function AttitudeCard({
   active: boolean;
   bg: string;
   accent: string;
+  subColor: string;
   label: string;
   sub: string;
   image: string;
   index: number;
   onClick: () => void;
 }) {
+  const shadowDeep = "rgba(0,0,0,0.35)";
   return (
     <button
       onClick={onClick}
@@ -702,18 +719,27 @@ function AttitudeCard({
         background: bg,
         animationDelay: `${index * 70}ms`,
         boxShadow: active
-          ? `0 14px 28px ${hexA(accent, 0.3)}, 0 0 0 3px ${accent}, inset 0 -3px 10px ${hexA(accent, 0.14)}`
-          : `0 8px 18px ${hexA(accent, 0.18)}, inset 0 -3px 10px ${hexA(accent, 0.1)}, inset 0 2px 0 rgba(255,255,255,0.25)`,
+          ? `0 18px 36px ${shadowDeep}, 0 0 0 3px ${accent}, inset 0 -3px 12px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.18)`
+          : `0 12px 26px ${shadowDeep}, inset 0 -3px 12px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.18)`,
       }}
     >
-      <div className="w-20 h-20 relative flex-shrink-0">
+      {/* La imagen para Step 3 tiene fondo blanco. La metemos en un
+          círculo crema con overflow:hidden para que el blanco quede
+          INTENCIONAL como avatar/sello sobre el card oscuro. */}
+      <div
+        className="w-20 h-20 relative flex-shrink-0 rounded-full overflow-hidden"
+        style={{
+          background: "#FBF4E6",
+          boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.2)",
+        }}
+      >
         <Image
           src={image}
           alt={label}
           fill
           sizes="80px"
-          className="object-contain"
-          style={{ mixBlendMode: "multiply" }}
+          className="object-cover"
+          style={{ objectPosition: "center 20%" }}
         />
       </div>
 
@@ -726,7 +752,7 @@ function AttitudeCard({
         </div>
         <div
           className="text-xs mt-0.5"
-          style={{ color: hexA(accent, 0.78) }}
+          style={{ color: subColor }}
         >
           {sub}
         </div>
@@ -734,7 +760,7 @@ function AttitudeCard({
 
       <IconArrowRight
         size={20}
-        style={{ color: accent, opacity: 0.55 }}
+        style={{ color: accent, opacity: 0.8 }}
         className="flex-shrink-0"
       />
     </button>

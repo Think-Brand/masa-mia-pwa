@@ -104,12 +104,14 @@ export default function Catalogo() {
     <div className="min-h-screen flex flex-col max-w-md mx-auto pb-24">
       <HeaderCliente />
 
-      {/* Banner Antójame con squish + huella local */}
+      {/* Banner Antójame — Miga + texto agrupados al CENTRO. ✨ flota
+          absolute a la derecha como decoración para que no jale el
+          contenido principal. */}
       <Link
         href="/antojame"
-        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 px-4 py-3 flex items-center gap-3"
+        className="btn-masa btn-masa-antojame relative mx-3 mt-3 mb-1 px-4 py-3 flex items-center justify-center gap-3"
       >
-        <div className="relative w-20 h-20 flex-shrink-0 -my-3 -ml-2">
+        <div className="relative w-20 h-20 flex-shrink-0 -my-3">
           <Image
             src="/mascota/recomendando.png"
             alt="Miga recomendando"
@@ -118,7 +120,7 @@ export default function Catalogo() {
             className="object-cover object-top drop-shadow-md"
           />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 text-center">
           <div
             className="text-[11px] font-bold opacity-90 uppercase tracking-wider"
             style={{ fontFamily: "Termina" }}
@@ -132,7 +134,7 @@ export default function Catalogo() {
             ¡Antójame!
           </div>
         </div>
-        <div className="bg-white/20 rounded-full p-2">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 rounded-full p-2">
           <IconSparkles size={18} />
         </div>
       </Link>
