@@ -17,6 +17,12 @@ export function getMinPickupDate(maxPrepDays: number, now = new Date()): Date {
   const extra = now.getHours() >= CUTOFF_HOUR ? 1 : 0;
 
   base.setDate(base.getDate() + maxPrepDays + extra);
+
+  // Skip sábado/domingo: si cae en fin de semana, avanza al lunes.
+  // Operamos solo L-V (los pedidos de fin de semana van por /pedido-especial).
+  while (base.getDay() === 0 || base.getDay() === 6) {
+    base.setDate(base.getDate() + 1);
+  }
   return base;
 }
 
@@ -43,13 +49,37 @@ export function dateToIsoDay(d: Date): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Genera lista de N fechas posibles a partir de la mínima
+// Genera lista de N días HÁBILES (lunes a viernes) a partir de la mínima.
+// Salta sábados (6) y domingos (0). Para pedidos en fin de semana o eventos,
+// el cliente usa /pedido-especial que va a WhatsApp manual.
 export function listAvailableDates(min: Date, count = 14): Date[] {
   const out: Date[] = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date(min);
-    d.setDate(min.getDate() + i);
-    out.push(d);
+  const cursor = new Date(min);
+  while (out.length < count) {
+    const dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) {
+      out.push(new Date(cursor));
+    }
+    cursor.setDate(cursor.getDate() + 1);
   }
   return out;
+}
+
+// Slots de hora de recogida: cada 30 min entre 08:00 y 20:00.
+// Devuelve ["08:00", "08:30", ..., "19:30", "20:00"].
+export function listPickupTimeSlots(): string[] {
+  const out: string[] = [];
+  for (let h = 8; h <= 20; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
+    if (h < 20) out.push(`${String(h).padStart(2, "0")}:30`);
+  }
+  return out;
+}
+
+export function formatPickupTimeLabel(slot: string): string {
+  // "14:30" → "2:30 pm"
+  const [h, m] = slot.split(":").map((n) => parseInt(n, 10));
+  const period = h >= 12 ? "pm" : "am";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
 }

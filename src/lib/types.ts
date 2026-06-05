@@ -83,7 +83,9 @@ export type Order = {
   delivery_date: string | null;
   delivery_time: string | null;
   pickup_date: string | null;
+  pickup_time: string | null;
   contact_person: "alex" | "fabiola" | null;
+  customer_notified_at: string | null;
   notes: string | null;
   decline_reason: string | null;
   decline_message: string | null;

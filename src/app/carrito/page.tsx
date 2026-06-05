@@ -25,6 +25,8 @@ import {
   formatDeliveryDate,
   dateToIsoDay,
   listAvailableDates,
+  listPickupTimeSlots,
+  formatPickupTimeLabel,
   formatDateShort,
 } from "@/lib/delivery";
 import { getSettings, Settings } from "@/lib/settings";
@@ -97,6 +99,9 @@ export default function Carrito() {
   const minDate = getMinPickupDate(maxPrepDays);
   const fechaList = listAvailableDates(minDate, 14);
   const [pickupDate, setPickupDate] = useState<string>(dateToIsoDay(minDate));
+  // Horario de recogida (HH:MM, slot de 30min). Default: 12:00 (mediodía).
+  const [pickupTime, setPickupTime] = useState<string>("12:00");
+  const TIME_SLOTS = listPickupTimeSlots();
   // contact_person ya no lo elige el cliente; se queda como default
   // para mantener compatibilidad con el flujo histórico del staff.
   const contactPerson: "alex" | "fabiola" = "fabiola";
@@ -219,6 +224,7 @@ export default function Carrito() {
           notes: notas || null,
           source: "pwa",
           pickup_date: pickupDate,
+          pickup_time: pickupTime,
           contact_person: contactPerson,
           is_birthday_treat: aplicaCumple,
           is_welcome_courtesy: aplicaWelcome,
@@ -556,7 +562,51 @@ export default function Carrito() {
               })()}
               <div className="text-[11px] text-canela mt-2 italic">
                 Pasa por tu antojo o mándalo a recoger (Uber, DiDi, persona de
-                confianza).
+                confianza). Atendemos solo de lunes a viernes — para fines de
+                semana o eventos usa{" "}
+                <Link
+                  href="/pedido-especial"
+                  className="text-antojo font-bold underline"
+                >
+                  pedido especial
+                </Link>
+                .
+              </div>
+
+              {/* Selector de hora de recogida */}
+              <div className="mt-3 pt-3 border-t border-caramelo/20">
+                <div className="text-[11px] font-bold text-canela uppercase tracking-wider mb-1">
+                  ¿A qué hora pasas?
+                </div>
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {TIME_SLOTS.map((slot) => {
+                    const active = slot === pickupTime;
+                    return (
+                      <button
+                        key={slot}
+                        onClick={() => setPickupTime(slot)}
+                        className={`flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition whitespace-nowrap ${
+                          active
+                            ? "bg-antojo text-white shadow"
+                            : "bg-crema text-cafe"
+                        }`}
+                      >
+                        {formatPickupTimeLabel(slot)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="text-[11px] text-canela mt-1.5 italic">
+                  Atendemos de 8 am a 8 pm. Si necesitas otra hora, mándanos
+                  un{" "}
+                  <Link
+                    href="/pedido-especial"
+                    className="text-antojo font-bold underline"
+                  >
+                    pedido especial
+                  </Link>
+                  .
+                </div>
               </div>
             </div>
 

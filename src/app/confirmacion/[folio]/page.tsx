@@ -198,12 +198,25 @@ function Confirmacion() {
           Pago: {pago === "transferencia" ? "Transferencia BBVA" : "Efectivo al recibir"}
         </div>
         {order.pickup_date && (
-          <div className="text-[11px] text-canela mt-1 flex items-center gap-1">
+          <div className="text-[11px] text-canela mt-1 flex items-center gap-1 flex-wrap">
             <IconCheck size={11} />
             Recoges:{" "}
             <span className="capitalize">
               {formatDeliveryDate(new Date(order.pickup_date + "T12:00:00"))}
             </span>
+            {order.pickup_time && (
+              <span>
+                a las{" "}
+                <b className="text-cafe">
+                  {(() => {
+                    const [h, m] = order.pickup_time.split(":").map(Number);
+                    const period = h >= 12 ? "pm" : "am";
+                    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+                  })()}
+                </b>
+              </span>
+            )}
           </div>
         )}
       </div>

@@ -34,6 +34,7 @@ type OrderRow = {
   payment_method: string | null;
   contact_person: string | null;
   pickup_date: string | null;
+  pickup_time: string | null;
   created_at: string;
   accepted_at: string | null;
   baking_started_at: string | null;
@@ -336,9 +337,16 @@ export default function KitchenDisplay({
 
     const nombre = o.customer.name?.split(" ")[0] ?? "";
     const saludo = nombre ? `¡Hola ${nombre}! ` : "";
+    let horaTxt = "";
+    if (o.pickup_time) {
+      const [h, m] = o.pickup_time.split(":").map(Number);
+      const period = h >= 12 ? "pm" : "am";
+      const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      horaTxt = ` Te esperamos a las ${h12}:${String(m).padStart(2, "0")} ${period}.`;
+    }
     const mensaje =
       `${saludo}Tu pedido ${o.folio} ya está recién horneado y listo para ` +
-      `recoger 🥐\n\nPasa cuando puedas. ¡Buen provecho!\n— Masa Mía`;
+      `recoger 🥐${horaTxt}\n\n¡Buen provecho!\n— Masa Mía`;
 
     // Abrimos WhatsApp ANTES del await para que el gesto del usuario
     // todavía esté activo (iOS bloquea window.open en otros casos).
@@ -980,7 +988,7 @@ function Card({
       {/* Logística mini */}
       <div className={`text-[11px] lg:text-xs space-y-0.5 ${subText}`}>
         {o.pickup_date && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             📅
             <b className={cardText}>
               {new Date(o.pickup_date + "T12:00:00").toLocaleDateString(
@@ -988,6 +996,20 @@ function Card({
                 { weekday: "short", day: "numeric", month: "short" }
               )}
             </b>
+            {o.pickup_time && (
+              <>
+                <span className={subText}>·</span>
+                🕒
+                <b className={cardText}>
+                  {(() => {
+                    const [h, m] = o.pickup_time.split(":").map(Number);
+                    const period = h >= 12 ? "pm" : "am";
+                    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+                  })()}
+                </b>
+              </>
+            )}
           </div>
         )}
         {o.contact_person && (
