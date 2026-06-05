@@ -868,7 +868,7 @@ function Card({
   return (
     <Link
       href={`/staff/pedidos/${o.id}`}
-      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden active:scale-[0.99] hover:shadow-lg transition cursor-pointer scroll-mt-[180px] lg:scroll-mt-[160px]`}
+      className={`${cardBg} rounded-xl shadow p-3 lg:p-4 flex flex-col gap-2 lg:gap-3 border-l-4 lg:border-l-[6px] ${border} overflow-hidden active:scale-[0.99] hover:shadow-lg transition cursor-pointer scroll-mt-[180px] lg:scroll-mt-[160px] shrink-0`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">

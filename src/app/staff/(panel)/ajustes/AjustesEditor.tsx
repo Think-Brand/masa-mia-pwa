@@ -417,10 +417,15 @@ function PilotoPanel() {
       {/* Welcome courtesy */}
       <Section title="🎁 Cortesías de bienvenida">
         <div className="grid grid-cols-3 gap-2 mb-3">
-          <CodeStat label="Entregadas" value={String(welcomeCount)} />
+          <CodeStat label="Otorgadas" value={String(welcomeCount)} />
           <CodeStat label="Restantes" value={String(remaining)} />
           <CodeStat label="Tope" value={String(welcomeMax)} />
         </div>
+        <p className="text-[11px] text-canela italic mb-3 leading-relaxed">
+          Se cuenta al <b>confirmar el pedido</b> (no al entregarlo) para
+          reservar el cupo y que no se regalen de más si caen pedidos
+          simultáneos.
+        </p>
 
         {/* Barra de progreso */}
         <div className="bg-crema-soft rounded-full h-2 overflow-hidden mb-3">
