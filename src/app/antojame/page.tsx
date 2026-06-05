@@ -121,7 +121,7 @@ const OPTIONS_ATTITUDE = [
   },
   {
     key: "sorpresa" as Attitude,
-    image: "/mascota/antojame/Sorpr%C3%A9ndeme.png",
+    image: "/mascota/antojame/Sorprendeme.png",
     label: "Sorpréndeme",
     sub: "Algo distinto",
     bg: "#ED99B5",
@@ -619,7 +619,7 @@ function OptionCard({
   return (
     <button
       onClick={onClick}
-      className={`option-card relative pt-14 px-3 pb-4 rounded-3xl text-center flex flex-col items-center ${
+      className={`option-card relative pt-20 px-3 pb-4 rounded-3xl text-center flex flex-col items-center ${
         active ? "is-active" : ""
       }`}
       style={{
@@ -630,9 +630,10 @@ function OptionCard({
           : `0 12px 24px ${hexA(accent, 0.22)}, inset 0 -3px 10px ${hexA(accent, 0.14)}, inset 0 2px 0 rgba(255,255,255,0.3)`,
       }}
     >
-      {/* Miga DESBORDA — scale por opción para normalizar */}
+      {/* Miga DESBORDA — scale por opción para normalizar. Posicionada
+          arriba lo suficiente para que NUNCA tape el título. */}
       <div
-        className="absolute -top-14 left-1/2 -translate-x-1/2 w-36 h-36 transition-transform duration-300"
+        className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 transition-transform duration-300"
         style={{ transform: `translate(-50%, 0) scale(${scale})` }}
       >
         <Image
@@ -700,7 +701,7 @@ function AttitudeCard({
   return (
     <button
       onClick={onClick}
-      className={`option-card relative rounded-[28px] text-center overflow-visible flex flex-col items-center pt-20 pb-5 px-4 ${
+      className={`option-card relative rounded-[28px] text-center overflow-visible flex flex-col items-center pt-24 pb-5 px-4 ${
         active ? "is-active" : ""
       }`}
       style={{
@@ -711,22 +712,21 @@ function AttitudeCard({
           : `0 14px 28px ${hexA(accent, 0.24)}, inset 0 -4px 12px ${hexA(accent, 0.14)}, inset 0 2px 0 rgba(255,255,255,0.3)`,
       }}
     >
-      {/* Miga cortada a la cintura: sale por arriba */}
+      {/* Miga emerge por arriba. Como estas imágenes tienen fondo blanco
+          (no son PNG transparentes como las de Step 1), aplicamos
+          mix-blend-mode: multiply para que el blanco se DISUELVA contra
+          el color del card. La Miga queda flotando "dentro" del color
+          naturalmente. */}
       <div
-        className="absolute -top-16 left-1/2 -translate-x-1/2 w-44 h-44 overflow-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, black 0%, black 78%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 0%, black 78%, transparent 100%)",
-        }}
+        className="absolute -top-14 left-1/2 -translate-x-1/2 w-36 h-36"
+        style={{ mixBlendMode: "multiply" }}
       >
         <Image
           src={image}
           alt={label}
           fill
-          sizes="176px"
-          className="object-contain object-top drop-shadow-xl"
+          sizes="144px"
+          className="object-contain object-top"
         />
       </div>
 
