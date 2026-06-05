@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
+  IconBell,
   IconBox,
   IconBuildingStore,
   IconCamera,
@@ -34,7 +35,13 @@ import {
   type DayOccupancy,
 } from "@/lib/capacity";
 
-type Tab = "productos" | "boxes" | "negocio" | "capacidad" | "piloto";
+type Tab =
+  | "productos"
+  | "boxes"
+  | "negocio"
+  | "capacidad"
+  | "notificaciones"
+  | "piloto";
 
 type Product = {
   id: string;
@@ -102,6 +109,12 @@ export default function AjustesEditor() {
           label="Capacidad"
         />
         <TabBtn
+          active={tab === "notificaciones"}
+          onClick={() => setTab("notificaciones")}
+          icon={<IconBell size={14} />}
+          label="Avisos"
+        />
+        <TabBtn
           active={tab === "piloto"}
           onClick={() => setTab("piloto")}
           icon={<IconFlask size={14} />}
@@ -113,6 +126,7 @@ export default function AjustesEditor() {
       {tab === "boxes" && <BoxesPanel />}
       {tab === "negocio" && <NegocioPanel />}
       {tab === "capacidad" && <CapacidadPanel />}
+      {tab === "notificaciones" && <NotificacionesPanel />}
       {tab === "piloto" && <PilotoPanel />}
     </div>
   );
@@ -312,6 +326,21 @@ function CapacidadPanel() {
   );
 }
 
+function NotificacionesPanel() {
+  return (
+    <div className="space-y-4">
+      <Section title="🔔 Notificaciones de pedidos">
+        <PushNotificationsCard />
+        <p className="text-[11px] text-canela italic mt-3 leading-relaxed">
+          Cada dispositivo (iPhone, iPad) se activa por separado. Mario, Faby
+          y Alex tienen que entrar aquí desde su propio dispositivo y
+          prender las notificaciones.
+        </p>
+      </Section>
+    </div>
+  );
+}
+
 function PilotoPanel() {
   const [pilotMode, setPilotMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -391,11 +420,6 @@ function PilotoPanel() {
 
   return (
     <div className="space-y-4">
-      {/* Notificaciones push (por dispositivo) */}
-      <Section title="🔔 Notificaciones de pedidos">
-        <PushNotificationsCard />
-      </Section>
-
       {/* Toggle modo piloto */}
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
