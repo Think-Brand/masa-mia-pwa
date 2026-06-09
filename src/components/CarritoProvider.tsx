@@ -7,9 +7,6 @@ import { Product } from "@/lib/types";
 const DeclineNotice = dynamic(() => import("./DeclineNotice"), {
   ssr: false,
 });
-const StaffViewBanner = dynamic(() => import("./StaffViewBanner"), {
-  ssr: false,
-});
 
 export type CompositionLine = {
   componentName: string;
@@ -201,7 +198,6 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
       <DeclineNoticeMount />
-      <StaffViewBanner />
     </Ctx.Provider>
   );
 }
