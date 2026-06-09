@@ -16,6 +16,15 @@ import { useToast } from "@/components/Toast";
  * Se puede agregar varias seguidas (2ª, 3ª, 4ª) sin cerrar: cada vez que
  * agregas se limpian los sabores para escoger de nuevo.
  */
+// Frases de Miga: comensal noble que finge ser chef (no lo es, pero le encanta).
+const MIGA_LINES = [
+  "Otra cajita, ¿eh? Tú escoge sabores, yo «superviso» con la boca hecha agua.",
+  "Confía en Miga: lo difícil déjamelo a mí… ah no, tú pon los sabores 👀",
+  "Mmm, ya me antojé. Arma otra y yo le doy el visto bueno (probándola, claro).",
+  "Repetir es de sabios. Escoge los sabores y yo finjo que cocino.",
+  "Cuatro sabores, cero culpas. Miga aprueba esta decisión deliciosa.",
+];
+
 export default function BoxFlavorModal({
   boxId,
   open,
@@ -42,6 +51,10 @@ export default function BoxFlavorModal({
   } = useBoxBuilder(open ? boxId : null);
 
   const [justAdded, setJustAdded] = useState(false);
+  // Frase de Miga (comensal noble que se cree chef). Se fija una al abrir.
+  const [migaLine] = useState(
+    () => MIGA_LINES[Math.floor(Math.random() * MIGA_LINES.length)]
+  );
 
   if (!open) return null;
 
@@ -75,17 +88,22 @@ export default function BoxFlavorModal({
       {/* Hoja inferior */}
       <div className="relative w-full max-w-md bg-[var(--avellana-soft)] rounded-t-3xl shadow-2xl flex flex-col max-h-[88vh] animate-[sheetUp_0.25s_ease-out]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-caramelo/20 flex-shrink-0">
-          <div
-            className="text-lg text-cafe"
-            style={{ fontFamily: "ReginaBlack" }}
-          >
-            Arma otra {nombreLimpio}
+        <div className="flex items-start justify-between px-4 py-3 border-b border-caramelo/20 flex-shrink-0">
+          <div className="min-w-0 pr-2">
+            <div
+              className="text-lg text-cafe leading-tight"
+              style={{ fontFamily: "ReginaBlack" }}
+            >
+              Arma otra {nombreLimpio}
+            </div>
+            <p className="text-[11px] text-canela italic mt-0.5 leading-snug">
+              {migaLine}
+            </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="text-cafe w-9 h-9 flex items-center justify-center rounded-full active:scale-90 transition"
+            className="text-cafe w-9 h-9 flex items-center justify-center rounded-full active:scale-90 transition flex-shrink-0"
           >
             <IconX size={20} />
           </button>
