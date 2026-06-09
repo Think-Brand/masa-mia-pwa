@@ -187,7 +187,7 @@ function Campo({
   inputMode?: "numeric" | "text";
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label className="text-[11px] font-bold text-canela uppercase tracking-wider block mb-1">
         {label}
       </label>
@@ -197,7 +197,7 @@ function Campo({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-crema-soft border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition"
+        className="w-full min-w-0 max-w-full bg-crema-soft border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe placeholder:text-cafe/40 focus:outline-none focus:border-cafe transition appearance-none"
       />
     </div>
   );

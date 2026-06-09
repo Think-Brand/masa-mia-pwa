@@ -1,55 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   IconArrowLeft,
   IconCheck,
-  IconMinus,
   IconPlus,
   IconShoppingBag,
 } from "@tabler/icons-react";
-import { createClient } from "@/lib/supabase";
-import {
-  Product,
-  BoxComponent,
-  ComponentOption,
-} from "@/lib/types";
-import {
-  CompositionLine,
-  useCarrito,
-} from "@/components/CarritoProvider";
+import { useCarrito } from "@/components/CarritoProvider";
 import { useToast } from "@/components/Toast";
-import BottomNav from "@/components/BottomNav";
-
-function transparentVariant(url: string | null): string | null {
-  if (!url) return null;
-  return url.replace("/full-color/", "/png/");
-}
-
-// Paleta de fondos cálidos para opciones sin imagen (mini pays, gomitas, etc.)
-const FONDOS_OPCIONES = [
-  "from-[#F8E4C5] to-[#F2C994]", // crema → durazno
-  "from-[#FCEED1] to-[#FFC97A]", // amarillo cálido
-  "from-[#F6D5C6] to-[#F4B89B]", // melocotón
-  "from-[#FCE4D8] to-[#E89F6D]", // canela suave
-  "from-[#E8D7C0] to-[#C9956C]", // caramelo
-  "from-[#F5DAC1] to-[#E0A574]", // miel
-];
-
-type ComponentWithOptions = {
-  component: BoxComponent;
-  // Selecciones del cliente: nombre de opción → cantidad
-  selections: Record<string, number>;
-  // Opciones disponibles (puede venir de component_options o de products)
-  options: Array<{
-    name: string;
-    image_url: string | null;
-    price_modifier: number;
-  }>;
-};
+import { useBoxBuilder } from "@/components/useBoxBuilder";
+import BoxComponentsSelector from "@/components/BoxComponentsSelector";
 
 export default function BoxPage() {
   return (
@@ -68,194 +31,46 @@ export default function BoxPage() {
 function BoxConstructor() {
   const router = useRouter();
   const params = useSearchParams();
-  const { addBox } = useCarrito();
+  const { addBox, count } = useCarrito();
   const { show: showToast } = useToast();
   const boxId = params.get("id");
 
-  const [box, setBox] = useState<Product | null>(null);
-  const [comps, setComps] = useState<ComponentWithOptions[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    box,
+    comps,
+    loading,
+    notFound,
+    updateQty,
+    reset,
+    allComplete,
+    total,
+    missingCount,
+    buildComposition,
+  } = useBoxBuilder(boxId);
+
   const [added, setAdded] = useState(false);
 
+  // Sin id o caja inexistente → de vuelta al catálogo.
   useEffect(() => {
-    if (!boxId) {
-      router.replace("/catalogo");
-      return;
-    }
-    (async () => {
-      const supabase = createClient();
-      // 1. Box
-      const { data: boxData } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", boxId)
-        .single();
-      if (!boxData) {
-        router.replace("/catalogo");
-        return;
-      }
-      setBox(boxData as Product);
-
-      // 2. Componentes activos
-      const { data: components } = await supabase
-        .from("box_components")
-        .select("*")
-        .eq("box_product_id", boxId)
-        .eq("is_active", true)
-        .order("sort_order");
-
-      if (!components || components.length === 0) {
-        setComps([]);
-        setLoading(false);
-        return;
-      }
-
-      // 3. Opciones por componente
-      const compIds = components.map((c: BoxComponent) => c.id);
-      const { data: options } = await supabase
-        .from("component_options")
-        .select("*")
-        .in("component_id", compIds)
-        .eq("is_available", true)
-        .order("sort_order");
-
-      // 4. Si tiene category_filter, traer productos
-      const categories = Array.from(
-        new Set(
-          components
-            .map((c: BoxComponent) => c.category_filter)
-            .filter(Boolean) as string[]
-        )
-      );
-      let productsByCat: Record<string, Product[]> = {};
-      if (categories.length > 0) {
-        const { data: prods } = await supabase
-          .from("products")
-          .select("*")
-          .in("category", categories)
-          .eq("is_public", true)
-          .eq("is_active", true)
-          .order("sort_order");
-        productsByCat = (prods ?? []).reduce(
-          (acc: Record<string, Product[]>, p: Product) => {
-            acc[p.category] = acc[p.category] || [];
-            acc[p.category].push(p);
-            return acc;
-          },
-          {}
-        );
-      }
-
-      const compsWithOpts: ComponentWithOptions[] = (components as BoxComponent[]).map(
-        (c) => {
-          const compOptions = (options as ComponentOption[] | null)?.filter(
-            (o) => o.component_id === c.id
-          );
-
-          let opts: ComponentWithOptions["options"] = [];
-
-          if (compOptions && compOptions.length > 0) {
-            // Tiene opciones cargadas en BD
-            opts = compOptions.map((o) => ({
-              name: o.name,
-              image_url: o.image_url,
-              price_modifier: Number(o.price_modifier) || 0,
-            }));
-          } else if (c.category_filter && productsByCat[c.category_filter]) {
-            // Usa productos de cierta categoría
-            opts = productsByCat[c.category_filter].map((p) => ({
-              name: p.name,
-              image_url: p.image_url,
-              price_modifier: 0,
-            }));
-          }
-
-          return {
-            component: c,
-            selections: {},
-            options: opts,
-          };
-        }
-      );
-
-      setComps(compsWithOpts);
-      setLoading(false);
-    })();
-  }, [boxId, router]);
-
-  // Helpers para selecciones
-  const updateQty = (compIdx: number, optName: string, delta: number) => {
-    setComps((curr) => {
-      const next = [...curr];
-      const c = { ...next[compIdx] };
-      const sel = { ...c.selections };
-      const current = sel[optName] ?? 0;
-      const newQty = current + delta;
-      const totalSelected = Object.values(sel).reduce((s, n) => s + n, 0);
-      const required = c.component.quantity;
-
-      // Validar límites
-      if (newQty < 0) return curr;
-      if (delta > 0 && totalSelected >= required) return curr;
-      if (
-        !c.component.allow_repeat &&
-        newQty > 1 &&
-        delta > 0
-      ) {
-        return curr;
-      }
-
-      if (newQty === 0) delete sel[optName];
-      else sel[optName] = newQty;
-
-      c.selections = sel;
-      next[compIdx] = c;
-      return next;
-    });
-  };
-
-  // Calcular precio extra y validación
-  const { extraPrice, allComplete } = useMemo(() => {
-    let extra = 0;
-    let complete = true;
-    for (const c of comps) {
-      const selectedTotal = Object.values(c.selections).reduce(
-        (s, n) => s + n,
-        0
-      );
-      if (c.options.length > 0 && selectedTotal !== c.component.quantity) {
-        complete = false;
-      }
-      for (const [name, qty] of Object.entries(c.selections)) {
-        const opt = c.options.find((o) => o.name === name);
-        if (opt) extra += opt.price_modifier * qty;
-      }
-    }
-    return { extraPrice: extra, allComplete: complete };
-  }, [comps]);
-
-  const total = (box ? Number(box.price) : 0) + extraPrice;
+    if (!boxId || notFound) router.replace("/catalogo");
+  }, [boxId, notFound, router]);
 
   const onAdd = () => {
     if (!box || !allComplete) return;
-    const composition: CompositionLine[] = comps.map((c) => ({
-      componentName: c.component.name,
-      selections:
-        c.options.length === 0
-          ? [{ name: "Incluido", quantity: c.component.quantity }]
-          : Object.entries(c.selections).map(([name, quantity]) => ({
-              name,
-              quantity,
-            })),
-    }));
-    addBox(box, composition, total);
+    addBox(box, buildComposition(), total);
     setAdded(true);
     showToast({
       title: `${box.name} armado`,
       subtitle: "Listo en tu carrito 🤎",
       imageUrl: box.image_url,
     });
-    setTimeout(() => router.push("/carrito"), 700);
+  };
+
+  // "Armar otra": limpia los sabores y se queda en la página (sin vueltas).
+  const armarOtra = () => {
+    reset();
+    setAdded(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading || !box) {
@@ -267,7 +82,9 @@ function BoxConstructor() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)] pb-44">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[var(--avellana-soft)]"
+      style={{ paddingBottom: "calc(168px + env(safe-area-inset-bottom, 0px))" }}
+    >
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[var(--avellana-soft)]/95 backdrop-blur flex items-center justify-between px-4 py-3 border-b border-caramelo/20">
         <button
@@ -306,187 +123,64 @@ function BoxConstructor() {
       </div>
 
       {/* Componentes */}
-      <div className="px-4 pt-4 flex flex-col gap-4">
-        {comps.map((c, idx) => {
-          const totalSelected = Object.values(c.selections).reduce(
-            (s, n) => s + n,
-            0
-          );
-          const completo = totalSelected === c.component.quantity;
-          const isFixed = c.options.length === 0;
-
-          return (
-            <section key={c.component.id} className="bg-white rounded-2xl p-3">
-              <div className="flex items-center justify-between mb-1">
-                <div>
-                  <div
-                    className="text-sm font-bold text-cafe"
-                    style={{ fontFamily: "Termina" }}
-                  >
-                    {c.component.name}
-                  </div>
-                  {c.component.description && (
-                    <div className="text-[11px] text-canela">
-                      {c.component.description}
-                    </div>
-                  )}
-                </div>
-                {isFixed ? (
-                  <div className="text-[11px] bg-crema text-cafe rounded-full px-2 py-0.5 font-bold">
-                    × {c.component.quantity} incluido
-                  </div>
-                ) : (
-                  <div
-                    className={`text-[11px] rounded-full px-2 py-0.5 font-bold ${
-                      completo
-                        ? "bg-verde text-white"
-                        : "bg-canela/20 text-canela"
-                    }`}
-                  >
-                    {totalSelected} / {c.component.quantity}
-                  </div>
-                )}
-              </div>
-
-              {/* Opciones con selector */}
-              {!isFixed && (
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {c.options.map((opt, optIdx) => {
-                    const fullColorUrl = opt.image_url;
-                    const qty = c.selections[opt.name] ?? 0;
-                    const fondo = FONDOS_OPCIONES[optIdx % FONDOS_OPCIONES.length];
-                    return (
-                      <div
-                        key={opt.name}
-                        className={`relative rounded-xl overflow-hidden transition ${
-                          qty > 0
-                            ? "ring-2 ring-antojo shadow-lg"
-                            : "shadow-sm"
-                        }`}
-                      >
-                        {/* Si tiene imagen full-color, la mostramos completa */}
-                        {fullColorUrl ? (
-                          <div className="relative">
-                            <Image
-                              src={fullColorUrl}
-                              alt={opt.name}
-                              width={300}
-                              height={300}
-                              className="w-full aspect-square object-cover"
-                            />
-                            {qty > 0 && (
-                              <span className="absolute top-1 left-1 bg-antojo text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
-                                {qty}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <div
-                            className={`relative w-full aspect-square bg-gradient-to-br ${fondo} flex items-center justify-center`}
-                          >
-                            <span
-                              className="text-cafe text-center px-2 leading-tight"
-                              style={{
-                                fontFamily: "ReginaBlack",
-                                fontSize: 18,
-                              }}
-                            >
-                              {opt.name}
-                            </span>
-                            {qty > 0 && (
-                              <span className="absolute top-1 left-1 bg-antojo text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
-                                {qty}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        <div className="bg-white p-1.5">
-                          {fullColorUrl && (
-                            <div
-                              className="text-[11px] font-bold text-cafe text-center truncate"
-                              style={{ fontFamily: "Termina" }}
-                            >
-                              {opt.name}
-                            </div>
-                          )}
-                          {opt.price_modifier > 0 && (
-                            <div className="text-[11px] text-antojo text-center">
-                              +${opt.price_modifier.toFixed(0)}
-                            </div>
-                          )}
-                          <div className="flex items-center justify-center gap-2 bg-crema rounded-full px-2 py-1 mt-1.5">
-                            <button
-                              onClick={() => updateQty(idx, opt.name, -1)}
-                              disabled={qty === 0}
-                              aria-label="Quitar uno"
-                              className="text-cafe active:scale-90 disabled:opacity-30 w-8 h-8 flex items-center justify-center rounded-full"
-                            >
-                              <IconMinus size={18} />
-                            </button>
-                            <span className="text-sm font-bold w-6 text-center text-cafe">
-                              {qty}
-                            </span>
-                            <button
-                              onClick={() => updateQty(idx, opt.name, 1)}
-                              disabled={totalSelected >= c.component.quantity}
-                              aria-label="Agregar uno"
-                              className="text-cafe active:scale-90 disabled:opacity-30 w-8 h-8 flex items-center justify-center rounded-full"
-                            >
-                              <IconPlus size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Componente fijo (sin opciones todavía cargadas) */}
-              {isFixed && (
-                <div className="mt-1 text-[11px] text-canela italic">
-                  Viene incluido.
-                </div>
-              )}
-            </section>
-          );
-        })}
+      <div className="px-4 pt-4">
+        <BoxComponentsSelector comps={comps} updateQty={updateQty} />
       </div>
 
-      {/* Footer total + botón (sobre el bottom nav) */}
-      <div className="fixed bottom-[68px] left-0 right-0 max-w-md mx-auto p-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
-        <div className="bg-cafe rounded-2xl p-3 flex items-center justify-between mb-2 text-crema">
-          <span className="text-xs">Total</span>
-          <span
-            className="text-xl"
-            style={{ fontFamily: "ReginaBlack" }}
-          >
-            ${total.toFixed(0)}
-          </span>
-        </div>
-        <button
-          onClick={onAdd}
-          disabled={!allComplete || added}
-          className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-50"
-        >
-          {added ? (
-            <>
-              <IconCheck size={16} /> ¡Listo!
-            </>
-          ) : !allComplete ? (
-            <>Falta escoger {comps.reduce((s, c) => {
-              if (c.options.length === 0) return s;
-              const sel = Object.values(c.selections).reduce((a, b) => a + b, 0);
-              return s + (c.component.quantity - sel);
-            }, 0)}</>
-          ) : (
-            <>
-              Agregar al pedido <IconShoppingBag size={16} />
-            </>
-          )}
-        </button>
+      {/* Footer total + botón — anclado al fondo con safe-area para que no se
+          empalme ni se mueva, y fácil de presionar. */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-3 pt-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent"
+        style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}
+      >
+        {!added && (
+          <>
+            <div className="bg-cafe rounded-2xl p-3 flex items-center justify-between mb-2 text-crema">
+              <span className="text-xs">Total</span>
+              <span className="text-xl" style={{ fontFamily: "ReginaBlack" }}>
+                ${total.toFixed(0)}
+              </span>
+            </div>
+            <button
+              onClick={onAdd}
+              disabled={!allComplete}
+              className="w-full bg-antojo text-white rounded-2xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg disabled:opacity-50"
+            >
+              {!allComplete ? (
+                <>Falta escoger {missingCount}</>
+              ) : (
+                <>
+                  Agregar al pedido <IconShoppingBag size={16} />
+                </>
+              )}
+            </button>
+          </>
+        )}
+
+        {/* Tras agregar: ofrecer armar otra sin volver al catálogo. */}
+        {added && (
+          <>
+            <div className="bg-verde/15 text-cafe rounded-2xl p-2.5 mb-2 flex items-center justify-center gap-2 text-sm font-bold">
+              <IconCheck size={16} className="text-verde" /> ¡Agregada a tu antojo!
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={armarOtra}
+                className="bg-white border border-antojo/40 text-antojo rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition"
+              >
+                <IconPlus size={16} /> Armar otra
+              </button>
+              <button
+                onClick={() => router.push("/carrito")}
+                className="bg-antojo text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition shadow-lg"
+              >
+                <IconShoppingBag size={16} /> Mi antojo
+                {count > 0 ? ` (${count})` : ""}
+              </button>
+            </div>
+          </>
+        )}
       </div>
-      <BottomNav />
     </div>
   );
 }

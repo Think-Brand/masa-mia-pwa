@@ -12,7 +12,6 @@ import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 import { useCarrito } from "@/components/CarritoProvider";
 import { useToast } from "@/components/Toast";
-import BottomNav from "@/components/BottomNav";
 
 function slugify(name: string) {
   return name
@@ -199,8 +198,12 @@ function DetalleProducto() {
         )}
       </div>
 
-      {/* Botón sticky agregar (encima del bottom nav) */}
-      <div className="fixed bottom-[68px] left-0 right-0 max-w-md mx-auto p-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent">
+      {/* Botón agregar — anclado al fondo con safe-area para que no se empalme
+          ni se mueva y sea fácil de presionar. */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-3 pt-3 bg-gradient-to-t from-[var(--avellana-soft)] via-[var(--avellana-soft)] to-transparent"
+        style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}
+      >
         <button
           onClick={onAdd}
           className="w-full bg-antojo text-white rounded-2xl py-3 text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
@@ -214,7 +217,6 @@ function DetalleProducto() {
           )}
         </button>
       </div>
-      <BottomNav />
     </div>
   );
 }

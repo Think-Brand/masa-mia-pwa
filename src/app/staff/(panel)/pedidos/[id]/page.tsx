@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import { ChangeStatusButton } from "./actions";
 import { DeclineButton } from "./DeclineButton";
+import DeliveryEditor from "./DeliveryEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -57,14 +58,6 @@ export default async function PedidoDetalle({
     hour: "2-digit",
     minute: "2-digit",
   });
-
-  const pickup = order.pickup_date
-    ? new Date(order.pickup_date + "T12:00:00").toLocaleDateString("es-MX", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      })
-    : null;
 
   return (
     <main className="px-4 pt-4 max-w-2xl mx-auto">
@@ -216,12 +209,11 @@ export default async function PedidoDetalle({
           Logística
         </div>
         <div className="text-sm text-cafe space-y-1.5">
-          {pickup && (
-            <div>
-              📅 Recoger:{" "}
-              <b className="capitalize">{pickup}</b>
-            </div>
-          )}
+          <DeliveryEditor
+            orderId={order.id}
+            pickupDate={order.pickup_date ?? null}
+            pickupTime={order.pickup_time ?? null}
+          />
           {order.contact_person && (
             <div>
               👤 Atiende:{" "}

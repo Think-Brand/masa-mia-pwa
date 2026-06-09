@@ -60,6 +60,12 @@ function daysSince(iso: string | null): number {
   return Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
 }
 
+// "Nuevo" dura solo 24h desde que el cliente se registró.
+function isRecentlyCreated(iso: string | null): boolean {
+  if (!iso) return false;
+  return Date.now() - new Date(iso).getTime() < 24 * 60 * 60 * 1000;
+}
+
 function relativeDate(iso: string | null): string {
   if (!iso) return "—";
   const d = daysSince(iso);
@@ -128,7 +134,7 @@ export default function ClientesList({
         return daysSince(c.last_order_at) > 30;
       });
     } else if (filter === "nuevos") {
-      list = list.filter((c) => (c.total_orders ?? 0) <= 1);
+      list = list.filter((c) => isRecentlyCreated(c.created_at));
     }
 
     // Búsqueda
@@ -157,7 +163,8 @@ export default function ClientesList({
         if (!c.last_order_at) return false;
         return daysSince(c.last_order_at) > 30;
       }).length,
-      nuevos: initialCustomers.filter((c) => (c.total_orders ?? 0) <= 1).length,
+      nuevos: initialCustomers.filter((c) => isRecentlyCreated(c.created_at))
+        .length,
     }),
     [initialCustomers, vipThreshold]
   );
@@ -285,7 +292,7 @@ function CustomerCard({
   const isBdayWeek = birthdayThisWeek(c.birthday);
   const isVip =
     (c.total_spent ?? 0) >= vipThreshold && (c.total_orders ?? 0) >= 2;
-  const isNew = (c.total_orders ?? 0) <= 1;
+  const isNew = isRecentlyCreated(c.created_at);
   const isLapsed = c.last_order_at && daysSince(c.last_order_at) > 30;
 
   return (

@@ -26,6 +26,7 @@ import CollapsibleSection from "@/components/CollapsibleSection";
 import StickyCheckoutBar from "@/components/StickyCheckoutBar";
 import UbicacionPickup from "@/components/UbicacionPickup";
 import AntojameBanner from "@/components/AntojameBanner";
+import BoxFlavorModal from "@/components/BoxFlavorModal";
 import {
   getMinPickupDate,
   formatDeliveryDate,
@@ -62,6 +63,8 @@ export default function Carrito() {
   const [notas, setNotas] = useState("");
   const [copiado, setCopiado] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  // Box (RollinBox/LuvinBox) a re-armar en el popup de "otra igual".
+  const [boxOtraId, setBoxOtraId] = useState<string | null>(null);
   const [welcomeStatus, setWelcomeStatus] = useState<WelcomeStatus | null>(
     null
   );
@@ -446,6 +449,16 @@ export default function Carrito() {
                         </li>
                       ))}
                     </ul>
+                  )}
+                  {/* Atajo: agregar otra caja igual eligiendo solo los sabores,
+                      sin volver al catálogo. */}
+                  {it.composition && it.composition.length > 0 && (
+                    <button
+                      onClick={() => setBoxOtraId(it.productId)}
+                      className="ml-14 self-start flex items-center gap-1 text-[11px] font-bold text-antojo bg-antojo/10 rounded-full px-2.5 py-1 active:scale-95 transition"
+                    >
+                      <IconPlus size={13} /> Otra igual · elige sabores
+                    </button>
                   )}
                 </li>
               ))}
@@ -839,6 +852,13 @@ export default function Carrito() {
       {/* BottomNav solo cuando el carrito está vacío (el sticky checkout
           reemplaza la nav cuando hay items para no apilar 2 barras). */}
       {items.length === 0 && <BottomNav />}
+
+      {/* Popup para armar otra caja igual eligiendo solo sabores */}
+      <BoxFlavorModal
+        boxId={boxOtraId}
+        open={boxOtraId !== null}
+        onClose={() => setBoxOtraId(null)}
+      />
     </div>
   );
 }

@@ -45,24 +45,24 @@ export default function StaffViewBanner() {
   const onStaffRoute = pathname?.startsWith("/staff");
   if (!checked || !isStaff || onStaffRoute) return null;
 
+  // Pastilla compacta arriba a la derecha, debajo del header para no tapar
+  // el carrito ni estorbar el flujo de compra.
   return (
     <Link
       href="/staff/pedidos"
-      className="fixed bottom-20 right-3 z-[60] bg-cafe text-crema rounded-full pl-3 pr-4 py-2 shadow-2xl flex items-center gap-2 active:scale-95 transition"
-      style={{ fontFamily: "Termina" }}
+      className="fixed right-3 z-[55] bg-cafe text-crema rounded-full pl-1.5 pr-3 py-1.5 shadow-xl flex items-center gap-1.5 active:scale-95 transition"
+      style={{
+        fontFamily: "Termina",
+        top: "calc(env(safe-area-inset-top, 0px) + 92px)",
+      }}
       aria-label="Volver al panel de cocina"
     >
-      <span className="relative flex items-center justify-center w-7 h-7 bg-antojo rounded-full">
-        <IconChefHat size={16} />
+      <span className="relative flex items-center justify-center w-6 h-6 bg-antojo rounded-full">
+        <IconChefHat size={14} />
       </span>
-      <span className="flex flex-col leading-tight">
-        <span className="text-[11px] uppercase tracking-widest text-caramelo">
-          Vista cliente
-        </span>
-        <span className="text-[11px] font-bold flex items-center gap-1">
-          <IconArrowBackUp size={12} />
-          Volver al panel
-        </span>
+      <span className="text-[11px] font-bold flex items-center gap-1 whitespace-nowrap">
+        <IconArrowBackUp size={12} />
+        Volver al panel
       </span>
     </Link>
   );
