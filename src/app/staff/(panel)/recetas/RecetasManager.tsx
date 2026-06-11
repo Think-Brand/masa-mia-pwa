@@ -1,8 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { IconChefHat, IconShoppingBag } from "@tabler/icons-react";
+import { useMemo, useRef, useState } from "react";
+import {
+  IconChefHat,
+  IconLoader2,
+  IconShoppingBag,
+} from "@tabler/icons-react";
 import type { Icon as TablerIcon } from "@tabler/icons-react";
+import { createClient } from "@/lib/supabase";
 import IngredientesTab from "./IngredientesTab";
 import RecetaEditor from "./RecetaEditor";
 import {
@@ -29,7 +34,68 @@ export default function RecetasManager({
     initialIngredients
   );
   const [recipes, setRecipes] = useState<Recipe[]>(initialRecipes);
+  const [prods, setProds] = useState<ProductLite[]>(products);
   const [editing, setEditing] = useState<ProductLite | null>(null);
+
+  // Cambio de foto del producto desde la lista
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const photoTarget = useRef<ProductLite | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+
+  const pickPhoto = (p: ProductLite) => {
+    photoTarget.current = p;
+    fileRef.current?.click();
+  };
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const product = photoTarget.current;
+    if (!file || !product) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("La foto debe pesar menos de 4 MB.");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    setUploadingId(product.id);
+    try {
+      const supabase = createClient();
+      const slug = product.name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `productos/${slug}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("productos")
+        .upload(path, file, { cacheControl: "3600", upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage
+        .from("productos")
+        .getPublicUrl(path);
+      const { error: dbErr } = await supabase
+        .from("products")
+        .update({
+          image_url: urlData.publicUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", product.id);
+      if (dbErr) throw dbErr;
+      setProds((curr) =>
+        curr.map((x) =>
+          x.id === product.id ? { ...x, image_url: urlData.publicUrl } : x
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo subir la foto. Intenta de nuevo.");
+    } finally {
+      setUploadingId(null);
+      photoTarget.current = null;
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   // Una receta por producto (la primera si hubiera varias)
   const recipeByProduct = useMemo(() => {
@@ -107,7 +173,7 @@ export default function RecetasManager({
               de cada producto.
             </div>
           )}
-          {products.map((p) => {
+          {prods.map((p) => {
             const recipe = recipeByProduct.get(p.id);
             const cost = recipeCost(recipe, ingredients);
             const perPiece =
@@ -117,43 +183,79 @@ export default function RecetasManager({
                 ? (perPiece / p.price) * 100
                 : null;
             return (
-              <button
+              <div
                 key={p.id}
-                onClick={() => setEditing(p)}
-                className="bg-white rounded-2xl p-3 shadow-sm active:scale-[0.99] transition flex items-center gap-3 text-left"
+                className="bg-white rounded-2xl p-3 shadow-sm flex items-center gap-3"
               >
-                <div className="w-11 h-11 rounded-full bg-crema-soft flex-shrink-0 flex items-center justify-center text-xl">
-                  {p.emoji || "🥐"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-cafe truncate">{p.name}</p>
-                  {recipe && perPiece !== null ? (
-                    <p className="text-xs text-canela">
-                      Cuesta {fmtMoney(perPiece)} / pza · vende{" "}
-                      {fmtMoney(p.price)}
-                    </p>
+                {/* Foto del producto: tap para cambiarla */}
+                <button
+                  onClick={() => pickPhoto(p)}
+                  disabled={uploadingId === p.id}
+                  aria-label={`Cambiar foto de ${p.name}`}
+                  className="relative w-11 h-11 rounded-full bg-crema-soft flex-shrink-0 flex items-center justify-center text-xl overflow-hidden active:scale-90 transition"
+                >
+                  {uploadingId === p.id ? (
+                    <IconLoader2
+                      size={16}
+                      className="animate-spin text-canela"
+                    />
+                  ) : p.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.image_url}
+                      alt={p.name}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <p className="text-xs text-canela-soft italic">
-                      Sin receta todavía
-                    </p>
+                    p.emoji || "🥐"
                   )}
-                </div>
-                {foodCost !== null && (
-                  <span
-                    className={`text-[11px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${
-                      foodCost <= 35
-                        ? "bg-verde/15 text-verde"
-                        : foodCost <= 50
-                          ? "bg-antojo/15 text-antojo"
-                          : "bg-rojo/15 text-rojo"
-                    }`}
-                  >
-                    {Math.round(foodCost)}% costo
-                  </span>
-                )}
-              </button>
+                </button>
+                <button
+                  onClick={() => setEditing(p)}
+                  className="flex-1 min-w-0 flex items-center gap-3 text-left active:scale-[0.99] transition"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-cafe truncate">
+                      {p.name}
+                    </p>
+                    {recipe && perPiece !== null ? (
+                      <p className="text-xs text-canela">
+                        Cuesta {fmtMoney(perPiece)} / pza · vende{" "}
+                        {fmtMoney(p.price)}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-canela-soft italic">
+                        Sin receta todavía
+                      </p>
+                    )}
+                  </div>
+                  {foodCost !== null && (
+                    <span
+                      className={`text-[11px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${
+                        foodCost <= 35
+                          ? "bg-verde/15 text-verde"
+                          : foodCost <= 50
+                            ? "bg-antojo/15 text-antojo"
+                            : "bg-rojo/15 text-rojo"
+                      }`}
+                    >
+                      {Math.round(foodCost)}% costo
+                    </span>
+                  )}
+                </button>
+              </div>
             );
           })}
+
+          {/* Input compartido para subir/tomar foto (sin capture: iOS
+              ofrece Fototeca / Tomar foto / Elegir archivo) */}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={onFile}
+            className="hidden"
+          />
         </div>
       )}
 

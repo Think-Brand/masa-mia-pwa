@@ -30,6 +30,7 @@ export type ProductLite = {
   emoji: string | null;
   category: string;
   price: number;
+  image_url: string | null;
 };
 
 export const UNITS = ["g", "kg", "ml", "l", "pza", "paquete"] as const;

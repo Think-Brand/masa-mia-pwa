@@ -14,7 +14,7 @@ export default async function RecetasPage() {
         .order("name"),
       supabase
         .from("products")
-        .select("id, name, emoji, category, price")
+        .select("id, name, emoji, category, price, image_url")
         .eq("is_active", true)
         .order("category")
         .order("sort_order"),
