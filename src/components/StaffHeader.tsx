@@ -9,6 +9,7 @@ import {
   IconChefHat,
   IconDashboard,
   IconEye,
+  IconNotebook,
   IconUsers,
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
@@ -28,6 +29,7 @@ export default function StaffHeader({ userName }: Props) {
 
   const nav = [
     { href: "/staff/cocina", label: "Cocina", Icon: IconChefHat },
+    { href: "/staff/recetas", label: "Recetas", Icon: IconNotebook },
     { href: "/staff/clientes", label: "Clientes", Icon: IconUsers },
     { href: "/staff/dashboard", label: "Negocio", Icon: IconDashboard },
     { href: "/staff/ajustes", label: "Ajustes", Icon: IconSettings },
