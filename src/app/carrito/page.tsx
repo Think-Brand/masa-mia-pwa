@@ -48,7 +48,6 @@ import {
   type Category,
 } from "@/lib/capacity";
 import {
-  applyWelcomeCourtesy,
   checkWelcomeEligibility,
   type WelcomeStatus,
 } from "@/lib/welcomeCourtesy";
@@ -215,74 +214,34 @@ export default function Carrito() {
     try {
       const supabase = createClient();
 
-      // Prioridad de descuento: cumpleaños > welcome > nada
-      const descuentoFinal = aplicaCumple
-        ? descuentoCumple
-        : aplicaWelcome
-          ? descuentoWelcome
-          : 0;
-      const finalTotal = Math.max(0, total - descuentoFinal);
-      // 1. Crear el pedido (RLS permite a anon)
-      const { data: order, error: orderErr } = await supabase
-        .from("orders")
-        .insert({
-          customer_id: cliente.id,
-          status: "pending",
-          total: finalTotal,
-          payment_method: pago,
-          notes: notas || null,
-          source: "pwa",
-          pickup_date: pickupDate,
-          pickup_time: pickupTime,
-          contact_person: contactPerson,
-          is_birthday_treat: aplicaCumple,
-          is_welcome_courtesy: aplicaWelcome,
-        })
-        .select("id, folio")
-        .single();
+      // El pedido se crea vía RPC `create_order`: el servidor recalcula
+      // todos los precios desde la BD (products + price_modifier de opciones),
+      // valida descuentos (cumple/welcome) y crea orden + items en una sola
+      // transacción. Los precios del carrito son solo para mostrar en UI.
+      const { data: order, error: orderErr } = await supabase.rpc(
+        "create_order",
+        {
+          p_customer_id: cliente.id,
+          p_payment_method: pago,
+          p_notes: notas || null,
+          p_pickup_date: pickupDate,
+          p_pickup_time: pickupTime,
+          p_contact_person: contactPerson,
+          p_request_birthday: aplicaCumple,
+          p_request_welcome: aplicaWelcome,
+          p_items: items.map((it) => ({
+            product_id: it.productId,
+            quantity: it.quantity,
+            composition:
+              it.composition && it.composition.length > 0
+                ? it.composition
+                : null,
+          })),
+        }
+      );
 
       if (orderErr) throw orderErr;
-
-      // 2. Crear los items del pedido (con composición serializada en product_name)
-      const orderItems = items.map((it) => {
-        let nombreCompleto = it.name;
-        if (it.composition && it.composition.length > 0) {
-          const detalle = it.composition
-            .map(
-              (c) =>
-                `${c.componentName}: ${c.selections
-                  .map((s) => `${s.quantity}× ${s.name}`)
-                  .join(", ")}`
-            )
-            .join(" | ");
-          nombreCompleto = `${it.name} [${detalle}]`;
-        }
-        return {
-          order_id: order.id,
-          product_id: it.productId,
-          product_name: nombreCompleto,
-          quantity: it.quantity,
-          unit_price: it.price,
-        };
-      });
-
-      const { error: itemsErr } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-      if (itemsErr) throw itemsErr;
-
-      // Si aplicó descuento de cumple, marcar el año en customer para que no se repita
-      if (aplicaCumple && cliente.id) {
-        await supabase
-          .from("customers")
-          .update({ birthday_greeted_year: new Date().getFullYear() })
-          .eq("id", cliente.id);
-      }
-
-      // Si aplicó welcome courtesy, marcar al cliente + incrementar contador
-      if (aplicaWelcome && cliente.id) {
-        await applyWelcomeCourtesy(cliente.id);
-      }
+      if (!order?.folio) throw new Error("El servidor no devolvió folio.");
 
       // Limpiar carrito y redirigir a pantalla de éxito
       clear();
