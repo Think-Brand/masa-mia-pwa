@@ -83,14 +83,14 @@ export default function StaffHeader({ userName }: Props) {
         </div>
       </div>
       <nav className="bg-cafe border-t border-caramelo/20">
-        <div className="max-w-2xl mx-auto flex">
+        <div className="max-w-2xl mx-auto flex overflow-x-auto no-scrollbar">
           {nav.map((n) => {
             const active = pathname.startsWith(n.href);
             return (
               <Link
                 key={n.href}
                 href={n.href}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition ${
+                className={`flex-none px-4 flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition whitespace-nowrap ${
                   active
                     ? "text-antojo border-b-2 border-antojo"
                     : "text-crema/70"

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import StaffHeader from "@/components/StaffHeader";
 import StaffOnboarding from "@/components/StaffOnboarding";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,8 @@ export default async function PanelLayout({
 
   return (
     <div className="min-h-screen bg-crema-soft">
+      {/* Pull-to-refresh propio: en PWA standalone iOS no hay nativo */}
+      <PullToRefresh />
       <StaffHeader userName={name} />
       {/*
         Sin max-width aquí: cada página decide su propio ancho.
