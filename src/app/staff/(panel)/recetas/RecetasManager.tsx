@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { IconChefHat, IconShoppingBag } from "@tabler/icons-react";
+import type { Icon as TablerIcon } from "@tabler/icons-react";
 import IngredientesTab from "./IngredientesTab";
 import RecetaEditor from "./RecetaEditor";
 import {
@@ -178,7 +179,7 @@ function TabButton({
   active: boolean;
   onClick: () => void;
   label: string;
-  Icon: React.ComponentType<{ size?: number }>;
+  Icon: TablerIcon;
 }) {
   return (
     <button
