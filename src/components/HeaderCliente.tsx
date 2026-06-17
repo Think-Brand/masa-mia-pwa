@@ -31,36 +31,47 @@ export default function HeaderCliente() {
     };
   }, []);
 
-  // Gesto secreto: mantener presionado el logo ~0.6s estando logueado como
-  // staff → te lleva al panel de cocina. Un toque normal sigue yendo al inicio.
-  const pressTimer = useRef<number | null>(null);
-  const longFired = useRef(false);
+  // Gesto secreto (solo staff): 3 clics rápidos sobre el logo → panel de
+  // cocina. Cambiamos el viejo "mantener presionado" porque en PC el hold
+  // activaba la copia/arrastre de la imagen. Para clientes el logo es un Link
+  // normal a inicio; para staff interceptamos el clic y, si no llegan 3 a
+  // tiempo, navegamos a inicio como siempre (con un pelín de retraso).
+  const clickCount = useRef(0);
+  const clickTimer = useRef<number | null>(null);
+  const TRIPLE_WINDOW_MS = 450; // ventana entre clics
 
-  const startPress = () => {
+  useEffect(() => {
+    return () => {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+    };
+  }, []);
+
+  const onLogoClick = (e: React.MouseEvent) => {
+    // Cliente normal: dejar que el Link navegue a /catalogo.
     if (!isStaff) return;
-    longFired.current = false;
-    pressTimer.current = window.setTimeout(() => {
-      longFired.current = true;
+
+    // Staff: nosotros controlamos la navegación.
+    e.preventDefault();
+    clickCount.current += 1;
+
+    if (clickCount.current >= 3) {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+      clickCount.current = 0;
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
         navigator.vibrate?.(25);
       }
-      router.push("/staff/pedidos");
-    }, 600);
-  };
-
-  const cancelPress = () => {
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
+      router.push("/staff/cocina");
+      return;
     }
-  };
 
-  const onLogoClick = (e: React.MouseEvent) => {
-    // Si fue mantener-presionado (staff), cancelamos la navegación normal.
-    if (longFired.current) {
-      e.preventDefault();
-      longFired.current = false;
-    }
+    // Aún no son 3: reinicia la ventana. Si expira, fue un clic normal → inicio.
+    if (clickTimer.current) clearTimeout(clickTimer.current);
+    clickTimer.current = window.setTimeout(() => {
+      clickCount.current = 0;
+      clickTimer.current = null;
+      router.push("/catalogo");
+    }, TRIPLE_WINDOW_MS);
   };
 
   return (
@@ -71,19 +82,11 @@ export default function HeaderCliente() {
           <NotificationBell />
         </div>
 
-        {/* Logo masa mía. Para staff: mantener presionado abre el panel. */}
+        {/* Logo masa mía. Para staff: 3 clics rápidos abren el panel. */}
         <Link
           href="/catalogo"
           className="flex items-center select-none"
           onClick={onLogoClick}
-          onPointerDown={startPress}
-          onPointerUp={cancelPress}
-          onPointerLeave={cancelPress}
-          onPointerCancel={cancelPress}
-          onContextMenu={(e) => {
-            // Evita el menú "guardar imagen" al mantener presionado en móvil.
-            if (isStaff) e.preventDefault();
-          }}
           style={{ WebkitTouchCallout: "none" }}
         >
           <Image
