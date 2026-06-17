@@ -65,6 +65,28 @@ export function listAvailableDates(min: Date, count = 14): Date[] {
   return out;
 }
 
+// Genera lista de N días corridos (INCLUYE sábados y domingos) a partir de
+// una fecha base. Pensado para el staff (Fabiola/Alex), que captura pedidos
+// tradicionales y debe poder elegir cualquier día —fines de semana incluidos—
+// sin las reglas de cupo ni el filtro L-V del flujo de autoservicio.
+export function listAllDatesFrom(start: Date, count = 30): Date[] {
+  const out: Date[] = [];
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+  while (out.length < count) {
+    out.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return out;
+}
+
+// Día base de hoy (00:00 local). El servidor acepta cualquier pickup_date >= hoy.
+export function todayStart(now = new Date()): Date {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 // Slots de hora de recogida: cada 2 horas entre 8 am y 8 pm.
 // Devuelve ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"].
 // Separar pickups en bloques de 2h ayuda a no amontonar gente en la puerta.

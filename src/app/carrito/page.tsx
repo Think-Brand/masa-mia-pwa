@@ -32,6 +32,8 @@ import {
   formatDeliveryDate,
   dateToIsoDay,
   listAvailableDates,
+  listAllDatesFrom,
+  todayStart,
   listPickupTimeSlots,
   formatPickupTimeLabel,
   formatDateShort,
@@ -67,6 +69,22 @@ export default function Carrito() {
   const [welcomeStatus, setWelcomeStatus] = useState<WelcomeStatus | null>(
     null
   );
+  // ¿El que está usando el carrito es staff (Fabiola/Alex/Mario) logueado?
+  // El staff captura pedidos tradicionales a nombre del cliente y NO debe
+  // toparse con las reglas de cupo, vacaciones ni el filtro L-V: ellos manejan
+  // la capacidad de cabeza y deben poder agendar cualquier día.
+  const [isStaff, setIsStaff] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (alive) setIsStaff(!!data.user);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Verificar elegibilidad de welcome courtesy
   useEffect(() => {
@@ -105,7 +123,11 @@ export default function Carrito() {
     items.length > 0 ? 1 : 1
   );
   const minDate = getMinPickupDate(maxPrepDays);
-  const fechaList = listAvailableDates(minDate, 14);
+  // Staff: días corridos desde hoy (incluye fines de semana, sin filtro L-V).
+  // Cliente: solo días hábiles a partir de la fecha mínima de preparación.
+  const fechaList = isStaff
+    ? listAllDatesFrom(todayStart(), 30)
+    : listAvailableDates(minDate, 14);
   const [pickupDate, setPickupDate] = useState<string>(dateToIsoDay(minDate));
   // Horario de recogida (HH:MM, slot de 30min). Default: 12:00 (mediodía).
   const [pickupTime, setPickupTime] = useState<string>("12:00");
@@ -181,13 +203,15 @@ export default function Carrito() {
     !!cliente.whatsapp &&
     cliente.whatsapp.length === 10;
 
-  // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de la mínima
+  // Cuando cambia el contenido del carrito, recalcular fecha si quedó antes de
+  // la mínima. El staff puede elegir días anteriores a la mínima del cliente
+  // (incluso hoy), así que no le forzamos el salto.
   useEffect(() => {
-    if (pickupDate < dateToIsoDay(minDate)) {
+    if (!isStaff && pickupDate < dateToIsoDay(minDate)) {
       setPickupDate(dateToIsoDay(minDate));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxPrepDays]);
+  }, [maxPrepDays, isStaff]);
 
   const copiarCuenta = async () => {
     try {
@@ -214,6 +238,14 @@ export default function Carrito() {
     try {
       const supabase = createClient();
 
+      // ¿El día elegido quedó a tope? No bloquea, pero marcamos el pedido
+      // como over_capacity para que la cocina lo revise y confirme.
+      const occSel = occupancyMap.get(pickupDate);
+      const overCap =
+        !isStaff && occSel
+          ? !canDateAcceptCart(occSel, cartCounts).ok
+          : false;
+
       // El pedido se crea vía RPC `create_order`: el servidor recalcula
       // todos los precios desde la BD (products + price_modifier de opciones),
       // valida descuentos (cumple/welcome) y crea orden + items en una sola
@@ -237,6 +269,7 @@ export default function Carrito() {
                 ? it.composition
                 : null,
           })),
+          p_over_capacity: overCap,
         }
       );
 
@@ -445,13 +478,23 @@ export default function Carrito() {
               })()}
               defaultOpen={false}
             >
-              <div className="text-[11px] text-canela mb-2">
-                Lo más pronto:{" "}
-                <b className="text-cafe capitalize">
-                  {formatDeliveryDate(minDate)}
-                </b>
-              </div>
-              {settings?.vacation_active === "on" && (
+              {isStaff ? (
+                <div className="bg-cafe/10 border border-cafe/20 rounded-lg px-2.5 py-1.5 mb-2 text-[11px] text-cafe leading-snug flex items-center gap-1.5">
+                  <span>👩‍🍳</span>
+                  <span>
+                    <b>Modo cocina:</b> pedido capturado por staff. Sin límites de
+                    cupo ni vacaciones — elige cualquier día.
+                  </span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-canela mb-2">
+                  Lo más pronto:{" "}
+                  <b className="text-cafe capitalize">
+                    {formatDeliveryDate(minDate)}
+                  </b>
+                </div>
+              )}
+              {!isStaff && settings?.vacation_active === "on" && (
                 <div className="bg-antojo/10 border border-antojo/30 rounded-lg px-2.5 py-1.5 mb-2 text-[11px] text-cafe leading-snug">
                   <b>🥐 {settings.vacation_message}</b>
                   <div className="text-canela mt-0.5">
@@ -470,19 +513,28 @@ export default function Carrito() {
                   const check = occ
                     ? canDateAcceptCart(occ, cartCounts)
                     : { ok: true, blockingCategories: [] };
-                  // Bloqueo por modo vacaciones (settings)
+                  // Bloqueo por modo vacaciones (settings). El cupo YA NO
+                  // bloquea: el cliente siempre puede pedir; si el día está a
+                  // tope, su pedido queda sujeto a confirmación de la cocina.
                   const enVacaciones =
                     settings?.vacation_active === "on" &&
                     settings.vacation_from &&
                     settings.vacation_to &&
                     iso >= settings.vacation_from &&
                     iso <= settings.vacation_to;
-                  const blocked = !check.ok || !!enVacaciones;
+                  // Staff sin restricciones. Cliente: solo vacaciones bloquea.
+                  const blocked = isStaff ? false : !!enVacaciones;
+                  // Día a tope (sobre capacidad): se puede elegir, pero avisamos.
+                  const aTope = !isStaff && !blocked && !check.ok;
+                  // Apretado (pocos cupos), solo informativo.
                   const tight =
-                    occ &&
+                    !isStaff &&
                     !blocked &&
+                    !aTope &&
+                    occ &&
                     (occ.worstStatus === "full" ||
                       occ.worstStatus === "tight");
+                  const warn = aTope || tight;
                   return (
                     <button
                       key={iso}
@@ -492,8 +544,8 @@ export default function Carrito() {
                         enVacaciones
                           ? settings?.vacation_message ||
                             "Estamos en vacaciones"
-                          : blocked
-                            ? `Fecha llena para: ${check.blockingCategories.join(", ")}`
+                          : aTope
+                            ? "Ese día vamos a tope — tu pedido queda sujeto a confirmación"
                             : tight
                               ? "Pocos cupos"
                               : undefined
@@ -503,12 +555,12 @@ export default function Carrito() {
                           ? "bg-canela/15 text-canela/50 line-through cursor-not-allowed"
                           : active
                             ? "bg-antojo text-white shadow"
-                            : tight
+                            : warn
                               ? "bg-[#F2A516]/15 text-[#B57A00] border border-[#F2A516]/40"
                               : "bg-crema text-cafe"
                       }`}
                     >
-                      {tight && !blocked && (
+                      {warn && !blocked && (
                         <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[11px] rounded-full px-1 leading-tight">
                           !
                         </span>
@@ -523,15 +575,16 @@ export default function Carrito() {
               </div>
               {/* Aviso si la fecha actual está apretada o llena */}
               {(() => {
+                if (isStaff) return null;
                 const occ = occupancyMap.get(pickupDate);
                 if (!occ) return null;
                 const check = canDateAcceptCart(occ, cartCounts);
                 if (!check.ok) {
                   return (
-                    <div className="mt-2 bg-antojo/10 border border-antojo/30 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
-                      🚫 Este día ya está lleno para{" "}
-                      <b>{check.blockingCategories.join(", ")}</b>. Mejor escoge
-                      otro día 🤎
+                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/40 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
+                      🍞 Ese día vamos <b>a tope</b> en la cocina. Puedes pedir
+                      igual, pero tu pedido queda <b>sujeto a confirmación</b>:
+                      te avisamos por WhatsApp en cuanto lo confirmemos 🤎
                     </div>
                   );
                 }
@@ -738,7 +791,7 @@ export default function Carrito() {
               href="/pedido-especial"
               className="text-[11px] text-canela text-center italic underline mt-1"
             >
-              ¿Pedido especial? Hablemos por WhatsApp ✨
+              ¿Evento o fin de semana? Haz un pedido especial ✨
             </Link>
 
             {/* Consulta de envío — solo si el carrito es generoso */}
@@ -767,11 +820,16 @@ export default function Carrito() {
           Solo cuando hay items en el carrito. */}
       {items.length > 0 &&
         (() => {
-          const occ = occupancyMap.get(pickupDate);
-          const check = occ
-            ? canDateAcceptCart(occ, cartCounts)
-            : { ok: true, blockingCategories: [] };
-          const bloqueado = !check.ok;
+          // El cupo YA NO bloquea (pedir siempre; queda sujeto a confirmación).
+          // Solo el modo vacaciones bloquea al cliente. Staff nunca se bloquea.
+          const enVacacionesSel =
+            !isStaff &&
+            settings?.vacation_active === "on" &&
+            !!settings.vacation_from &&
+            !!settings.vacation_to &&
+            pickupDate >= settings.vacation_from &&
+            pickupDate <= settings.vacation_to;
+          const bloqueado = !!enVacacionesSel;
           const sinCliente = !clienteValido;
           const descuentoLabel = aplicaCumple
             ? "🎂 Rol de cumpleaños"
@@ -787,7 +845,7 @@ export default function Carrito() {
           const ctaLabel = sinCliente
             ? "Cuéntanos quién eres ↑"
             : bloqueado
-              ? "Día lleno · cambia la fecha"
+              ? "En vacaciones · cambia la fecha"
               : enviando
                 ? "Anotando tu antojo…"
                 : "Confirmar pedido";

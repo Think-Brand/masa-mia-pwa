@@ -92,6 +92,12 @@ export type Order = {
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
   is_welcome_courtesy: boolean | null;
+  /** Pedido especial (evento/fin de semana/fuera de horario) capturado desde
+   *  /pedido-especial. Requiere aceptación manual de Fabiola. */
+  is_special: boolean | null;
+  /** El día quedó a tope de capacidad al crear el pedido. No bloquea al
+   *  cliente, solo marca que la cocina debe revisarlo/confirmarlo. */
+  over_capacity: boolean | null;
   pilot_code: string | null;
   cancel_reason: string | null;
   cancelled_by: "customer" | "staff" | null;

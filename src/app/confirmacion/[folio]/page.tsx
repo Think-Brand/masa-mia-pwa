@@ -145,6 +145,28 @@ function Confirmacion() {
         </span>
       </p>
 
+      {/* Aviso especial / sujeto a confirmación (mientras está pendiente) */}
+      {order.status === "pending" && order.is_special && (
+        <div className="mt-5 w-full bg-[#F2A516]/10 border border-[#F2A516]/40 rounded-2xl p-3 text-left flex items-start gap-2">
+          <span className="text-xl">✨</span>
+          <p className="text-[12px] text-cafe leading-snug">
+            <b>Pedido especial recibido.</b> Fabiola lo revisa y te confirma
+            fecha, hora y detalles por WhatsApp en cuanto pueda. Aún no es
+            definitivo hasta que ella lo acepte 🤎
+          </p>
+        </div>
+      )}
+      {order.status === "pending" && order.over_capacity && !order.is_special && (
+        <div className="mt-5 w-full bg-[#F2A516]/10 border border-[#F2A516]/40 rounded-2xl p-3 text-left flex items-start gap-2">
+          <span className="text-xl">🍞</span>
+          <p className="text-[12px] text-cafe leading-snug">
+            Ese día vamos <b>a tope</b> en la cocina, así que tu pedido queda{" "}
+            <b>sujeto a confirmación</b>. Te avisamos por WhatsApp en cuanto lo
+            confirmemos 🤎
+          </p>
+        </div>
+      )}
+
       {/* Folio */}
       <div
         className="mt-6 bg-white rounded-2xl px-6 py-4 shadow-sm stagger-item"

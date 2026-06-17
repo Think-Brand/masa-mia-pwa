@@ -80,6 +80,34 @@ export default async function PedidoDetalle({
         </span>
       </div>
 
+      {order.is_special && (
+        <div className="mt-3 bg-[#7C3AED] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+          <span className="text-2xl">✨</span>
+          <div className="flex-1">
+            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
+              Pedido especial · requiere tu aceptación
+            </div>
+            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
+              Evento / fin de semana / fuera de horario · confirma fecha, hora y
+              precio
+            </div>
+          </div>
+        </div>
+      )}
+      {order.over_capacity && order.status === "pending" && (
+        <div className="mt-3 bg-[#F2A516] text-cafe rounded-2xl p-3 flex items-center gap-2 shadow-md">
+          <span className="text-2xl">⚠️</span>
+          <div className="flex-1">
+            <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">
+              Día a tope · sobreproducción
+            </div>
+            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
+              Ese día ya estaba lleno de cupo. Revisa si lo confirmas o le
+              propones otra fecha al cliente.
+            </div>
+          </div>
+        </div>
+      )}
       {order.is_courtesy && (
         <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎁</span>

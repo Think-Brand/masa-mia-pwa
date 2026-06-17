@@ -8,6 +8,7 @@ const ORDER_FIELDS = `id, folio, status, total, payment_method, contact_person,
        delivered_at, customer_notified_at,
        notes, decline_reason, cancel_reason, cancelled_by,
        is_courtesy, is_birthday_treat, is_welcome_courtesy,
+       is_special, over_capacity,
        customer:customers(name, whatsapp)`;
 
 export default async function CocinaPage() {

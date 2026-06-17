@@ -50,6 +50,8 @@ type OrderRow = {
   is_courtesy: boolean | null;
   is_birthday_treat: boolean | null;
   is_welcome_courtesy: boolean | null;
+  is_special: boolean | null;
+  over_capacity: boolean | null;
   customer: { name: string; whatsapp: string } | null;
   items: {
     id: string;
@@ -989,6 +991,22 @@ function Card({
           </div>
         </div>
       </div>
+
+      {/* Alertas: pedido especial / día a tope (sobreproducción) */}
+      {(o.is_special || o.over_capacity) && (
+        <div className="flex flex-wrap gap-1.5">
+          {o.is_special && (
+            <span className="inline-flex items-center gap-1 bg-[#7C3AED] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+              ✨ Especial · acepta tú
+            </span>
+          )}
+          {o.over_capacity && (
+            <span className="inline-flex items-center gap-1 bg-[#F2A516] text-cafe text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+              ⚠️ Día a tope · revisa
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Items */}
       <ul className={`text-xs lg:text-sm space-y-0.5 lg:space-y-1 ${cardText} bg-current/[0.03] rounded-md px-2 lg:px-3 py-1.5 lg:py-2`}>
