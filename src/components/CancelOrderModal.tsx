@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconX, IconAlertTriangle } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
+import { useModalA11y } from "@/lib/useModalA11y";
 import {
   MIN_HOURS_TO_CANCEL,
   checkCancelEligibility,
@@ -41,6 +42,8 @@ export default function CancelOrderModal({
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const panelRef = useModalA11y<HTMLDivElement>(open, onClose);
 
   if (!open) return null;
 
@@ -86,7 +89,12 @@ export default function CancelOrderModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl modal-enter max-h-[90vh] overflow-y-auto"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancel-titulo"
+        tabIndex={-1}
+        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl modal-enter max-h-[90vh] overflow-y-auto focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-canela/40 rounded-full mx-auto mb-3 sm:hidden" />
@@ -111,6 +119,7 @@ export default function CancelOrderModal({
             priority
           />
           <h2
+            id="cancel-titulo"
             className="text-3xl text-cafe leading-none mt-2"
             style={{ fontFamily: "ReginaBlack" }}
           >
@@ -166,6 +175,7 @@ export default function CancelOrderModal({
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              aria-label="Cuéntanos más sobre la cancelación (opcional)"
               placeholder="¿Quieres contarnos más? (opcional)"
               rows={2}
               className="mt-3 w-full bg-white border border-caramelo/40 rounded-xl px-3 py-2 text-sm text-cafe placeholder:text-canela/50 focus:outline-none focus:border-cafe resize-none"

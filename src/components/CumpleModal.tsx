@@ -5,6 +5,7 @@ import { useState } from "react";
 import { IconX, IconCake, IconLock } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "./CarritoProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 import {
   MESES,
   diasEnMes,
@@ -39,6 +40,8 @@ export default function CumpleModal({ open, onClose }: Props) {
   const [mes, setMes] = useState<number>(initialMonth);
   const [dia, setDia] = useState<number>(initialDay);
   const [saving, setSaving] = useState(false);
+
+  const panelRef = useModalA11y<HTMLDivElement>(open, onClose);
 
   if (!open) return null;
 
@@ -84,7 +87,12 @@ export default function CumpleModal({ open, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl fade-up max-h-[90vh] overflow-y-auto"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cumple-titulo"
+        tabIndex={-1}
+        className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl fade-up max-h-[90vh] overflow-y-auto focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle móvil */}
@@ -110,6 +118,7 @@ export default function CumpleModal({ open, onClose }: Props) {
             priority
           />
           <h2
+            id="cumple-titulo"
             className="text-3xl text-cafe leading-none mt-2"
             style={{ fontFamily: "ReginaBlack" }}
           >
@@ -162,10 +171,14 @@ export default function CumpleModal({ open, onClose }: Props) {
             {/* Selectores mes / día */}
             <div className="grid grid-cols-2 gap-3 mt-6">
               <div>
-                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
+                <label
+                  htmlFor="cumple-mes"
+                  className="text-[11px] font-bold text-canela uppercase tracking-wider"
+                >
                   Mes
                 </label>
                 <select
+                  id="cumple-mes"
                   value={mes}
                   onChange={(e) => setMes(parseInt(e.target.value, 10))}
                   className="mt-1 w-full bg-white border border-caramelo/40 rounded-xl px-3 py-3 text-sm text-cafe focus:outline-none focus:border-cafe capitalize"
@@ -178,10 +191,14 @@ export default function CumpleModal({ open, onClose }: Props) {
                 </select>
               </div>
               <div>
-                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
+                <label
+                  htmlFor="cumple-dia"
+                  className="text-[11px] font-bold text-canela uppercase tracking-wider"
+                >
                   Día
                 </label>
                 <select
+                  id="cumple-dia"
                   value={diaSeguro}
                   onChange={(e) => setDia(parseInt(e.target.value, 10))}
                   className="mt-1 w-full bg-white border border-caramelo/40 rounded-xl px-3 py-3 text-sm text-cafe focus:outline-none focus:border-cafe"

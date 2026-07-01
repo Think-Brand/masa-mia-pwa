@@ -7,6 +7,7 @@ import { useBoxBuilder } from "@/components/useBoxBuilder";
 import BoxComponentsSelector from "@/components/BoxComponentsSelector";
 import { useCarrito } from "@/components/CarritoProvider";
 import { useToast } from "@/components/Toast";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 /**
  * Popup para agregar OTRA caja (RollinBox / LuvinBox) eligiendo solo los
@@ -56,6 +57,8 @@ export default function BoxFlavorModal({
     () => MIGA_LINES[Math.floor(Math.random() * MIGA_LINES.length)]
   );
 
+  const panelRef = useModalA11y<HTMLDivElement>(open, onClose);
+
   if (!open) return null;
 
   const nombreLimpio = box ? box.name.replace(/\s+\d+$/, "") : "caja";
@@ -78,6 +81,7 @@ export default function BoxFlavorModal({
       className="fixed inset-0 z-[80] flex items-end justify-center"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="box-flavor-titulo"
     >
       {/* Backdrop */}
       <div
@@ -86,16 +90,21 @@ export default function BoxFlavorModal({
       />
 
       {/* Hoja inferior */}
-      <div className="relative w-full max-w-md bg-[var(--avellana-soft)] rounded-t-3xl shadow-2xl flex flex-col max-h-[88vh] animate-[sheetUp_0.25s_ease-out]">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="relative w-full max-w-md bg-[var(--avellana-soft)] rounded-t-3xl shadow-2xl flex flex-col max-h-[88vh] animate-[sheetUp_0.25s_ease-out] focus:outline-none"
+      >
         {/* Header */}
         <div className="flex items-start justify-between px-4 py-3 border-b border-caramelo/20 flex-shrink-0">
           <div className="min-w-0 pr-2">
-            <div
+            <h2
+              id="box-flavor-titulo"
               className="text-lg text-cafe leading-tight"
               style={{ fontFamily: "ReginaBlack" }}
             >
               Arma otra {nombreLimpio}
-            </div>
+            </h2>
             <p className="text-[11px] text-canela italic mt-0.5 leading-snug">
               {migaLine}
             </p>

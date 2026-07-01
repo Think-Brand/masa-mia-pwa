@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "./CarritoProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 const SHOWN_KEY = "masamia:feedback:shown";
 
@@ -85,6 +86,10 @@ export default function FeedbackPopup({ folio, page }: Props) {
     setOpen(false);
   };
 
+  const panelRef = useModalA11y<HTMLDivElement>(open, () => {
+    if (!sending && !sent) dismiss();
+  });
+
   if (!pilotMode || !open) return null;
 
   return (
@@ -93,7 +98,12 @@ export default function FeedbackPopup({ folio, page }: Props) {
       onClick={() => !sending && !sent && dismiss()}
     >
       <div
-        className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Encuesta de tu pedido"
+        tabIndex={-1}
+        className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {sent ? (
@@ -171,10 +181,14 @@ export default function FeedbackPopup({ folio, page }: Props) {
 
             {rating && (
               <div className="mt-4 fade-up">
-                <label className="text-[11px] font-bold text-canela uppercase tracking-wider">
+                <label
+                  htmlFor="feedback-comment"
+                  className="text-[11px] font-bold text-canela uppercase tracking-wider"
+                >
                   Cuéntanos qué piensas (opcional pero amado)
                 </label>
                 <textarea
+                  id="feedback-comment"
                   rows={3}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}

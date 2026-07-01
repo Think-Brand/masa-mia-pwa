@@ -218,6 +218,7 @@ export default function YoRegistroEmptyState() {
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
+              aria-label="Tu WhatsApp, 10 dígitos"
               placeholder="WhatsApp · 10 dígitos"
               maxLength={10}
               value={whatsapp}
@@ -230,6 +231,7 @@ export default function YoRegistroEmptyState() {
               type="text"
               inputMode="text"
               autoComplete="given-name"
+              aria-label="Tu nombre"
               placeholder="Tu nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}

@@ -7,6 +7,7 @@ import {
   IconTruck,
   IconX,
 } from "@tabler/icons-react";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 /**
  * Botón condicional + modal para consultar envío.
@@ -37,6 +38,7 @@ export default function EnvioPrompt({
   umbral = 400,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const panelRef = useModalA11y<HTMLDivElement>(open, () => setOpen(false));
 
   // No renderiza si el carrito no llega al umbral
   if (total < umbral) return null;
@@ -80,7 +82,12 @@ export default function EnvioPrompt({
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-5 pb-7 modal-enter shadow-2xl"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="envio-titulo"
+            tabIndex={-1}
+            className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-5 pb-7 modal-enter shadow-2xl focus:outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-2 mb-3">
@@ -94,6 +101,7 @@ export default function EnvioPrompt({
                 />
                 <div>
                   <h2
+                    id="envio-titulo"
                     className="text-2xl text-cafe leading-none"
                     style={{ fontFamily: "ReginaBlack" }}
                   >

@@ -77,7 +77,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <Ctx.Provider value={{ show }}>
       {children}
       {/* Container — fixed bottom, encima del bottom nav */}
-      <div className="fixed bottom-24 left-0 right-0 z-[80] flex flex-col items-center gap-2 px-4 pointer-events-none">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="fixed bottom-24 left-0 right-0 z-[80] flex flex-col items-center gap-2 px-4 pointer-events-none"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}

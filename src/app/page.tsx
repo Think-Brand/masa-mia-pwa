@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { useCarrito } from "@/components/CarritoProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 import Miga from "@/components/Miga";
 
 /**
@@ -64,6 +65,9 @@ export default function Landing() {
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const lookupTimer = useRef<number | null>(null);
+  const modalRef = useModalA11y<HTMLDivElement>(showLookup, () =>
+    setShowLookup(false)
+  );
 
   // Frase + emoción Miga aleatorias al montar — protagonistas del hero.
   // Miga es congruente con el tono de la frase (drama, idea, culpable, etc).
@@ -244,11 +248,17 @@ export default function Landing() {
           onClick={() => setShowLookup(false)}
         >
           <div
-            className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-5 pb-8 modal-enter"
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="encuentrame-titulo"
+            tabIndex={-1}
+            className="w-full max-w-md bg-crema rounded-t-3xl sm:rounded-3xl p-5 pb-8 modal-enter focus:outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
               <h2
+                id="encuentrame-titulo"
                 className="text-2xl text-cafe leading-none"
                 style={{ fontFamily: "ReginaBlack" }}
               >
@@ -271,6 +281,7 @@ export default function Landing() {
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
+              aria-label="Tu WhatsApp, 10 dígitos"
               placeholder="WhatsApp · 10 dígitos"
               maxLength={10}
               value={whatsapp}
