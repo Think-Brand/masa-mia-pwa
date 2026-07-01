@@ -707,7 +707,7 @@ export default async function DashboardPage() {
                 <a
                   href={`https://wa.me/521${c.whatsapp}?text=${encodeURIComponent(
                     c.isToday
-                      ? `¡Feliz cumpleaños, ${c.name}! 🎂 Hoy tienes un rol cortesía cuando armes tu antojo en Masa Mía 🤎`
+                      ? `¡Feliz cumpleaños, ${c.name}! 🎂 Te deseamos un día delicioso desde Masa Mía 🤎`
                       : `¡Hola ${c.name}! Te queremos desear desde Masa Mía un adelanto: nos contó un pajarito que se viene tu cumple 🎂`
                   )}`}
                   target="_blank"

@@ -962,12 +962,6 @@ function Card({
             style={{ fontFamily: "ReginaBlack" }}
           >
             {o.is_birthday_treat && <span title="Cumple">🎂</span>}
-            {o.is_welcome_courtesy && !o.is_birthday_treat && (
-              <span title="Bienvenida">🎁</span>
-            )}
-            {o.is_courtesy &&
-              !o.is_birthday_treat &&
-              !o.is_welcome_courtesy && <span title="Cortesía">🎁</span>}
             <span className="truncate">{o.folio}</span>
           </div>
           <div

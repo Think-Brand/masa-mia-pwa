@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import { ChangeStatusButton } from "./actions";
 import { DeclineButton } from "./DeclineButton";
 import DeliveryEditor from "./DeliveryEditor";
+import BirthdayGiftPanel from "./BirthdayGiftPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function PedidoDetalle({
   const { data: order } = await supabase
     .from("orders")
     .select(
-      `*, customer:customers(id, name, whatsapp)`
+      `*, customer:customers(id, name, whatsapp, birthday, birthday_greeted_year, total_orders)`
     )
     .eq("id", params.id)
     .single();
@@ -35,6 +36,16 @@ export default async function PedidoDetalle({
     .from("order_items")
     .select("*")
     .eq("order_id", order.id);
+
+  // Productos que se pueden regalar (agregar gratis): solo rol y RollinBox.
+  const { data: addableProducts } = await supabase
+    .from("products")
+    .select("id, name, category, price")
+    .in("category", ["rol", "rollinbox"])
+    .eq("is_active", true)
+    .eq("is_public", true)
+    .order("category")
+    .order("sort_order");
 
   const { data: settings } = await supabase.from("settings").select("key, value");
   const settingsMap: Record<string, string> = {};
@@ -108,19 +119,6 @@ export default async function PedidoDetalle({
           </div>
         </div>
       )}
-      {order.is_courtesy && (
-        <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
-          <span className="text-2xl">🎁</span>
-          <div className="flex-1">
-            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
-              Cortesía piloto
-            </div>
-            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
-              Código {order.pilot_code} · Sin cobro
-            </div>
-          </div>
-        </div>
-      )}
       {order.is_birthday_treat && (
         <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎂</span>
@@ -129,20 +127,7 @@ export default async function PedidoDetalle({
               Cumpleaños del cliente
             </div>
             <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
-              Rol de regalo aplicado · Échale cariño extra
-            </div>
-          </div>
-        </div>
-      )}
-      {order.is_welcome_courtesy && (
-        <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
-          <span className="text-2xl">🎁</span>
-          <div className="flex-1">
-            <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
-              Cortesía de bienvenida
-            </div>
-            <div className="text-sm font-bold" style={{ fontFamily: "Termina" }}>
-              Primer pedido del cliente · 1 rol va por la casa
+              Cortesía de cumpleaños aplicada · Échale cariño extra
             </div>
           </div>
         </div>
@@ -160,6 +145,34 @@ export default async function PedidoDetalle({
         </div>
       )}
       <p className="text-xs text-canela mt-1 capitalize">{fecha}</p>
+
+      {/* Regalo de cumpleaños — solo staff, invisible para el cliente */}
+      <BirthdayGiftPanel
+        orderId={order.id}
+        status={order.status}
+        isBirthdayTreat={!!order.is_birthday_treat}
+        pickupDate={order.pickup_date}
+        customer={{
+          name: (order.customer as any)?.name ?? "",
+          whatsapp: (order.customer as any)?.whatsapp ?? null,
+          birthday: (order.customer as any)?.birthday ?? null,
+          birthday_greeted_year:
+            (order.customer as any)?.birthday_greeted_year ?? null,
+          total_orders: (order.customer as any)?.total_orders ?? null,
+        }}
+        items={(items ?? []).map((it: any) => ({
+          product_id: it.product_id,
+          product_name: it.product_name,
+          unit_price: Number(it.unit_price),
+          quantity: it.quantity,
+        }))}
+        addable={(addableProducts ?? []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          price: Number(p.price),
+        }))}
+      />
 
       {/* Cliente */}
       <section className="mt-5 bg-white rounded-2xl p-3 shadow-sm">

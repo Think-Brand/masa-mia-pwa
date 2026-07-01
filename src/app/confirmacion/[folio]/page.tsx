@@ -206,6 +206,20 @@ function Confirmacion() {
             </li>
           ))}
         </ul>
+        {(() => {
+          const sumItems = order.items.reduce(
+            (n, it) => n + Number(it.unit_price) * it.quantity,
+            0
+          );
+          const cortesia = sumItems - Number(order.total);
+          if (!order.is_birthday_treat || cortesia <= 0) return null;
+          return (
+            <div className="flex justify-between items-baseline mt-2 text-xs text-antojo">
+              <span>🎂 Cortesía de cumpleaños</span>
+              <span className="font-bold">−${cortesia.toFixed(0)}</span>
+            </div>
+          );
+        })()}
         <div className="flex justify-between items-baseline mt-3 pt-3 border-t border-caramelo/30">
           <span className="text-xs text-canela">Total</span>
           <span

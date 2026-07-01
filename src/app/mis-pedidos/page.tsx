@@ -226,6 +226,11 @@ export default function MisPedidos() {
                         .map((it) => `${it.quantity}× ${it.product_name.split(" [")[0]}`)
                         .join(", ")}
                     </div>
+                    {o.is_birthday_treat && (
+                      <div className="text-[11px] text-antojo font-bold mt-1">
+                        🎂 Cortesía de cumpleaños
+                      </div>
+                    )}
                     <div className="flex justify-between items-baseline mt-1">
                       <span className="text-[11px] text-canela">Total</span>
                       <span

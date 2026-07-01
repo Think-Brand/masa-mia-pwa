@@ -134,34 +134,3 @@ export function isBirthdayEditable(
   }
   return { editable: true, unlockDate: null };
 }
-
-/**
- * Determina si HOY aplica descuento por cumpleaños.
- * Reglas:
- * - Es hoy MM-DD
- * - Birthday fue registrado hace >= 7 días (antitrampa)
- * - No se ha usado este año (birthday_greeted_year !== año actual)
- */
-export function isBirthdayEligibleToday(args: {
-  birthday: string | null | undefined;
-  birthdaySetAt: string | null | undefined;
-  lastGreetedYear: number | null | undefined;
-}): { eligible: boolean; reason?: string } {
-  const { birthday, birthdaySetAt, lastGreetedYear } = args;
-  if (!birthday) return { eligible: false, reason: "Sin cumpleaños registrado" };
-  if (!isBirthdayToday(birthday)) {
-    return { eligible: false, reason: "Hoy no es tu cumple" };
-  }
-  const currentYear = new Date().getFullYear();
-  if (lastGreetedYear === currentYear) {
-    return { eligible: false, reason: "Ya aplicaste tu rol de cumple este año" };
-  }
-  const days = daysSinceBirthdaySet(birthdaySetAt);
-  if (days < BIRTHDAY_SETTLE_DAYS) {
-    return {
-      eligible: false,
-      reason: `Agregaste tu cumple hace ${days} días. Aplica para el próximo año.`,
-    };
-  }
-  return { eligible: true };
-}

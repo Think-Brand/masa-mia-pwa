@@ -344,10 +344,6 @@ function NotificacionesPanel() {
 function PilotoPanel() {
   const [pilotMode, setPilotMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [welcomeMax, setWelcomeMax] = useState<number>(20);
-  const [welcomeCount, setWelcomeCount] = useState<number>(0);
-  const [savingMax, setSavingMax] = useState(false);
-  const [maxDraft, setMaxDraft] = useState<string>("20");
   const [showTour, setShowTour] = useState(false);
 
   const verTourDeNuevo = () => {
@@ -361,14 +357,10 @@ function PilotoPanel() {
     const { data: settings } = await supabase
       .from("settings")
       .select("key, value")
-      .in("key", ["pilot_mode", "pilot_welcome_max", "pilot_welcome_count"]);
+      .in("key", ["pilot_mode"]);
     const map = new Map<string, string>();
     for (const s of settings ?? []) map.set(s.key, s.value);
     setPilotMode(map.get("pilot_mode") === "on");
-    const max = parseInt(map.get("pilot_welcome_max") || "20", 10);
-    setWelcomeMax(max);
-    setMaxDraft(String(max));
-    setWelcomeCount(parseInt(map.get("pilot_welcome_count") || "0", 10));
     setLoading(false);
   };
 
@@ -385,28 +377,6 @@ function PilotoPanel() {
       .eq("key", "pilot_mode");
   };
 
-  const guardarMax = async () => {
-    const n = Math.max(0, parseInt(maxDraft || "0", 10));
-    setSavingMax(true);
-    const supabase = createClient();
-    await supabase
-      .from("settings")
-      .update({ value: String(n) })
-      .eq("key", "pilot_welcome_max");
-    setWelcomeMax(n);
-    setSavingMax(false);
-  };
-
-  const resetContador = async () => {
-    if (!confirm("¿Reiniciar el contador a 0? Los clientes ya marcados seguirán marcados.")) return;
-    const supabase = createClient();
-    await supabase
-      .from("settings")
-      .update({ value: "0" })
-      .eq("key", "pilot_welcome_count");
-    setWelcomeCount(0);
-  };
-
   if (loading) {
     return (
       <div className="text-center py-10 text-canela">
@@ -415,24 +385,19 @@ function PilotoPanel() {
     );
   }
 
-  const remaining = Math.max(0, welcomeMax - welcomeCount);
-  const pct = welcomeMax > 0 ? Math.min(100, (welcomeCount / welcomeMax) * 100) : 0;
-
   return (
     <div className="space-y-4">
       {/* Toggle modo piloto */}
       <Section title="🧪 Modo prueba piloto">
         <SwitchRow
           label="Activar piloto"
-          sub="Feedback post-pedido + cortesía de bienvenida automática + tour Miga"
+          sub="Feedback post-pedido + tour de Miga"
           value={pilotMode}
           onChange={togglePilot}
         />
         <p className="text-[11px] text-canela italic">
-          Cuando esté encendido: cada cliente <b>nuevo</b> (no Mario, Faby o
-          Alex) recibe <b>1 rol cortesía</b> en su primer pedido,
-          automáticamente — sin código. Pop-up de feedback al confirmar
-          pedido. Y los testers ven el tour de Miga la primera vez.
+          Cuando esté encendido: pop-up de feedback al confirmar pedido y los
+          testers ven el tour de Miga la primera vez.
         </p>
 
         <button
@@ -444,85 +409,10 @@ function PilotoPanel() {
         </button>
       </Section>
 
-      {/* Welcome courtesy */}
-      <Section title="🎁 Cortesías de bienvenida">
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <CodeStat label="Otorgadas" value={String(welcomeCount)} />
-          <CodeStat label="Restantes" value={String(remaining)} />
-          <CodeStat label="Tope" value={String(welcomeMax)} />
-        </div>
-        <p className="text-[11px] text-canela italic mb-3 leading-relaxed">
-          Se cuenta al <b>confirmar el pedido</b> (no al entregarlo) para
-          reservar el cupo y que no se regalen de más si caen pedidos
-          simultáneos.
-        </p>
-
-        {/* Barra de progreso */}
-        <div className="bg-crema-soft rounded-full h-2 overflow-hidden mb-3">
-          <div
-            className="h-full bg-antojo transition-all"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-
-        {/* Editar tope */}
-        <div className="flex items-center gap-2">
-          <label className="text-[11px] font-bold text-canela uppercase tracking-wider flex-1">
-            Tope total
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={maxDraft}
-            onChange={(e) => setMaxDraft(e.target.value)}
-            className="w-20 bg-crema-soft border border-caramelo/30 rounded-lg px-2 py-2 text-sm text-cafe focus:outline-none focus:border-cafe text-center"
-          />
-          <button
-            onClick={guardarMax}
-            disabled={savingMax || parseInt(maxDraft, 10) === welcomeMax}
-            className="bg-antojo text-white rounded-lg px-3 py-2 text-xs font-bold flex items-center gap-1 active:scale-95 disabled:opacity-50"
-          >
-            {savingMax ? (
-              <IconLoader2 size={12} className="animate-spin" />
-            ) : (
-              <IconCheck size={12} />
-            )}
-            Guardar
-          </button>
-        </div>
-
-        <button
-          onClick={resetContador}
-          className="mt-3 text-[11px] text-canela underline active:scale-95"
-        >
-          Reiniciar contador a 0
-        </button>
-
-        <p className="text-[11px] text-canela italic mt-2 leading-relaxed">
-          Excluidos: Mario · Faby · Alex (no reciben la cortesía aunque pidan).
-        </p>
-      </Section>
-
       {/* Tour bajo demanda (forceShow ignora pilot_mode) */}
       {showTour && (
         <StaffOnboarding forceShow onClose={() => setShowTour(false)} />
       )}
-    </div>
-  );
-}
-
-function CodeStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-crema-soft rounded-lg p-2 text-center">
-      <div
-        className="text-xl font-bold text-antojo"
-        style={{ fontFamily: "Termina" }}
-      >
-        {value}
-      </div>
-      <div className="text-[11px] text-canela uppercase tracking-wider">
-        {label}
-      </div>
     </div>
   );
 }

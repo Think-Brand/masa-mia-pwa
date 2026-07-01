@@ -39,7 +39,6 @@ import {
   formatDateShort,
 } from "@/lib/delivery";
 import { getSettings, Settings } from "@/lib/settings";
-import { isBirthdayEligibleToday } from "@/lib/birthday";
 import {
   getCapacity,
   getMultiDayOccupancy,
@@ -49,10 +48,6 @@ import {
   type DayOccupancy,
   type Category,
 } from "@/lib/capacity";
-import {
-  checkWelcomeEligibility,
-  type WelcomeStatus,
-} from "@/lib/welcomeCourtesy";
 
 const CUENTA_BBVA = "4152 3139 8399 7920";
 const BENEFICIARIO = "Fabiola Castillo";
@@ -66,9 +61,6 @@ export default function Carrito() {
   const [enviando, setEnviando] = useState(false);
   // Box (RollinBox/LuvinBox) a re-armar en el popup de "otra igual".
   const [boxOtraId, setBoxOtraId] = useState<string | null>(null);
-  const [welcomeStatus, setWelcomeStatus] = useState<WelcomeStatus | null>(
-    null
-  );
   // ¿El que está usando el carrito es staff (Fabiola/Alex/Mario) logueado?
   // El staff captura pedidos tradicionales a nombre del cliente y NO debe
   // toparse con las reglas de cupo, vacaciones ni el filtro L-V: ellos manejan
@@ -85,37 +77,6 @@ export default function Carrito() {
       alive = false;
     };
   }, []);
-
-  // Verificar elegibilidad de welcome courtesy
-  useEffect(() => {
-    if (!cliente?.id || !cliente.whatsapp) return;
-    checkWelcomeEligibility({
-      customerId: cliente.id,
-      whatsapp: cliente.whatsapp,
-    }).then(setWelcomeStatus);
-  }, [cliente?.id, cliente?.whatsapp]);
-
-  // Detectar si hay roles en el carrito + el precio del rol más barato
-  const rolesEnCarrito = items.filter((it) => it.category === "rol");
-  const hasRol = rolesEnCarrito.length > 0;
-  const descuentoRol = hasRol
-    ? Math.min(...rolesEnCarrito.map((it) => it.price))
-    : 0;
-
-  // Cumpleaños: con regla anti-trampa (7 días + 1x al año)
-  const cumpleStatus = isBirthdayEligibleToday({
-    birthday: cliente?.birthday,
-    birthdaySetAt: cliente?.birthday_set_at,
-    lastGreetedYear: cliente?.birthday_greeted_year,
-  });
-  const cumpleHoy = cumpleStatus.eligible;
-  const aplicaCumple = cumpleHoy && hasRol;
-  const descuentoCumple = aplicaCumple ? descuentoRol : 0;
-
-  // Welcome courtesy automática (primeros 20 nuevos del piloto)
-  const aplicaWelcome =
-    !!welcomeStatus?.eligible && hasRol && !aplicaCumple;
-  const descuentoWelcome = aplicaWelcome ? descuentoRol : 0;
 
   // Calcular fecha mínima según prep_days del carrito
   const maxPrepDays = items.reduce(
@@ -259,8 +220,8 @@ export default function Carrito() {
           p_pickup_date: pickupDate,
           p_pickup_time: pickupTime,
           p_contact_person: contactPerson,
-          p_request_birthday: aplicaCumple,
-          p_request_welcome: aplicaWelcome,
+          p_request_birthday: false,
+          p_request_welcome: false,
           p_items: items.map((it) => ({
             product_id: it.productId,
             quantity: it.quantity,
@@ -345,34 +306,6 @@ export default function Carrito() {
             {/* Registro inline (Modelo B): cuando el cliente no es válido */}
             {!clienteValido && (
               <RegistroInline />
-            )}
-
-            {/* Banner cumpleaños (solo si aplica hoy) */}
-            {aplicaCumple && clienteValido && cliente && (
-              <div className="bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
-                <div className="text-3xl">🎂</div>
-                <div className="flex-1">
-                  <div
-                    className="text-base leading-none"
-                    style={{ fontFamily: "ReginaBlack" }}
-                  >
-                    ¡Feliz cumple, {cliente.name}!
-                  </div>
-                  <p className="text-[11px] opacity-95 mt-0.5 leading-snug">
-                    Un rol va por la casa. Ya se descontó ($
-                    {descuentoCumple.toFixed(0)}).
-                  </p>
-                </div>
-              </div>
-            )}
-            {cumpleHoy && !hasRol && (
-              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 cortesia-pop">
-                <span className="text-2xl">🎂</span>
-                <p className="text-[11px] leading-snug">
-                  Hoy es tu cumple — <b>agrega un rol</b> y se te descuenta
-                  automáticamente.
-                </p>
-              </div>
             )}
 
             {/* Items */}
@@ -757,34 +690,6 @@ export default function Carrito() {
             {/* Ubicación fija — siempre visible: dónde recoges + sin envíos */}
             <UbicacionPickup settings={settings} />
 
-            {/* Welcome courtesy banner (automática, sin código) */}
-            {aplicaWelcome && (
-              <div className="bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop mt-1">
-                <div className="text-3xl">🎁</div>
-                <div className="flex-1">
-                  <div
-                    className="text-base leading-none"
-                    style={{ fontFamily: "ReginaBlack" }}
-                  >
-                    ¡Bienvenido al antojo!
-                  </div>
-                  <p className="text-[11px] opacity-95 mt-0.5 leading-snug">
-                    Eres parte de nuestros primeros comensales. Un rol va por
-                    la casa — ya se descontó.
-                  </p>
-                </div>
-              </div>
-            )}
-            {welcomeStatus?.eligible && !hasRol && (
-              <div className="bg-antojo/10 border border-antojo/30 text-cafe rounded-2xl p-3 flex items-center gap-2 cortesia-pop mt-1">
-                <span className="text-2xl">🎁</span>
-                <p className="text-[11px] leading-snug">
-                  Tienes un <b>rol cortesía de bienvenida</b> esperándote —
-                  agrega un rol al carrito y se descuenta solito.
-                </p>
-              </div>
-            )}
-
             {/* Link discreto a pedido especial — solo si quieren algo fuera
                 de lo normal */}
             <Link
@@ -796,15 +701,7 @@ export default function Carrito() {
 
             {/* Consulta de envío — solo si el carrito es generoso */}
             <EnvioPrompt
-              total={Math.max(
-                0,
-                total -
-                  (aplicaCumple
-                    ? descuentoCumple
-                    : aplicaWelcome
-                      ? descuentoWelcome
-                      : 0)
-              )}
+              total={total}
               nombreCliente={cliente?.name}
               resumenItems={items
                 .map((it) => `${it.quantity}× ${it.name}`)
@@ -831,17 +728,7 @@ export default function Carrito() {
             pickupDate <= settings.vacation_to;
           const bloqueado = !!enVacacionesSel;
           const sinCliente = !clienteValido;
-          const descuentoLabel = aplicaCumple
-            ? "🎂 Rol de cumpleaños"
-            : aplicaWelcome
-              ? "🎁 Rol de bienvenida"
-              : null;
-          const descuentoMonto = aplicaCumple
-            ? descuentoCumple
-            : aplicaWelcome
-              ? descuentoWelcome
-              : 0;
-          const totalFinal = Math.max(0, total - descuentoMonto);
+          const totalFinal = total;
           const ctaLabel = sinCliente
             ? "Cuéntanos quién eres ↑"
             : bloqueado
@@ -852,11 +739,7 @@ export default function Carrito() {
           return (
             <StickyCheckoutBar
               subtotal={total}
-              descuento={
-                descuentoLabel
-                  ? { label: descuentoLabel, monto: descuentoMonto }
-                  : null
-              }
+              descuento={null}
               total={totalFinal}
               ctaLabel={ctaLabel}
               disabled={bloqueado || sinCliente}
