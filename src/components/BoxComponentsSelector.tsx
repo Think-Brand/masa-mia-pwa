@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { IconMinus, IconPlus } from "@tabler/icons-react";
+import { IconCheck, IconMinus, IconPlus } from "@tabler/icons-react";
 import { ComponentWithOptions } from "@/components/useBoxBuilder";
 
 // Paleta de fondos cálidos para opciones sin imagen (mini pays, gomitas, etc.)
@@ -58,12 +58,13 @@ export default function BoxComponentsSelector({
                 </div>
               ) : (
                 <div
-                  className={`text-[11px] rounded-full px-2 py-0.5 font-bold ${
+                  className={`text-[11px] rounded-full px-2 py-0.5 font-bold inline-flex items-center gap-1 ${
                     completo
                       ? "bg-verde text-white"
                       : "bg-canela/20 text-canela"
                   }`}
                 >
+                  {completo && <IconCheck size={11} stroke={3} aria-hidden />}
                   {totalSelected} / {c.component.quantity}
                 </div>
               )}

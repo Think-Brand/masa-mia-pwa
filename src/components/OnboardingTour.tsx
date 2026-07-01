@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { IconArrowRight, IconX } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase";
 import { isTourCompleted, markTourCompleted } from "@/lib/onboarding";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 export type TourStep = {
   /** Nombre completo del archivo en /public/mascota/, ej: "miga-adorable.png" */
@@ -81,6 +82,8 @@ export default function OnboardingTour({
     else close();
   };
 
+  const panelRef = useModalA11y<HTMLDivElement>(visible, close);
+
   if (!visible) return null;
   const step = steps[index];
   const isLast = index === steps.length - 1;
@@ -91,7 +94,12 @@ export default function OnboardingTour({
       onClick={close}
     >
       <div
-        className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up relative"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tour-title"
+        tabIndex={-1}
+        className="w-full max-w-md bg-crema rounded-3xl p-6 shadow-2xl fade-up relative focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cerrar */}
@@ -131,6 +139,7 @@ export default function OnboardingTour({
             priority
           />
           <h2
+            id="tour-title"
             className="text-3xl text-cafe leading-none mt-2"
             style={{ fontFamily: "ReginaBlack" }}
           >

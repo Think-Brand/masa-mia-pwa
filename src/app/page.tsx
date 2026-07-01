@@ -185,11 +185,12 @@ export default function Landing() {
           Se permite que Miga "se monte" sobre el logo si el viewport es corto;
           mejor sensación de continuidad de marca. */}
       <div className="flex-1 flex flex-col items-center justify-center text-center pt-2">
+        {/* Mascota decorativa con gesto oculto de staff (3 toques). NO es un
+            control real: sin role="button"/tabIndex para no anunciar un botón
+            falso ni crear un tab-stop que no lleva a ninguna acción visible.
+            El <Miga> interno ya aporta alt="Miga". */}
         <div
           onClick={tapMiga}
-          role="button"
-          tabIndex={-1}
-          aria-label="Miga"
           className="cursor-pointer select-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >

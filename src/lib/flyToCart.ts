@@ -60,12 +60,12 @@ export function flyToCart(sourceEl: HTMLElement, imageUrl: string | null) {
   void clone.getBoundingClientRect();
 
   clone.style.transition =
-    "transform 0.7s cubic-bezier(0.5, -0.25, 0.3, 1), opacity 0.7s ease-in";
+    "transform 0.5s cubic-bezier(0.5, -0.25, 0.3, 1), opacity 0.5s ease-out";
   clone.style.transform = `translate(${endX - 12}px, ${endY - 12}px) scale(0.18)`;
   clone.style.opacity = "0.35";
 
   const cleanup = () => clone.remove();
   clone.addEventListener("transitionend", cleanup, { once: true });
   // Red de seguridad por si transitionend no dispara.
-  window.setTimeout(cleanup, 900);
+  window.setTimeout(cleanup, 700);
 }
