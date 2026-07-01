@@ -229,7 +229,7 @@ export default function MisPedidos() {
                     <div className="flex justify-between items-baseline mt-1">
                       <span className="text-[11px] text-canela">Total</span>
                       <span
-                        className="text-base text-[#F25C20]"
+                        className="text-base text-antojo"
                         style={{ fontFamily: "ReginaBlack" }}
                       >
                         ${Number(o.total).toFixed(0)}

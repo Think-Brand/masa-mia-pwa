@@ -220,7 +220,7 @@ export default function Catalogo() {
                       {p.name}
                     </div>
                     <div
-                      className="text-xs font-bold text-[#F25C20]"
+                      className="text-xs font-bold text-antojo"
                       style={{ fontFamily: "Termina" }}
                     >
                       {p.price_is_starting && (

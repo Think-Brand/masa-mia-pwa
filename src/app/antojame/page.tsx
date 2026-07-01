@@ -46,7 +46,7 @@ const OPTIONS_OCCASION = [
     image: "/mascota/antojame/para-mi.png",
     label: "Para mí",
     sub: "Ya traigo hambre",
-    bg: "#C2440B",       // naranja antojo oscuro
+    bg: "var(--antojo-dark)",       // naranja antojo oscuro
     accent: "#FFFFFF",
     subColor: "rgba(255,255,255,0.75)",
     scale: 1.0,
@@ -522,7 +522,7 @@ export default function Antojame() {
                         {resultado.main.name}
                       </div>
                       <div
-                        className="text-xl text-[#F25C20]"
+                        className="text-xl text-antojo"
                         style={{ fontFamily: "ReginaBlack" }}
                       >
                         {resultado.main.price_is_starting && (
@@ -636,7 +636,7 @@ export default function Antojame() {
                               {s.name}
                             </div>
                             <div
-                              className="text-[11px] text-[#F25C20]"
+                              className="text-[11px] text-antojo"
                               style={{ fontFamily: "Termina" }}
                             >
                               ${Number(s.price).toFixed(0)}

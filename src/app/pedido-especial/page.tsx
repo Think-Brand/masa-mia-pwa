@@ -231,7 +231,7 @@ export default function PedidoEspecial() {
               <div className="flex justify-between items-baseline mt-3 pt-3 border-t border-caramelo/30">
                 <span className="text-xs text-canela">Estimado</span>
                 <span
-                  className="text-lg text-[#F25C20]"
+                  className="text-lg text-antojo"
                   style={{ fontFamily: "ReginaBlack" }}
                 >
                   ${total.toFixed(0)}

@@ -95,7 +95,7 @@ export default async function PedidoDetalle({
         </div>
       )}
       {order.over_capacity && order.status === "pending" && (
-        <div className="mt-3 bg-[#F2A516] text-cafe rounded-2xl p-3 flex items-center gap-2 shadow-md">
+        <div className="mt-3 bg-oro text-cafe rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">⚠️</span>
           <div className="flex-1">
             <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">
@@ -109,7 +109,7 @@ export default async function PedidoDetalle({
         </div>
       )}
       {order.is_courtesy && (
-        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+        <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎁</span>
           <div className="flex-1">
             <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
@@ -122,7 +122,7 @@ export default async function PedidoDetalle({
         </div>
       )}
       {order.is_birthday_treat && (
-        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+        <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎂</span>
           <div className="flex-1">
             <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
@@ -135,7 +135,7 @@ export default async function PedidoDetalle({
         </div>
       )}
       {order.is_welcome_courtesy && (
-        <div className="mt-3 bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
+        <div className="mt-3 bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-2 shadow-md">
           <span className="text-2xl">🎁</span>
           <div className="flex-1">
             <div className="text-[11px] font-bold uppercase tracking-widest opacity-90">
@@ -223,7 +223,7 @@ export default async function PedidoDetalle({
         <div className="flex justify-between mt-3 pt-3 border-t border-caramelo/30 items-baseline">
           <span className="text-xs text-canela">Total</span>
           <span
-            className="text-xl text-[#F25C20]"
+            className="text-xl text-antojo"
             style={{ fontFamily: "ReginaBlack" }}
           >
             ${Number(order.total).toFixed(0)}

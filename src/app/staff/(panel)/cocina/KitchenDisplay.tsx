@@ -1001,7 +1001,7 @@ function Card({
             </span>
           )}
           {o.over_capacity && (
-            <span className="inline-flex items-center gap-1 bg-[#F2A516] text-cafe text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-oro text-cafe text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
               ⚠️ Día a tope · revisa
             </span>
           )}

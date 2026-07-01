@@ -359,9 +359,9 @@ export const STATUS_STYLE: Record<
     label: "OK",
   },
   tight: {
-    dot: "bg-[#F2A516]",
+    dot: "bg-oro",
     text: "text-[#B57A00]",
-    bar: "bg-[#F2A516]",
+    bar: "bg-oro",
     label: "Apretado",
   },
   full: {

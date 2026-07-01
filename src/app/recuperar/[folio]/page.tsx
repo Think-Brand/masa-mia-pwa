@@ -368,12 +368,12 @@ function Recuperar() {
                       : active
                         ? "bg-antojo text-white shadow"
                         : tight
-                          ? "bg-[#F2A516]/15 text-[#B57A00] border border-[#F2A516]/40"
+                          ? "bg-oro/15 text-[#B57A00] border border-oro/40"
                           : "bg-crema text-cafe"
                   }`}
                 >
                   {tight && !blocked && (
-                    <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[11px] rounded-full px-1 leading-tight">
+                    <span className="absolute -top-1 -right-1 bg-oro text-white text-[11px] rounded-full px-1 leading-tight">
                       !
                     </span>
                   )}

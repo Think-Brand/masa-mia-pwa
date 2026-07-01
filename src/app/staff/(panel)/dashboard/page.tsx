@@ -389,7 +389,7 @@ export default async function DashboardPage() {
               background:
                 metaPct >= 100
                   ? "linear-gradient(90deg, #5b7a3a, #7a9d4f)"
-                  : "linear-gradient(90deg, #F25C20, #FF8045)",
+                  : "linear-gradient(90deg, var(--antojo), #FF8045)",
             }}
           />
           {/* Marca de "ritmo ideal" — donde deberías estar a estas alturas del mes */}
@@ -686,7 +686,7 @@ export default async function DashboardPage() {
                       {c.recientlyAdded && (
                         <span
                           title={`Agregó su cumple hace ${c.daysSinceSet} días — descuento NO aplica`}
-                          className="text-[11px] bg-[#F2A516] text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                          className="text-[11px] bg-oro text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
                         >
                           ⚠️ reciente
                         </span>
@@ -821,7 +821,7 @@ export default async function DashboardPage() {
 
       {/* ═══════ Cliente del mes ═══════ */}
       {topCliente && (
-        <section className="mt-3 bg-gradient-to-br from-antojo to-[#E04A18] text-white rounded-2xl p-4 shadow-md">
+        <section className="mt-3 bg-gradient-to-br from-antojo to-antojo-darker text-white rounded-2xl p-4 shadow-md">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 rounded-full p-3">
               <IconCrown size={24} />

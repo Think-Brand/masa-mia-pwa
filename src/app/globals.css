@@ -4,16 +4,6 @@
 
 /* === Tipografías oficiales Masa Mía === */
 @font-face {
-  font-family: "Carosello";
-  src: url("/fonts/Carosello.otf") format("opentype");
-  font-display: block;
-}
-@font-face {
-  font-family: "Roxhead";
-  src: url("/fonts/Roxhead.otf") format("opentype");
-  font-display: block;
-}
-@font-face {
   font-family: "ReginaBlack";
   src: url("/fonts/ReginaBlack.otf") format("opentype");
   font-display: block;
@@ -46,6 +36,9 @@
   --crema-soft: #fbf4e6;
   --avellana-soft: #f5e8ce;
   --antojo: #f25c20;
+  --antojo-dark: #c2440b;
+  --antojo-darker: #e04a18;
+  --oro: #f2a516;
   --verde: #5b7a3a;
   --rojo: #c0392b;
 }
@@ -337,7 +330,7 @@ body {
  * #F25C20 es el antojo del CSS root variable. Era el color original brand. */
 .btn-masa-primary {
   color: white;
-  background: #F25C20;
+  background: var(--antojo);
   border-radius: 26px;
   box-shadow:
     inset 0 4px 10px rgba(255, 200, 90, 0.55),
@@ -353,7 +346,7 @@ body {
 .btn-masa-primary.is-pressed,
 .btn-masa-primary:active {
   transform: scale(0.96, 0.93);
-  background: #C2440B;
+  background: var(--antojo-dark);
   box-shadow:
     inset 0 -2px 6px rgba(255, 200, 90, 0.2),
     inset 0 5px 12px rgba(80, 25, 5, 0.48),
@@ -374,7 +367,7 @@ body {
 /* ANTÓJAME · mismo naranja antojo que el primary. */
 .btn-masa-antojame {
   color: white;
-  background: #F25C20;
+  background: var(--antojo);
   border-radius: 28px;
   box-shadow:
     inset 0 4px 10px rgba(255, 200, 90, 0.5),
@@ -390,7 +383,7 @@ body {
 .btn-masa-antojame.is-pressed,
 .btn-masa-antojame:active {
   transform: scale(0.97, 0.94);
-  background: #C2440B;
+  background: var(--antojo-dark);
   box-shadow:
     inset 0 -2px 6px rgba(255, 200, 90, 0.18),
     inset 0 5px 14px rgba(80, 25, 5, 0.5),
@@ -401,7 +394,7 @@ body {
 /* + agregar · CIRCULAR 36px (Mario pidió redondos y más chicos) */
 .btn-masa-plus {
   color: white;
-  background: #F25C20;
+  background: var(--antojo);
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -422,7 +415,7 @@ body {
 .btn-masa-plus.is-pressed,
 .btn-masa-plus:active {
   transform: scale(0.88);
-  background: #C2440B;
+  background: var(--antojo-dark);
   box-shadow:
     inset 0 -1px 4px rgba(255, 200, 90, 0.2),
     inset 0 4px 10px rgba(80, 25, 5, 0.5),
@@ -433,7 +426,7 @@ body {
 /* −/+ mini · CIRCULAR 28px */
 .btn-masa-mini {
   color: white;
-  background: #F25C20;
+  background: var(--antojo);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -450,7 +443,7 @@ body {
 .btn-masa-mini.is-pressed,
 .btn-masa-mini:active {
   transform: scale(0.82);
-  background: #C2440B;
+  background: var(--antojo-dark);
   box-shadow:
     inset 0 -1px 3px rgba(255, 200, 90, 0.2),
     inset 0 3px 8px rgba(80, 25, 5, 0.5),

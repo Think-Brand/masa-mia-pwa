@@ -29,10 +29,10 @@ type Particle = {
 };
 
 const PALETA = [
-  "#F25C20", // antojo principal
+  "var(--antojo)", // antojo principal
   "#FF8650", // antojo claro
-  "#E04A18", // antojo oscuro
-  "#F2A516", // amarillo masa
+  "var(--antojo-darker)", // antojo oscuro
+  "var(--oro)", // amarillo masa
   "#F4E5CF", // crema
   "#FFF5DC", // crema clara
 ];

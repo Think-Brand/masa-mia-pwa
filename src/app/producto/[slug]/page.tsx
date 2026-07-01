@@ -151,7 +151,7 @@ function DetalleProducto() {
             {product.name}
           </h1>
           <div
-            className="text-2xl text-[#F25C20] whitespace-nowrap"
+            className="text-2xl text-antojo whitespace-nowrap"
             style={{ fontFamily: "ReginaBlack" }}
           >
             {product.price_is_starting && (

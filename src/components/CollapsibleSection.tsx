@@ -40,7 +40,7 @@ export default function CollapsibleSection({
 
   const borderColor =
     status === "warn"
-      ? "border-[#F2A516]/40"
+      ? "border-oro/40"
       : status === "error"
         ? "border-rojo/40"
         : "border-caramelo/30";

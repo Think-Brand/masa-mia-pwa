@@ -19,14 +19,16 @@ const config: Config = {
         "avellana-soft": "#F5E8CE",
         // Acento de pedido
         antojo: "#F25C20",
+        "antojo-dark": "#C2440B",
+        "antojo-darker": "#E04A18",
+        // Dorado (avisos, destellos, confetti)
+        oro: "#F2A516",
         // Acción aceptar
         verde: "#5B7A3A",
         // Acción declinar
         rojo: "#C0392B",
       },
       fontFamily: {
-        carosello: ["Carosello", "cursive"],
-        roxhead: ["Roxhead", "sans-serif"],
         regina: ["ReginaBlack", "serif"],
         termina: ["Termina", "system-ui", "sans-serif"],
       },

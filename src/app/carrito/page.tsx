@@ -349,7 +349,7 @@ export default function Carrito() {
 
             {/* Banner cumpleaños (solo si aplica hoy) */}
             {aplicaCumple && clienteValido && cliente && (
-              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
+              <div className="bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop">
                 <div className="text-3xl">🎂</div>
                 <div className="flex-1">
                   <div
@@ -556,12 +556,12 @@ export default function Carrito() {
                           : active
                             ? "bg-antojo text-white shadow"
                             : warn
-                              ? "bg-[#F2A516]/15 text-[#B57A00] border border-[#F2A516]/40"
+                              ? "bg-oro/15 text-[#B57A00] border border-oro/40"
                               : "bg-crema text-cafe"
                       }`}
                     >
                       {warn && !blocked && (
-                        <span className="absolute -top-1 -right-1 bg-[#F2A516] text-white text-[11px] rounded-full px-1 leading-tight">
+                        <span className="absolute -top-1 -right-1 bg-oro text-white text-[11px] rounded-full px-1 leading-tight">
                           !
                         </span>
                       )}
@@ -581,7 +581,7 @@ export default function Carrito() {
                 const check = canDateAcceptCart(occ, cartCounts);
                 if (!check.ok) {
                   return (
-                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/40 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
+                    <div className="mt-2 bg-oro/10 border border-oro/40 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
                       🍞 Ese día vamos <b>a tope</b> en la cocina. Puedes pedir
                       igual, pero tu pedido queda <b>sujeto a confirmación</b>:
                       te avisamos por WhatsApp en cuanto lo confirmemos 🤎
@@ -593,7 +593,7 @@ export default function Carrito() {
                   occ.worstStatus === "tight"
                 ) {
                   return (
-                    <div className="mt-2 bg-[#F2A516]/10 border border-[#F2A516]/30 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
+                    <div className="mt-2 bg-oro/10 border border-oro/30 text-cafe rounded-lg px-2.5 py-1.5 text-[11px] leading-snug">
                       ⚠️ Día con pocos cupos. Si puedes mover tu antojo a otro
                       día nos das chance 🤎
                     </div>
@@ -759,7 +759,7 @@ export default function Carrito() {
 
             {/* Welcome courtesy banner (automática, sin código) */}
             {aplicaWelcome && (
-              <div className="bg-gradient-to-r from-antojo to-[#E04A18] text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop mt-1">
+              <div className="bg-gradient-to-r from-antojo to-antojo-darker text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg cortesia-pop mt-1">
                 <div className="text-3xl">🎁</div>
                 <div className="flex-1">
                   <div

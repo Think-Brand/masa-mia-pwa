@@ -147,7 +147,7 @@ function Confirmacion() {
 
       {/* Aviso especial / sujeto a confirmación (mientras está pendiente) */}
       {order.status === "pending" && order.is_special && (
-        <div className="mt-5 w-full bg-[#F2A516]/10 border border-[#F2A516]/40 rounded-2xl p-3 text-left flex items-start gap-2">
+        <div className="mt-5 w-full bg-oro/10 border border-oro/40 rounded-2xl p-3 text-left flex items-start gap-2">
           <span className="text-xl">✨</span>
           <p className="text-[12px] text-cafe leading-snug">
             <b>Pedido especial recibido.</b> Fabiola lo revisa y te confirma
@@ -157,7 +157,7 @@ function Confirmacion() {
         </div>
       )}
       {order.status === "pending" && order.over_capacity && !order.is_special && (
-        <div className="mt-5 w-full bg-[#F2A516]/10 border border-[#F2A516]/40 rounded-2xl p-3 text-left flex items-start gap-2">
+        <div className="mt-5 w-full bg-oro/10 border border-oro/40 rounded-2xl p-3 text-left flex items-start gap-2">
           <span className="text-xl">🍞</span>
           <p className="text-[12px] text-cafe leading-snug">
             Ese día vamos <b>a tope</b> en la cocina, así que tu pedido queda{" "}
@@ -209,7 +209,7 @@ function Confirmacion() {
         <div className="flex justify-between items-baseline mt-3 pt-3 border-t border-caramelo/30">
           <span className="text-xs text-canela">Total</span>
           <span
-            className="text-xl text-[#F25C20]"
+            className="text-xl text-antojo"
             style={{ fontFamily: "ReginaBlack" }}
           >
             ${Number(order.total).toFixed(0)}

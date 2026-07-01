@@ -56,7 +56,7 @@ function relativeDate(iso: string | null): string {
 }
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  pending: { label: "Pendiente", color: "bg-[#F25C20] text-white" },
+  pending: { label: "Pendiente", color: "bg-antojo text-white" },
   accepted: { label: "Aceptado", color: "bg-verde text-white" },
   baking: { label: "En horno", color: "bg-antojo text-white" },
   ready: { label: "Listo", color: "bg-cafe text-crema" },
@@ -228,7 +228,7 @@ export default async function ClienteDetalle({
                       {status.label}
                     </span>
                     <span
-                      className="text-sm text-[#F25C20] font-bold"
+                      className="text-sm text-antojo font-bold"
                       style={{ fontFamily: "Termina" }}
                     >
                       ${Number(p.total).toFixed(0)}

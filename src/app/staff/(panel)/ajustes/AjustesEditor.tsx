@@ -262,7 +262,7 @@ function CapacidadPanel() {
                       ? "border-rojo/40"
                       : occ.worstStatus === "full" ||
                           occ.worstStatus === "tight"
-                        ? "border-[#F2A516]/40"
+                        ? "border-oro/40"
                         : "border-caramelo/20"
                   }`}
                 >

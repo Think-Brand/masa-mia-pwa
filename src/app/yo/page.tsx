@@ -363,7 +363,7 @@ export default function Yo() {
 
         {/* Si es cumple hoy: banner especial */}
         {cumpleHoy && (
-          <div className="bg-gradient-to-br from-antojo to-[#E04A18] text-white rounded-2xl p-4 shadow-lg fade-up">
+          <div className="bg-gradient-to-br from-antojo to-antojo-darker text-white rounded-2xl p-4 shadow-lg fade-up">
             <div className="flex items-center gap-3">
               <div className="text-4xl">🎂</div>
               <div className="flex-1">
