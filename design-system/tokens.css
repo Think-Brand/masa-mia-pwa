@@ -1,0 +1,26 @@
+:root {
+  /* Colors */
+  --color-primary: rgb(242, 92, 32);
+  --ink: #3a271d;
+  --line: #e5e7eb;
+
+  /* Typography */
+  --font-display: ReginaBlack;
+  --font-body: Termina, system-ui, -apple-system;
+
+  /* Spacing */
+  --space-1: 8px;
+  --space-2: 10px;
+  --space-3: 16px;
+  --space-4: 20px;
+  --space-5: 40px;
+
+  /* Shadows */
+  --shadow-btn:
+    rgba(255, 200, 90, 0.55) 0px 4px 10px 0px inset,
+    rgba(140, 50, 18, 0.42) 0px -6px 14px 0px inset,
+    rgba(255, 200, 90, 0.22) 6px 4px 8px 0px inset,
+    rgba(140, 50, 18, 0.18) -4px -4px 8px 0px inset,
+    rgba(242, 92, 32, 0.32) 0px 16px 30px 0px,
+    rgba(110, 30, 5, 0.14) 0px 6px 12px 0px;
+}

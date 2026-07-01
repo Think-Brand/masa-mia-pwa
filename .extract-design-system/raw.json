@@ -1,0 +1,377 @@
+{
+  "url": "https://masamia.mx/",
+  "extractedAt": "2026-07-01T05:48:59.571Z",
+  "siteName": "Masa Mía",
+  "logo": null,
+  "favicons": [
+    {
+      "type": "shortcut icon",
+      "url": "https://masamia.mx/icons/favicon-32.png",
+      "sizes": null
+    },
+    {
+      "type": "icon",
+      "url": "https://masamia.mx/icons/favicon-32.png",
+      "sizes": "32x32"
+    },
+    {
+      "type": "icon",
+      "url": "https://masamia.mx/icons/icon-192.png",
+      "sizes": "192x192"
+    },
+    {
+      "type": "icon",
+      "url": "https://masamia.mx/icons/icon-512.png",
+      "sizes": "512x512"
+    },
+    {
+      "type": "apple-touch-icon",
+      "url": "https://masamia.mx/icons/apple-touch-icon.png",
+      "sizes": null
+    },
+    {
+      "type": "apple-touch-icon",
+      "url": "https://masamia.mx/icons/apple-touch-icon.png",
+      "sizes": null
+    },
+    {
+      "type": "favicon.ico",
+      "url": "https://masamia.mx/favicon.ico",
+      "sizes": null
+    }
+  ],
+  "colors": {
+    "semantic": {
+      "primary": "rgb(242, 92, 32)"
+    },
+    "palette": [
+      {
+        "color": "rgb(229, 231, 235)",
+        "normalized": "#e5e7eb",
+        "count": 19,
+        "confidence": "medium",
+        "sources": [],
+        "lch": "lch(91.6% 2.17 271.44)",
+        "oklch": "oklch(92.76% 0.006 264.53)"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.37)",
+        "normalized": "#ffffff",
+        "count": 1,
+        "confidence": "medium",
+        "sources": [
+          "hover/focus"
+        ]
+      }
+    ],
+    "cssVariables": {
+      "--tw-ring-color": {
+        "value": "rgba(59,130,246,.5)",
+        "lch": "lch(55.63% 66.77 285.23 / 0.5)",
+        "oklch": "oklch(62.31% 0.188 259.81 / 0.5)"
+      }
+    },
+    "_raw": [
+      {
+        "color": "rgb(58, 39, 29)",
+        "normalized": "#3a271d",
+        "count": 14
+      },
+      {
+        "color": "rgb(229, 231, 235)",
+        "normalized": "#e5e7eb",
+        "count": 19
+      },
+      {
+        "color": "rgb(255, 255, 255)",
+        "normalized": "#ffffff",
+        "count": 5
+      }
+    ]
+  },
+  "typography": {
+    "styles": [
+      {
+        "context": "heading-1",
+        "family": "ReginaBlack",
+        "fallbacks": null,
+        "size": "30px (1.88rem)",
+        "weight": 400,
+        "lineHeight": "1.20",
+        "spacing": null,
+        "transform": null
+      },
+      {
+        "context": "heading-1",
+        "family": "Termina",
+        "fallbacks": "system-ui, -apple-system",
+        "size": "16px (1.00rem)",
+        "weight": 400,
+        "lineHeight": "1.50",
+        "spacing": null,
+        "transform": null
+      },
+      {
+        "context": "button",
+        "family": "Termina",
+        "fallbacks": "system-ui, -apple-system",
+        "size": "16px (1.00rem)",
+        "weight": 400,
+        "lineHeight": "1.50",
+        "spacing": null,
+        "transform": null
+      },
+      {
+        "context": "caption",
+        "family": "Termina",
+        "fallbacks": "system-ui, -apple-system",
+        "size": "14px (0.88rem)",
+        "weight": 400,
+        "lineHeight": "1.63",
+        "spacing": null,
+        "transform": null
+      },
+      {
+        "context": "button",
+        "family": "Termina",
+        "fallbacks": null,
+        "size": "14px (0.88rem)",
+        "weight": 500,
+        "lineHeight": "1.43",
+        "spacing": "0.3px",
+        "transform": null
+      },
+      {
+        "context": "button",
+        "family": "Termina",
+        "fallbacks": null,
+        "size": "14px (0.88rem)",
+        "weight": 700,
+        "lineHeight": "1.43",
+        "spacing": null,
+        "transform": null
+      },
+      {
+        "context": "link",
+        "family": "Termina",
+        "fallbacks": "system-ui, -apple-system",
+        "size": "11px (0.69rem)",
+        "weight": 400,
+        "lineHeight": "1.50",
+        "spacing": null,
+        "transform": null
+      }
+    ],
+    "sources": {
+      "googleFonts": [],
+      "adobeFonts": false,
+      "variableFonts": false
+    }
+  },
+  "spacing": {
+    "scaleType": "8px",
+    "commonValues": [
+      {
+        "px": "8px",
+        "rem": "0.50rem",
+        "count": 2,
+        "numericValue": 8
+      },
+      {
+        "px": "10px",
+        "rem": "0.63rem",
+        "count": 2,
+        "numericValue": 10
+      },
+      {
+        "px": "16px",
+        "rem": "1.00rem",
+        "count": 2,
+        "numericValue": 16
+      },
+      {
+        "px": "20px",
+        "rem": "1.25rem",
+        "count": 3,
+        "numericValue": 20
+      },
+      {
+        "px": "40px",
+        "rem": "2.50rem",
+        "count": 1,
+        "numericValue": 40
+      }
+    ]
+  },
+  "borderRadius": {
+    "values": [
+      {
+        "value": "16px",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low",
+        "numericValue": 16
+      },
+      {
+        "value": "26px",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low",
+        "numericValue": 26
+      }
+    ]
+  },
+  "borders": {
+    "combinations": [
+      {
+        "width": "1px",
+        "style": "solid",
+        "color": "rgba(58, 39, 29, 0.3)",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low"
+      }
+    ]
+  },
+  "shadows": [
+    {
+      "shadow": "rgba(255, 200, 90, 0.55) 0px 4px 10px 0px inset, rgba(140, 50, 18, 0.42) 0px -6px 14px 0px inset, rgba(255, 200, 90, 0.22) 6px 4px 8px 0px inset, rgba(140, 50, 18, 0.18) -4px -4px 8px 0px inset, rgba(242, 92, 32, 0.32) 0px 16px 30px 0px, rgba(110, 30, 5, 0.14) 0px 6px 12px 0px",
+      "count": 1,
+      "confidence": "low"
+    }
+  ],
+  "components": {
+    "buttons": [
+      {
+        "states": {
+          "default": {
+            "backgroundColor": "rgb(242, 92, 32)",
+            "color": "rgb(255, 255, 255)",
+            "padding": "16px 0px",
+            "borderRadius": "26px",
+            "border": "0px none rgb(255, 255, 255)",
+            "boxShadow": "rgba(255, 200, 90, 0.55) 0px 4px 10px 0px inset, rgba(140, 50, 18, 0.42) 0px -6px 14px 0px inset, rgba(255, 200, 90, 0.22) 6px 4px 8px 0px inset, rgba(140, 50, 18, 0.18) -4px -4px 8px 0px inset, rgba(242, 92, 32, 0.32) 0px 16px 30px 0px, rgba(110, 30, 5, 0.14) 0px 6px 12px 0px",
+            "outline": "rgb(255, 255, 255) none 3px",
+            "transform": "matrix(1, 0, 0, 1, 0, 0)",
+            "opacity": "1"
+          },
+          "hover": {
+            "transform": "translateY(-2px) scale(1.02)",
+            "backgroundColor": "rgba(172, 123, 84, 0.1)",
+            "opacity": "1",
+            "boxShadow": "var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)"
+          },
+          "active": {
+            "transform": "translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
+            "backgroundColor": "rgb(251 244 230/var(--tw-bg-opacity,1))",
+            "boxShadow": "rgba(255, 250, 230, 0.5) 0px -1px 4px inset, rgba(110, 73, 51, 0.25) 0px 4px 10px inset, rgba(110, 73, 51, 0.08) 0px 2px 6px"
+          },
+          "focus": {}
+        },
+        "fontWeight": "500",
+        "fontSize": "14px",
+        "classes": "btn-masa btn-masa-primary w-full py-4 text-sm flex",
+        "confidence": "medium"
+      },
+      {
+        "states": {
+          "default": {
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "color": "rgb(58, 39, 29)",
+            "padding": "10px 0px",
+            "borderRadius": "16px",
+            "border": "1px solid rgba(58, 39, 29, 0.3)",
+            "boxShadow": "none",
+            "outline": "rgb(58, 39, 29) none 3px",
+            "transform": "none",
+            "opacity": "1"
+          },
+          "hover": null,
+          "active": null,
+          "focus": null
+        },
+        "fontWeight": "700",
+        "fontSize": "14px",
+        "classes": "w-full bg-transparent border border-cafe/30 text-c",
+        "confidence": "high"
+      }
+    ],
+    "inputs": {
+      "text": [],
+      "checkbox": [],
+      "radio": [],
+      "select": []
+    },
+    "links": [
+      {
+        "color": "rgb(255, 255, 255)",
+        "textDecoration": "none",
+        "fontWeight": "500",
+        "states": {
+          "default": {
+            "color": "rgb(255, 255, 255)",
+            "textDecoration": "none"
+          },
+          "hover": {}
+        }
+      },
+      {
+        "color": "rgba(110, 73, 51, 0.8)",
+        "textDecoration": "underline",
+        "fontWeight": "400",
+        "states": {
+          "default": {
+            "color": "rgba(110, 73, 51, 0.8)",
+            "textDecoration": "underline"
+          },
+          "hover": null
+        }
+      }
+    ],
+    "badges": {
+      "all": [],
+      "byVariant": {
+        "error": [],
+        "warning": [],
+        "success": [],
+        "info": [],
+        "neutral": []
+      }
+    }
+  },
+  "breakpoints": [
+    {
+      "px": "640px"
+    },
+    {
+      "px": "1024px"
+    },
+    {
+      "px": "1280px"
+    }
+  ],
+  "iconSystem": [
+    {
+      "name": "SVG Icons",
+      "type": "svg"
+    }
+  ],
+  "frameworks": [
+    {
+      "name": "Tailwind CSS",
+      "confidence": "high",
+      "evidence": "arbitrary values (e.g., top-[117px]), responsive/state modifiers"
+    },
+    {
+      "name": "Fluent UI",
+      "confidence": "high",
+      "evidence": "6 Fluent components"
+    }
+  ]
+}

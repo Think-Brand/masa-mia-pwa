@@ -1,0 +1,33 @@
+{
+  "source": {
+    "url": "https://masamia.mx/",
+    "extractedAt": "2026-07-01T05:48:59.571Z",
+    "extractor": "dembrandt"
+  },
+  "colors": {
+    "primary": "rgb(242, 92, 32)",
+    "palette": [
+      "rgb(242, 92, 32)"
+    ],
+    "cssVariables": {}
+  },
+  "typography": {
+    "headingFont": "ReginaBlack",
+    "bodyFont": "ReginaBlack"
+  },
+  "spacing": {
+    "scale": [
+      "8px",
+      "10px",
+      "16px",
+      "20px",
+      "40px"
+    ]
+  },
+  "radius": {
+    "scale": []
+  },
+  "shadows": {
+    "scale": []
+  }
+}
