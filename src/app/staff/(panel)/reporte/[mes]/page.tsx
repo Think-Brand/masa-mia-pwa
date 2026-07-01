@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IconArrowLeft, IconPrinter } from "@tabler/icons-react";
+import { IconArrowLeft, IconPrinter, IconCalendar } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase-server";
 import PrintButton from "./PrintButton";
+import ReportMonthPicker from "./ReportMonthPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -218,26 +219,38 @@ export default async function ReportePage({ params }: Props) {
         <PrintButton />
       </div>
 
-      {/* Nav meses — no se imprime */}
-      <div className="flex items-center justify-between mb-4 print:hidden text-xs">
-        <Link
-          href={`/staff/reporte/${prevSlug}`}
-          className="text-canela font-bold active:scale-95"
-        >
-          ← {prevMesNombre}
-        </Link>
-        {!isFutureMonth && (
+      {/* Nav de periodo — no se imprime */}
+      <div className="flex flex-col gap-2 mb-4 print:hidden">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <ReportMonthPicker year={year} month={month + 1} />
           <Link
-            href={`/staff/reporte/${nextSlug}`}
+            href={`/staff/reporte/anual/${year}`}
+            className="bg-white border border-caramelo/40 text-cafe rounded-lg px-2.5 py-1.5 text-xs font-bold flex items-center gap-1 active:scale-95 transition"
+          >
+            <IconCalendar size={13} />
+            Año completo {year}
+          </Link>
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <Link
+            href={`/staff/reporte/${prevSlug}`}
             className="text-canela font-bold active:scale-95"
           >
-            {nextDate.toLocaleDateString("es-MX", {
-              month: "long",
-              year: "numeric",
-            })}{" "}
-            →
+            ← {prevMesNombre}
           </Link>
-        )}
+          {!isFutureMonth && (
+            <Link
+              href={`/staff/reporte/${nextSlug}`}
+              className="text-canela font-bold active:scale-95"
+            >
+              {nextDate.toLocaleDateString("es-MX", {
+                month: "long",
+                year: "numeric",
+              })}{" "}
+              →
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* ═══════ Reporte (imprimible) ═══════ */}

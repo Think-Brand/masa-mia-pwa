@@ -852,6 +852,13 @@ export default async function DashboardPage() {
         <IconFileText size={16} />
         Ver reporte de {now.toLocaleDateString("es-MX", { month: "long" })}
       </Link>
+      <Link
+        href={`/staff/reporte/anual/${now.getFullYear()}`}
+        className="mt-2 w-full bg-white border border-caramelo/40 text-cafe rounded-2xl py-2.5 text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition"
+      >
+        <IconFileText size={14} />
+        Ver año completo {now.getFullYear()}
+      </Link>
       <p className="text-[11px] text-canela text-center mt-2 italic">
         Vista para imprimir o guardar como PDF (1 página).
       </p>
