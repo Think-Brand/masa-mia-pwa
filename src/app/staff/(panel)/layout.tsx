@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import StaffHeader from "@/components/StaffHeader";
 import StaffOnboarding from "@/components/StaffOnboarding";
 import PullToRefresh from "@/components/PullToRefresh";
+import MonthlyReportBanner from "@/components/MonthlyReportBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,8 @@ export default async function PanelLayout({
       {/* Pull-to-refresh propio: en PWA standalone iOS no hay nativo */}
       <PullToRefresh />
       <StaffHeader userName={name} />
+      {/* Aviso in-app: reporte del mes anterior listo (dismissible por mes) */}
+      <MonthlyReportBanner />
       {/*
         Sin max-width aquí: cada página decide su propio ancho.
         Cocina usa todo el viewport (kanban full responsive).

@@ -221,14 +221,19 @@ export default async function ReportePage({ params }: Props) {
 
       {/* Nav de periodo — no se imprime */}
       <div className="flex flex-col gap-2 mb-4 print:hidden">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <ReportMonthPicker year={year} month={month + 1} />
+        <div className="flex items-end justify-between gap-2 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-canela">
+              Elige el mes
+            </span>
+            <ReportMonthPicker year={year} month={month + 1} />
+          </div>
           <Link
             href={`/staff/reporte/anual/${year}`}
             className="bg-white border border-caramelo/40 text-cafe rounded-lg px-2.5 py-1.5 text-xs font-bold flex items-center gap-1 active:scale-95 transition"
           >
             <IconCalendar size={13} />
-            Año completo {year}
+            Resumen anual {year}
           </Link>
         </div>
         <div className="flex items-center justify-between text-xs">

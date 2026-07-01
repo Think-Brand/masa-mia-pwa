@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IconArrowLeft, IconCalendar } from "@tabler/icons-react";
+import { IconArrowLeft } from "@tabler/icons-react";
 import { createClient } from "@/lib/supabase-server";
 import PrintButton from "../../[mes]/PrintButton";
 
@@ -129,12 +129,7 @@ export default async function ReporteAnualPage({ params }: Props) {
         >
           ← {year - 1}
         </Link>
-        <Link
-          href={`/staff/reporte/${year}-01`}
-          className="text-cafe font-bold active:scale-95 flex items-center gap-1"
-        >
-          <IconCalendar size={13} /> Ver por mes
-        </Link>
+        <span className="text-canela font-bold">Resumen anual</span>
         {haySiguiente ? (
           <Link
             href={`/staff/reporte/anual/${year + 1}`}
@@ -202,7 +197,6 @@ export default async function ReporteAnualPage({ params }: Props) {
                 const v = ventasMes[i];
                 const p = pedidosMes[i];
                 const t = p > 0 ? v / p : 0;
-                const slug = `${year}-${String(i + 1).padStart(2, "0")}`;
                 const esMejor = i === mejorMesIdx;
                 return (
                   <tr
@@ -211,14 +205,11 @@ export default async function ReporteAnualPage({ params }: Props) {
                       esMejor ? "bg-antojo/5" : ""
                     }`}
                   >
-                    <td className="py-1.5">
-                      <Link
-                        href={`/staff/reporte/${slug}`}
-                        className="text-cafe font-bold hover:underline print:no-underline"
-                        style={{ fontFamily: "Termina" }}
-                      >
-                        {nombre}
-                      </Link>
+                    <td
+                      className="py-1.5 text-cafe font-bold"
+                      style={{ fontFamily: "Termina" }}
+                    >
+                      {nombre}
                     </td>
                     <td className="py-1.5 text-right text-cafe">{pesos(v)}</td>
                     <td className="py-1.5 text-right text-canela">{p}</td>
